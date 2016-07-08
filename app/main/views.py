@@ -6,7 +6,7 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
     CommentForm
 from .. import db
-from ..models import Permission, Role, User, Post, Comment
+from ..models import Permission, Role, User, Post, Comment,Category
 from ..decorators import admin_required, permission_required
 
 
@@ -53,7 +53,8 @@ def index():
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
-    return render_template('index.html', form=form, posts=posts,
+    categories = Category.query.all()
+    return render_template('index.html', form=form, posts=posts,categories=categories,
                            show_followed=show_followed, pagination=pagination)
 
 
@@ -268,3 +269,29 @@ def moderate_disable(id):
     db.session.add(comment)
     return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
+
+@main.route('/cg/<int:id>')
+def index_cg():
+    form = Postform()
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.filter_by(Post.category_id==id).articles.order_by(
+            Article.create_time.desc()).paginate(
+            page, per_page=current_app.config['ARTICLES_PER_PAGE'],
+            error_out=False)
+    posts = pagination.items
+    return render_template('index.html', posts=posts,form=form,
+                           pagination=pagination, endpoint='.cg',
+                           id=id)
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -292,7 +293,9 @@ class Post(db.Model):
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
 
     @staticmethod
     def generate_fake(count=100):
@@ -382,3 +385,52 @@ class Comment(db.Model):
 
 
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
+
+class Attitude:
+	AGREE=0x01
+	AGAINST = 0x02
+
+class Tag(db.Model):
+	__tablename__='tags'
+	id = db.Column(db.Integer,primary_key=True)
+	tag_name = db.Column(db.String(80),unique=True)
+	post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
+
+class Category(db.Model):
+    __tablename__='categories'
+    id = db.Column(db.Integer,primary_key = True)
+    name = db.Column(db.Unicode(80),unique=True)
+    post_id = db.relationship('Post',backref='category',lazy='dynamic')
+
+    @staticmethod
+    def insert_categories():
+        categories =[u"Web技术", u"数据库", u"编程", u"生活",u"Linux"] 
+        for n in categories:
+            category = Category(name=n)
+            db.session.add(category)
+        db.session.commit() 
+    @property
+    def posts(self):
+        return Post.query.filter_by(Post.category==self.id)
+    def __repr__(self):
+        return '<Category %r>' % self.name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
