@@ -289,6 +289,7 @@ def load_user(user_id):
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
+    title=db.Column(db.String(128),unique=True,index=True)
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -296,7 +297,12 @@ class Post(db.Model):
     
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
-
+    tags = db.relationship('Tag', secondary='post_tag_ref', 
+                            backref=db.backref('posts',lazy='dynamic'),
+                            lazy='dynamic')
+    @property 
+    def post_tags(self):
+        return Tag.query.join('post_tag_ref',post_tag_ref.tag_id==Tag.id).filter(post_tag_ref.post_id==self.id)
     @staticmethod
     def generate_fake(count=100):
         from random import seed, randint
@@ -391,10 +397,28 @@ class Attitude:
 	AGAINST = 0x02
 
 class Tag(db.Model):
-	__tablename__='tags'
-	id = db.Column(db.Integer,primary_key=True)
-	tag_name = db.Column(db.String(80),unique=True)
-	post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
+    __tablename__='tags'  
+    id = db.Column(db.Integer, primary_key= True)
+    tag_name = db.Column(db.Unicode(80),unique=True)  
+    post_id=db.Column(db.Integer,db.ForeignKey('posts.id'))  
+ 
+   
+    #@property
+    #def tag_posts(self):
+   #     return Post.query.join(post_tag_ref.post_id==Post.id).filter(post_tag_ref.tag_id==self.id)
+
+post_tag_ref=db.Table('post_tag_ref',
+                      db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
+                      db.Column('tag_id',db.Integer, db.ForeignKey('tags.id')))
+
+def str_to_obj(tags):
+   r = []
+   for tag in tags.split():    ###此处遗漏split() ,一直失败
+       tag_obj = Tag.query.filter_by(tag_name=tag).first()
+       if tag_obj is None:
+           tag_obj = Tag(tag_name=tag)
+       r.append(tag_obj)
+   return r
 
 class Category(db.Model):
     __tablename__='categories'
@@ -410,7 +434,7 @@ class Category(db.Model):
             db.session.add(category)
         db.session.commit() 
     @property
-    def posts(self):
+    def category_posts(self):
         return Post.query.filter_by(Post.category==self.id)
     def __repr__(self):
         return '<Category %r>' % self.name

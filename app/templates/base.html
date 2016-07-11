@@ -29,11 +29,6 @@
                 <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
                 {% endif %}
             </ul>
-			<ul class='nanv navbar-nav'>
-				{% for cg in categories %}
-					<a href="{{url_for('main.index',id=cg.id) }}">{{cg.name}} </a>
-				{% endfor %}
-			</ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.can(Permission.MODERATE_COMMENTS) %}
                 <li><a href="{{ url_for('main.moderate') }}">Moderate Comments</a></li>
@@ -60,7 +55,30 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid">
+  <div class="row content">
+    <div class="col-sm-2 sidenav">
+      <h4>Yann's Blog</h4>
+      <ul class="nav nav-pills nav-stacked">
+        <li class="active"><a href="#section1">Home</a></li>
+        <li><a href="{{url_for('main.cg',id=1)}}">"Web技术"</a></li>
+        <li><a href="#section3">"数据库"</a></li>
+        <li><a href="#section3">“编程”</a></li>
+        <li><a href="#section3">"Linux"</a></li>
+        <li><a href="#section3">“生活”</a></li>
+      </ul><br>  
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search Blog..">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">
+            <span class="glyphicon glyphicon-search"></span>
+          </button>
+        </span>
+      </div>
+    </div>
+  
+
+    <div class="col-sm-9 container">
     {% for message in get_flashed_messages() %}
     <div class="alert alert-warning">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -69,6 +87,7 @@
     {% endfor %}
 
     {% block page_content %}{% endblock %}
+  </div>
 </div>
 {% endblock %}
 

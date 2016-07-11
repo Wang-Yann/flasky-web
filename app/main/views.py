@@ -6,7 +6,7 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
     CommentForm
 from .. import db
-from ..models import Permission, Role, User, Post, Comment,Category
+from ..models import Permission, Role, User, Post, Comment,Category,Tag,str_to_obj
 from ..decorators import admin_required, permission_required
 
 
@@ -35,10 +35,14 @@ def server_shutdown():
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
+    form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
-        post = Post(body=form.body.data,
-                    author=current_user._get_current_object())
+        post = Post(title=form.title.data,
+                    body=form.body.data,
+                    author=current_user._get_current_object(),
+                    category_id=form.category_id.data,
+                    tags=str_to_obj(form.tags.data))
         db.session.add(post)
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
@@ -55,7 +59,7 @@ def index():
     posts = pagination.items
     categories = Category.query.all()
     return render_template('index.html', form=form, posts=posts,categories=categories,
-                           show_followed=show_followed, pagination=pagination)
+                        show_followed=show_followed, pagination=pagination)
 
 
 @main.route('/user/<username>')
@@ -271,18 +275,25 @@ def moderate_disable(id):
                             page=request.args.get('page', 1, type=int)))
 
 @main.route('/cg/<int:id>')
-def index_cg():
-    form = Postform()
+def cg(id):
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.filter_by(Post.category_id==id).articles.order_by(
-            Article.create_time.desc()).paginate(
-            page, per_page=current_app.config['ARTICLES_PER_PAGE'],
+    pagination = Post.query.filter_by(category_id=id).paginate(
+            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
     posts = pagination.items
-    return render_template('index.html', posts=posts,form=form,
-                           pagination=pagination, endpoint='.cg',
-                           id=id)
+    return render_template('cg.html',posts=posts,
+                           pagination=pagination, endpoint='.cg',id=id)
 
+@main.route('/tag/<int:tag_id>')
+def tag(tag_id):
+    page = request.args.get('page', 1, type=int)
+    current_tag=Tag.query.get_or_404(tag_id)
+    pagination =current_tag.posts.paginate(
+            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            error_out=False)
+    posts = pagination.items
+    return render_template('tag.html',posts=posts,
+                           pagination=pagination, endpoint='.tag',tag_id=tag_id)
 
 
 

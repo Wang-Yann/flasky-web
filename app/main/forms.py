@@ -1,11 +1,12 @@
+# -*- coding:utf-8 -*-
 from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
     SubmitField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
-from ..models import Role, User
-
+from ..models import Role, User,Category
+from .. import db
 
 class NameForm(Form):
     name = StringField('What is your name?', validators=[Required()])
@@ -51,7 +52,10 @@ class EditProfileAdminForm(Form):
 
 
 class PostForm(Form):
+    title=StringField(u"标题",validators=[Required()])
     body = PageDownField("What's on your mind?", validators=[Required()])
+    category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
+    tags=StringField(u"标签",validators=[Required()])
     submit = SubmitField('Submit')
 
 

@@ -14,7 +14,7 @@ if os.path.exists('.env'):
             os.environ[var[0]] = var[1]
 
 from app import create_app, db
-from app.models import User, Follow, Role, Permission, Post, Comment,Category
+from app.models import User, Follow, Role, Permission, Post, Comment,Category,Tag
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -72,7 +72,7 @@ def deploy():
 
     # create user roles
     Role.insert_roles()
-
+    Category.insert_categories()
     # create self-follows for all users
     User.add_self_follows()
 

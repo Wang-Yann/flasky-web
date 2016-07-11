@@ -38,9 +38,6 @@ div.post-content {
     margin-left: 48px;
     min-height: 48px;
 }
-div.post-header {
-    font-weight:bold;
-}
 div.post-footer {
     text-align: right;
 }

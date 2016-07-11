@@ -2,7 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
 
-{% block title %}category{% endblock %}
+{% block title %}tag{% endblock %}
 
 {% block page_content %}
 
@@ -16,7 +16,7 @@
 
 {% if pagination %}
 <div class="pagination">
-    {{ macros.pagination_widget(pagination, endpoint,id=id) }}
+    {{ macros.pagination_widget(pagination, endpoint,tag_id=tag_id) }}
 </div>
 {% endif %}
 
