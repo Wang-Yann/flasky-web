@@ -1,12 +1,21 @@
 {% extends "bootstrap/base.html" %}
-
-{% block title %}Yann{% endblock %}
+{% block html_attribs %} lang="en" {% endblock %}
 
 {% block head %}
 {{ super() }}
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    {% block title %}Yann{% endblock %}
+    {% block meta %}
+        <meta charset="UTF-8">
+        <meta name="csrf-token" content="{{ csrf_token() }}"/>
+    {% endblock %}
+    {% block style %}
+        
+        <link rel="shortcut icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
+        <link rel="icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
+        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    {% endblock %}
 {% endblock %}
 
 {% block navbar %}
@@ -91,7 +100,30 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-{{ super() }}
-{{ moment.include_moment() }}
+{%block script %}
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/floatButton.js') }}"></script>
+    {# csrfToken for Ajax   #}
+    <script>
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        })
+    </script>
+
+    {{ moment.include_moment() }}
+    {{ moment.lang('zh-cn') }}
+{% endblock %}
+
+{% block footer %}
+<div class="mastfoot">
+<div class="inner">
+    <a href='http://www.miitbeian.gov.cn/'>浙ICP备16013637号</a>
+</div>
+</div>
 {% endblock %}

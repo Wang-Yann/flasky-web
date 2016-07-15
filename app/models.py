@@ -10,7 +10,6 @@ from flask.ext.login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
 from . import db, login_manager
 
-
 class Permission:
     FOLLOW = 0x01
     COMMENT = 0x02
@@ -51,6 +50,37 @@ class Role(db.Model):
     def __repr__(self):
         return '<Role %r>' % self.name
 
+####对文章的点赞
+#class RemarkPost(db.Model):
+#    __tablename__='remarkposts'
+#    id=db.Column(db.Integer,primary_key=True)
+#    owner_id=db.Column(db.Integer,db.ForeignKey('users.id'),index=True)
+#    post_id=db.Column(db.Integer,db.ForeignKey('posts.id'),index=True)
+#    attitude=db.Column(db.Integer)
+#    timestamp=db.Column(db.DateTime,default=datetime.utcnow)
+#
+####对评论的点赞
+#class Remark(db.Model):
+#    __tablename__='remarks'
+#    id=db.Column(db.Integer,primary_key=True)
+#    owner_id=db.Column(db.Integer,db.ForeignKey('users.id'),index=True)
+#    comment_id=db.Column(db.Integer,db.ForeignKey('comments.id'),index=True)
+#    attitude=db.Column(db.Integer)
+#    timestamp=db.Column(db.DateTime,default=datetime.utcnow)
+#
+class UserLikePost(db.Model):   
+    __tablename__='userlikepost'
+    id=db.Column(db.Integer,primary_key=True)
+    user_id=db.Column(db.Integer)
+    post_id=db.Column(db.Integer)
+    
+    #timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+def remark(user,post):
+        r=UserLikePost(user_id=user.id,post_id=post.id)
+        db.session.add(r)
+#        db.session.commit()
+#
+
 
 class Follow(db.Model):
     __tablename__ = 'follows'
@@ -59,6 +89,12 @@ class Follow(db.Model):
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'),
                             primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+concern_posts=db.Table('concern_posts',
+    db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
+    db.Column('post_id',db.Integer,db.ForeignKey('posts.id')))
+
 
 
 class User(UserMixin, db.Model):
@@ -87,7 +123,41 @@ class User(UserMixin, db.Model):
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    
+    concerns=db.relationship('Post',secondary=concern_posts,
+                                backref=db.backref('users',lazy='dynamic'),
+                                lazy='dynamic')
 
+    def is_remarking(self,post):
+        return UserLikePost.query.filter(UserLikePost.user_id==self.id,\
+            UserLikePost.post_id==post.id).first() is not None
+##    remarks=db.relationship('Comment',
+##                                secondary=Remark,
+##                                backref=db.backref('users',lazy='dynamic'),
+##                                lazy='dynamic',
+##                                single_parent=True,
+##                                cascade='all,delete-orphan')
+##
+##    remarkposts=db.relationship('Post',
+##                                secondary=Remark,
+##                                backref=db.backref('users',lazy='dynamic'),
+##                                lazy='dynamic',
+##                                single_parent=True,
+##                                cascade='all,delete-orphan')
+##
+##                                
+
+
+    def is_concerning(self,post):
+        return self.concerns.filter_by(id=post.id).first() is not None
+    def concern(self,post):
+        if not self.is_concerning(post):
+            self.concerns.append(post)
+            db.session.add(self)
+    def unconcern(self,post):
+        if self.is_concerning(post):
+            self.concerns.remove(post)
+            db.session.commit() 
     @staticmethod
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
@@ -286,6 +356,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+post_tag_ref=\
+    db.Table('post_tag_ref',
+       db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
+       db.Column('tag_id',db.Integer, db.ForeignKey('tags.id')))
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
@@ -293,16 +369,58 @@ class Post(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    update_time=db.Column(db.DateTime,index=True,default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
-    tags = db.relationship('Tag', secondary='post_tag_ref', 
+    tags = db.relationship('Tag', secondary=post_tag_ref, 
                             backref=db.backref('posts',lazy='dynamic'),
-                            lazy='dynamic')
+                            lazy='dynamic',
+                            single_parent=True,
+                            cascade='all, delete-orphan')
+    #@property
+    #def concern_users(self):
+    #   return self.users.all().count()
+    @property
+    def remark_count(self):
+        return UserLikePost.query.filter_by(post_id=self.id).count()
+#    agree_count=db.Column(db.Integer,default=0)
+#   against_count=db.Column(db.Integer,default=0)
+    
+##     
+##    def remarkPost_count(self,type):
+##        return RemarkPost.query.filter_by(post_id=self.id,attitude=type).count() 
+##    def remark_count(self,type):
+##        if type==Attitude.AGREE:
+##            return self.agree_count
+##        else:
+##            return self.against_count   
+##    def remark_it(self,type,user_id):
+##        remark=Remark.query.filter_by(comment_id=self.id,owner_id=user_id).first()
+##        if type==Attitude.AGREE or Attitude.AGAINST:
+##            remark=Remark(comment_id=self.id,owner_id=user_id,attitude=type)
+##            db.session.add(remark)
+##            if type==Attitude.AGREE:
+##                self.agree_count+=1
+##            else:
+##                self.against_count+=1  
     @property 
     def post_tags(self):
-        return Tag.query.join('post_tag_ref',post_tag_ref.tag_id==Tag.id).filter(post_tag_ref.post_id==self.id)
+        r=''
+        for tag in self.tags.all():
+            r=r+tag.tag_name+' '
+        return r
+    @property    
+    def concern_users(self):
+        return self.users.all()
+   
+ 
+    @staticmethod
+    def delete(post):
+        for comment in post.comments:
+            db.session.delete(commit)
+            
     @staticmethod
     def generate_fake(count=100):
         from random import seed, randint
@@ -352,16 +470,61 @@ class Post(db.Model):
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
+class Comment_Follow(db.Model):
+    __tablename__ = 'comment_follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('comments.id'),
+                            primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('comments.id'),
+                            primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    disabled = db.Column(db.Boolean)
+    disabled = db.Column(db.Boolean,default=False)
+    author_name=db.Column(db.String(32))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author_email=db.Column(db.String(80))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
-
+    avatar_hash=db.Column(db.String(80))
+    comment_type=db.Column(db.String(80),default='comment')
+    reply_to=db.Column(db.String(128),default='notReply')
+    
+##    agree_count=db.Column(db.Integer,default=0)    
+##    against_count=db.Column(db.Integer,default=0)    
+##    remarks=db.relationship('Remark',foreign_keys=[Remark.comment_id],
+##                            backref=db.backref('comment',lazy='joined'),
+##                            lazy='dynamic',
+##                            cascade='all,delete-orphan')
+##
+    followed = db.relationship('Comment_Follow',
+                               foreign_keys=[Comment_Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Comment_Follow',
+                                foreign_keys=[Comment_Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+    def __init__(self,**kwargs):
+        super(Comment,self).__init__(**kwargs)
+        if self.author_email is not None and self.avatar_hash is None:
+            self.avatar_hash=hashlib.md5(self.author_email.encode('utf-8')).hexdigest()
+    def is_reply(self):
+        return self.followed.filter_by(followed_id=self.id).first() is not None
+#        if self.followed.count()==0:
+#            return False
+#        else:
+#            return True
+#        
+    def follwed_name(self):
+        if self.is_reply():
+            return self.followed.first().followed.author_name
+    
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
@@ -369,7 +532,6 @@ class Comment(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
-
     def to_json(self):
         json_comment = {
             'url': url_for('api.get_comment', id=self.id, _external=True),
@@ -381,7 +543,6 @@ class Comment(db.Model):
                               _external=True),
         }
         return json_comment
-
     @staticmethod
     def from_json(json_comment):
         body = json_comment.get('body')
@@ -389,27 +550,18 @@ class Comment(db.Model):
             raise ValidationError('comment does not have a body')
         return Comment(body=body)
 
-
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
 
-class Attitude:
-	AGREE=0x01
-	AGAINST = 0x02
 
 class Tag(db.Model):
     __tablename__='tags'  
     id = db.Column(db.Integer, primary_key= True)
-    tag_name = db.Column(db.Unicode(80),unique=True)  
-    post_id=db.Column(db.Integer,db.ForeignKey('posts.id'))  
+    tag_name = db.Column(db.String(80),unique=True)  
  
    
     #@property
     #def tag_posts(self):
    #     return Post.query.join(post_tag_ref.post_id==Post.id).filter(post_tag_ref.tag_id==self.id)
-
-post_tag_ref=db.Table('post_tag_ref',
-                      db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
-                      db.Column('tag_id',db.Integer, db.ForeignKey('tags.id')))
 
 def str_to_obj(tags):
    r = []
@@ -419,6 +571,8 @@ def str_to_obj(tags):
            tag_obj = Tag(tag_name=tag)
        r.append(tag_obj)
    return r
+
+
 
 class Category(db.Model):
     __tablename__='categories'
@@ -438,8 +592,6 @@ class Category(db.Model):
         return Post.query.filter_by(Post.category==self.id)
     def __repr__(self):
         return '<Category %r>' % self.name
-
-
 
 
 

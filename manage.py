@@ -14,7 +14,8 @@ if os.path.exists('.env'):
             os.environ[var[0]] = var[1]
 
 from app import create_app, db
-from app.models import User, Follow, Role, Permission, Post, Comment,Category,Tag
+from app.models import User, Follow, Role, Permission, Post, Comment,\
+    UserLikePost,Category,Tag,Comment_Follow
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -22,10 +23,13 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 
+app.jinja_env.globals['Comment'] = Comment
+app.jinja_env.globals['Post'] = Post
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,
-                Permission=Permission, Post=Post, Comment=Comment,Category=Category)
+                Permission=Permission, Post=Post, Comment=Comment,\
+                UserLikePost=UserLikePost,Category=Category)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
@@ -60,7 +64,6 @@ def profile(length=25, profile_dir=None):
                                       profile_dir=profile_dir)
     app.run()
 
-
 @manager.command
 def deploy():
     """Run deployment tasks."""
@@ -69,7 +72,7 @@ def deploy():
 
     # migrate database to latest revision
     upgrade()
-
+    
     # create user roles
     Role.insert_roles()
     Category.insert_categories()

@@ -55,10 +55,12 @@ class PostForm(Form):
     title=StringField(u"标题",validators=[Required()])
     body = PageDownField("What's on your mind?", validators=[Required()])
     category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
-    tags=StringField(u"标签",validators=[Required()])
+    tags=StringField(u"标签")
     submit = SubmitField('Submit')
 
 
 class CommentForm(Form):
+    name=StringField(u'昵称',validators=[Required()])
     body = StringField('Enter your comment', validators=[Required()])
+    follow=StringField(validators=[Required()])
     submit = SubmitField('Submit')

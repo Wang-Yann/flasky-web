@@ -24,13 +24,33 @@
                 {% endif %}
             </div>
             <div class="post-footer">
+                
+                <a href="{{ url_for('.vote', post_id=post.id) }}">
+                     <button onclick="remark",class="label label-primary">赞 </button>{{post.remark_count}}
+                </a>
+
+                <a href="{{ url_for('.unconcern', post_id=post.id) }}">
+                     <span class="label label-primary">取消关注 </span>{{post.users.count()}}
+                </a>
+
+
+                <a href="{{ url_for('.concern', post_id=post.id) }}">
+                    <span class="label label-primary">关注 </span>{{post.users.count()}}
+                </a>
+                <a href="{{ url_for('.delete', id=post.id) }}">
                 {% if current_user == post.author %}
+                    <span class="label label-primary">删除</span>
+                </a>
                 <a href="{{ url_for('.edit', id=post.id) }}">
                     <span class="label label-primary">Edit</span>
                 </a>
+
                 {% elif current_user.is_administrator() %}
                 <a href="{{ url_for('.edit', id=post.id) }}">
                     <span class="label label-danger">Edit [Admin]</span>
+                </a>
+                <a href="{{ url_for('.delete', id=post.id) }}">
+                    <span class="label label-primary">删除[Admin]</span>
                 </a>
                 {% endif %}
                 <a href="{{ url_for('.post', id=post.id) }}">

@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 from flask import render_template, redirect, url_for, abort, flash, request,\
     current_app, make_response
 from flask.ext.login import login_required, current_user
@@ -6,7 +7,8 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
     CommentForm
 from .. import db
-from ..models import Permission, Role, User, Post, Comment,Category,Tag,str_to_obj
+from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,UserLikePost,\
+    str_to_obj,remark
 from ..decorators import admin_required, permission_required
 
 
@@ -20,6 +22,13 @@ def after_request(response):
                    query.context))
     return response
 
+#@main.teardown_request
+#def teardown_request(exception):
+#    if exception:
+#        db.session.rollback()
+#        db.session.remove()
+#    db.session.close()
+#
 
 @main.route('/shutdown')
 def server_shutdown():
@@ -121,14 +130,28 @@ def edit_profile_admin(id):
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
-    form = CommentForm()
+    form = CommentForm(request.form,follow=-1)
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
                           post=post,
+                          author_name=form.name.data,
                           author=current_user._get_current_object())
         db.session.add(comment)
+        db.session.commit()        
+        followed_id=int(form.follow.data)
+        if followed_id!=-1:
+            followed=Comment.query.get_or_404(followed_id)
+            f=Comment_Follow(follower=comment,followed=followed)
+            comment.comment_type='reply'
+            comment.reply_to=followed.author_name
+            db.session.add(f)
+            db.session.add(comment)
+            db.session.commit()
         flash('Your comment has been published.')
         return redirect(url_for('.post', id=post.id, page=-1))
+    if form.errors:
+        flash(u"发表评论失败")
+
     page = request.args.get('page', 1, type=int)
     if page == -1:
         page = (post.comments.count() - 1) // \
@@ -137,10 +160,47 @@ def post(id):
         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('post.html', posts=[post], form=form,
-                           comments=comments, pagination=pagination)
+    #post.add_view(post,db)
+
+    return render_template('post.html', posts=[post],User=User, form=form,page=page,
+                           comments=comments, pagination=pagination,endpoint='.post',\
+                           id=post.id)
+
+#@main.route('/post/<int:id>', methods=['GET', 'POST'])
+#def post(id):
+#    post = Post.query.get_or_404(id)
+#    form = CommentForm()
+#    if form.validate_on_submit():
+#        comment = Comment(body=form.body.data,
+#                          post=post,
+#                          author=current_user._get_current_object())
+#        db.session.add(comment)
+#        flash('Your comment has been published.')
+#        return redirect(url_for('.post', id=post.id, page=-1))
+#    page = request.args.get('page', 1, type=int)
+#    if page == -1:
+#        page = (post.comments.count() - 1) // \
+#            current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
+#    pagination = post.comments.order_by(Comment.timestamp.asc()).paginate(
+#        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+#        error_out=False)
+#    comments = pagination.items
+#    return render_template('post.html', posts=[post], form=form,
+#                           comments=comments, pagination=pagination)
+#
+@main.route('/delete/<int:id>')
+@login_required
+def delete(id):
+    post=Post.query.get_or_404(id)
+    if current_user!=post.author and not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    u=current_user
+    db.session.delete(post)
+    flash(u"你成功删除了该文章")
+    return redirect(url_for('.user',username=u.username))
 
 
+    
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -149,12 +209,18 @@ def edit(id):
             not current_user.can(Permission.ADMINISTER):
         abort(403)
     form = PostForm()
+    form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
     if form.validate_on_submit():
+        post.title=form.title.data
         post.body = form.body.data
+        post.category_id=form.category_id.data
+        post.tags=str_to_obj(form.tags.data)
         db.session.add(post)
         flash('The post has been updated.')
         return redirect(url_for('.post', id=post.id))
     form.body.data = post.body
+    form.title.data=post.title
+    form.tags.data=post.post_tags
     return render_template('edit_post.html', form=form)
 
 
@@ -296,8 +362,75 @@ def tag(tag_id):
                            pagination=pagination, endpoint='.tag',tag_id=tag_id)
 
 
+@main.route('/concerns/<username>')
+def concerns(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.concerns.paginate(
+        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+        error_out=False)
+    posts=pagination.items
+    return render_template('concerns.html', posts=posts,user=user, title="concerns of ",
+                           endpoint='.concerns', pagination=pagination)
 
 
+#@main.route('/concerners/<int:post_id>')
+#def concerners(post_id):
+#    Post = Post.query.get_or_404(post_id)
+#    if Post is None:
+#        flash('Invalid post.')
+#        return redirect(url_for('.index'))
+#    page = request.args.get('page', 1, type=int)
+#    pagination = Post.users.paginate(
+#        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+#        error_out=False)
+#    follows = [{'user': item.follower, 'timestamp': item.timestamp}
+#               for item in pagination.items]
+#    return render_template('concerners.html', user=user, title="Followers of",
+#                           endpoint='.followers', pagination=pagination,
+#                           follows=follows)
+#
+
+@main.route('/concern/<int:post_id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def concern(post_id):
+    post=Post.query.get_or_404(post_id)
+    if current_user.is_concerning(post):
+        flash(u'你已经收藏了本文章.')
+        return redirect(url_for('.post', id=post_id))
+    current_user.concern(post)
+    flash(u'你收藏了本文章.')
+    return redirect(url_for('.post', id=post_id))
+
+
+@main.route('/unconcern/<int:post_id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unconcern(post_id):
+    post=Post.query.get_or_404(post_id)
+    if not current_user.is_concerning(post):
+        flash('You are not concerning this post.')
+        return redirect(url_for('.post', id=post_id))
+    current_user.unconcern(post)
+    flash('You are not concerning anymore.')
+    return redirect(url_for('.post', id=post_id))
+@main.route('/vote/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.FOLLOW)
+def vote(post_id):
+    post=Post.query.get_or_404(post_id)
+    if  not current_user.is_remarking(post):
+#        r=UserLikePost(user_id=current_user.id,post_id=post.id)
+#        db.session.add(r)
+#        db.session.commit()
+        remark(current_user,post)
+        flash('success')
+        return redirect(url_for('.post',id=post_id))
+    return redirect(url_for('.post',id=post_id))
 
 
 
