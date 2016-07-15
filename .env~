@@ -1,8 +1,0 @@
-##FLASK_CONFIG=heroku
-MAIL_USERNAME='heroku_0@sina.com'
-MAIL_PASSWORD='e987os1s'
-SECRET_KEY='asaada'
-SSL_DISABLE=1
-WTF_CSRF_SECCRET_KEY='random1223'
-###DATABASE_URL=postgres://pdhpnhkkxfquwo:Ijhf9pL1VV4ybd1CNkADvh6L_o@ec2-50-19-244-148.compute-1.amazonaws.com:5432/d7g7qp1bbk5u2j
-
