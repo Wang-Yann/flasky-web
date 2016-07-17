@@ -1,6 +1,6 @@
 //JS For manage-articles when select articles or select comments
 $(document).ready(function () {
-    $('#select-all').click(function () {
+	$('#select-all').click(function () {
         if ($(this).prop('checked')) {
             $('.op_check').prop('checked', true);
         } else {

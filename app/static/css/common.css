@@ -1,8 +1,17 @@
 /*CSS For common appearance*/
+html { 
+	
+	overflow: auto;
+	height: 100%;
+	}
 body {
     /*background: #F0F0F0;*/
     background: url('../images/background.jpg');
+	/* overflow: auto; */
+    height: 100%;
 }
+
+
 .blog-title a:link {
     text-decoration: none;
 }

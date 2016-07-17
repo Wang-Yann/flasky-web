@@ -1,14 +1,15 @@
 <ul class="comments">
+	{% if comments %}
+
     {% for comment in comments %}
     <li class="comment">
         {% if comment.comment_type=='reply'%}
             <p class="comment-reply-info">
                 <span class="glyphicon glyphicon-envelope"></span>
-                回复<strong><i>
-                {% if comment.followed_name() %}
-                    {{comment.followed_name()}}
-                {% else %}
+                回复给<strong><i>
+                {% if comment.is_reply() %}
                     {{comment.reply_to}}
+                {% else %}
                     ({{comment.reply_to}}的该条评论已被删除）
                 {% endif %}
                 :</i></strong>
@@ -19,7 +20,7 @@
 
         <div class="comment-thumbnail">
             <a href="{{ url_for('.user', username=comment.author.username) }}">
-                <img class="img-rounded profile-thumbnail" src="{{ comment.author.gravatar(size=40) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ comment.gravatar() }}">
             </a>
         </div>
         <div class="comment-content">
@@ -40,11 +41,7 @@
             </div>
             <div class="row comment-handle">
                 {% if current_user.is_authenticated %}
-                <div class="col-sm-1" {%if current_user.is_anonymous%}col-sm-offset-10{%endif%}>
-                    <button class="btn btn-sm btn-info" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
-                        <span class="glyphicon glyphicon-comment"></span>回复
-                    </button>
-                </div>
+                
                 
                 <div>
                 {% if moderate %}
@@ -57,11 +54,17 @@
                 {% endif %}
                 {% endif %}
                 </div>
-            </div>
+                <div class="col-sm-1" {%if current_user.is_authenticated%}col-sm-offset-10 {% endif %}>
+                    <button class="btn btn-sm btn-info" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
+                        <span class="glyphicon glyphicon-comment"></span>回复
+                    </button>
+                </div>
+			</div>
     </li>
+	
     {% endfor %}
+	{% endif %}
 </ul>
-
 
 <!-- 信息删除确认: For delete a comment confirm -->
 <div class="modal fade" id="delCommentCfmModel">

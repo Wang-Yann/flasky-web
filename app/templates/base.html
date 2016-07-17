@@ -1,4 +1,5 @@
-{% extends "bootstrap/base.html" %}
+<html>
+<!-- {% extends "bootstrap/base.html" %} -->
 {% block html_attribs %} lang="en" {% endblock %}
 
 {% block head %}
@@ -12,12 +13,14 @@
         
         <link rel="shortcut icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
         <link rel="icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
-        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
-        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        
+        
     {% endblock %}
 {% endblock %}
-
+<body>
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container">
@@ -100,9 +103,10 @@
 </div>
 {% endblock %}
 
-{%block script %}
-    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+{%block scripts %}
+    <script src="{{ url_for('static', filename='js/jquery-2.2.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	<!-- <script src="{{ url_for('static', filename='js/npm.js') }}"></script> -->
     <script src="{{ url_for('static', filename='js/floatButton.js') }}"></script>
     {# csrfToken for Ajax   #}
     <script>
@@ -121,9 +125,10 @@
 {% endblock %}
 
 {% block footer %}
-<div class="mastfoot">
-<div class="inner">
-    <a href='http://www.miitbeian.gov.cn/'>浙ICP备16013637号</a>
-</div>
-</div>
+	<div class="mastfoot">
+		<div class="inner">
+			<a href='http://www.miitbeian.gov.cn/'>浙ICP备16013637号</a>
+		</div>
+	</div>
 {% endblock %}
+</html>

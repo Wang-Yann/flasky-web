@@ -141,7 +141,7 @@ def post(id):
         followed_id=int(form.follow.data)
         if followed_id!=-1:
             followed=Comment.query.get_or_404(followed_id)
-            f=Comment_Follow(follower=comment,followed=followed)
+            f=Comment_Follow(follower_id=comment.id,followed_id=followed.id)
             comment.comment_type='reply'
             comment.reply_to=followed.author_name
             db.session.add(f)
@@ -162,7 +162,7 @@ def post(id):
     comments = pagination.items
     #post.add_view(post,db)
 
-    return render_template('post.html', posts=[post],User=User, form=form,page=page,
+    return render_template('post.html', posts=[post], form=form,page=page,
                            comments=comments, pagination=pagination,endpoint='.post',\
                            id=post.id)
 
