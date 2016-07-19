@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
-    SubmitField
+    SubmitField,FileField 
 from wtforms.validators import Required, Length, Email, Regexp,Optional
 from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
@@ -18,6 +18,17 @@ class EditProfileForm(Form):
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
+class ChangeAvatarForm(Form):
+    file=FileField(u"选择图片",validators=[])
+
+    submit = SubmitField("Send")
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 
 class EditProfileAdminForm(Form):

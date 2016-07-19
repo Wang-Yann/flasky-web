@@ -1,17 +1,19 @@
 #-*- coding:utf-8 -*-
+import os
+from PIL import Image
 from flask import render_template, redirect, url_for, abort, flash, request,\
     current_app, make_response
 from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
-    CommentForm
+    CommentForm,ChangeAvatarForm,allowed_file
 from .. import db
 from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,UserLikePost,\
     str_to_obj,remark
 from ..decorators import admin_required, permission_required
-
-
+from werkzeug import secure_filename
+from flask import send_from_directory
 @main.after_app_request
 def after_request(response):
     for query in get_debug_queries():
@@ -81,6 +83,65 @@ def user(username):
     posts = pagination.items
     return render_template('user.html', user=user, posts=posts,
                            pagination=pagination)
+
+from flask import send_from_directory
+
+@main.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
+                               filename)
+##@main.route('/', methods=['GET','POST'])
+##def upload_file():
+##    if request.method == 'POST':
+##        file = request.files['file']
+##        if file and allowed_file(file.filename):
+##            filename = secure_filename(file.filename)
+##            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+##            return redirect(url_for('uploaded_file',
+##                                   filename=filename))
+##    return '''
+##    <!doctype html>
+##    <title>Upload new File</title>
+##    <h1>Upload new File</h1>
+##    <form action="" method=post enctype=multipart/form-data>
+##      <p><input type=file name=file>
+##         <input type=submit value=Upload>
+##    </form>
+##    '''
+####def upload():
+##    upload_file = request.files['image01']
+##    if upload_file and allowed_file(upload_file.filename):
+##        filename = secure_filename(upload_file.filename)
+##        upload_file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+##        return 'hello, '+request.form.get('name', 'little apple')+'. success'
+##    else:
+##        return 'hello, '+request.form.get('name', 'little apple')+'. failed'
+##
+@main.route('/edit-avatar/<username>', methods=['GET', 'POST'])
+@login_required
+def change_avatar(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    form = ChangeAvatarForm()
+    if request.method == 'POST' and form.validate_on_submit() :
+        file = request.files['file']
+        size = (40, 40)
+        im = Image.open(file)
+        im.thumbnail(size)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            im.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            current_user.new_avatar_file = url_for('static', filename='/%s/%s' % ('avatar', filename))
+            current_user.is_avatar_default = False
+            flash(u'头像修改成功')
+            return redirect(url_for('.user', username=current_user.username))
+    return render_template('change_avatar.html',form=form)
+
+
+
+
+
+
+
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])

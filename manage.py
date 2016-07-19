@@ -23,6 +23,7 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 
+
 app.jinja_env.globals['Comment'] = Comment
 app.jinja_env.globals['Post'] = Post
 
