@@ -75,3 +75,8 @@ class CommentForm(Form):
     body = StringField('Enter your comment', validators=[Required()])
     follow=StringField(validators=[Required()])
     submit = SubmitField('Submit')
+
+
+class SearchForm(Form):
+    search = StringField('search', validators=[Required()])
+    submit=SubmitField('Submit')

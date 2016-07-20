@@ -1,18 +1,19 @@
 #-*- coding:utf-8 -*-
 import os
 from PIL import Image
+from datetime import datetime
 from flask import render_template, redirect, url_for, abort, flash, request,\
-    current_app, make_response
+    current_app, make_response,  g
 from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
-    CommentForm,ChangeAvatarForm,allowed_file
+    CommentForm,ChangeAvatarForm,SearchForm,allowed_file
 from .. import db
 from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,UserLikePost,\
     str_to_obj,remark
 from ..decorators import admin_required, permission_required
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from flask import send_from_directory
 @main.after_app_request
 def after_request(response):
@@ -32,6 +33,15 @@ def after_request(response):
 #    db.session.close()
 #
 
+@main.before_request
+def before_request():
+    g.user = current_user
+    if g.user.is_authenticated:
+       g.user.last_seen = datetime.utcnow()
+       db.session.add(g.user)
+       db.session.commit()
+       g.search_form = SearchForm()
+    #g.search_enabled=WHOOSH_ENABLED
 @main.route('/shutdown')
 def server_shutdown():
     if not current_app.testing:
@@ -110,7 +120,7 @@ def uploaded_file(filename):
 ##    '''
 ####def upload():
 ##    upload_file = request.files['image01']
-##    if upload_file and allowed_file(upload_file.filename):
+##    if upload_file and allowed_file(upload_file.fiilename):
 ##        filename = secure_filename(upload_file.filename)
 ##        upload_file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
 ##        return 'hello, '+request.form.get('name', 'little apple')+'. success'
@@ -124,16 +134,24 @@ def change_avatar(username):
     form = ChangeAvatarForm()
     if request.method == 'POST' and form.validate_on_submit() :
         file = request.files['file']
-        size = (40, 40)
-        im = Image.open(file)
-        im.thumbnail(size)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            im.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            current_user.new_avatar_file = url_for('static', filename='/%s/%s' % ('avatar', filename))
-            current_user.is_avatar_default = False
-            flash(u'头像修改成功')
-            return redirect(url_for('.user', username=current_user.username))
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        elif file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        else:
+            size = (256, 256)
+            im = Image.open(file)
+            im.thumbnail(size,Image.ANTIALIAS)
+            if file and allowed_file(file.filename):
+                fname = 'av_'+secure_filename(file.filename)[:7]+'r'
+                im.save(os.path.join(current_app.config['UPLOAD_FOLDER'],'avatar', fname),'jpeg')
+                current_user.new_avatar_file = url_for('static', filename='%s/%s' % ('avatar', fname))
+                db.session.add(current_user)
+                current_user.is_avatar_default = False
+                flash(u'头像修改成功')
+                return redirect(url_for('.user', username=current_user.username))
     return render_template('change_avatar.html',form=form)
 
 
@@ -495,8 +513,29 @@ def vote(post_id):
 
 
 
+@main.route('/search', methods = ['POST'])
+@login_required
+def search():
+    if not g.search_form.validate_on_submit():
+        return redirect(url_for('main.index'))
+    return redirect(url_for('.search_results', query = g.search_form.search.data))
+  #  form=SearchForm()
+  #  if  form.validate_on_submit():
+  #      return redirect(url_for('search_results',form=form, query = form.search.data))
+  #  return redirect(url_for('index'))
+  #  
 
+@main.route('/search_results/<query>')
+@login_required
+def search_results(query):
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.whoosh_search(query, current_app.config['MAX_SEARCH_RESULTS']).\
+             paginate(page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+             error_out=False)
+    posts=pagination.items
 
+    return render_template('search_results.html',posts=posts,
+                           pagination=pagination, endpoint='.search_results')
 
 
 

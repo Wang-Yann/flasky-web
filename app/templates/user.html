@@ -8,10 +8,10 @@
     
     {% if current_user.is_avatar_default %}
     <img class="img-rounded profile-thumbnail" 
-            src="{{ user.gravatar(size=256) }}">
+            src="{{ user.gravatar(size=256) }}" >
     {% else %}
     <img class="img-rounded profile-thumbnail"
-            src="{{url_for('.uploads',filename=current_user.new_avatar_file)}}">
+            src="{{user.new_avatar_file}}" width="122"  >
     {% endif %} 
     <div class="profile-header">
         <h1>{{ user.username }}</h1>

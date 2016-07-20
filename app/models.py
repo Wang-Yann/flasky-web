@@ -9,6 +9,14 @@ from flask import current_app, request, url_for
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
 from . import db, login_manager
+import app
+
+import sys
+if sys.version_info >= (3, 0):
+    enable_search = False
+else:
+    enable_search = True
+    import flask.ext.whooshalchemy as whooshalchemy
 
 class Permission:
     FOLLOW = 0x01
@@ -111,6 +119,8 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
+    new_avatar_file=db.Column(db.String(128))
+
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow',
                                foreign_keys=[Follow.follower_id],
@@ -364,6 +374,8 @@ post_tag_ref=\
 
 class Post(db.Model):
     __tablename__ = 'posts'
+
+    __searchable__ = ['body']
     id = db.Column(db.Integer, primary_key=True)
     title=db.Column(db.String(128),unique=True,index=True)
     body = db.Column(db.Text)
@@ -379,6 +391,7 @@ class Post(db.Model):
                             lazy='dynamic',
                             single_parent=True,
                             cascade='all, delete-orphan')
+
     #@property
     #def concern_users(self):
     #   return self.users.all().count()
@@ -473,6 +486,8 @@ class Post(db.Model):
 
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)
+
+
 
 
 class Comment_Follow(db.Model):
@@ -609,6 +624,8 @@ class Category(db.Model):
 
 
 
+if enable_search:
+    whooshalchemy.whoosh_index(app, Post)
 
 
 

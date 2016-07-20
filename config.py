@@ -21,8 +21,10 @@ class Config:
     FLASKY_SLOW_DB_QUERY_TIME=0.5
     WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY')
 
-    UPLOAD_FOLDER =basedir+'/app/static/avatar'
+    UPLOAD_FOLDER =basedir+'/app/static'
 
+    WHOOSH_BASE = os.path.join(basedir, 'search.db')
+    MAX_SEARCH_RESULTS = 50
 
  
     @staticmethod
