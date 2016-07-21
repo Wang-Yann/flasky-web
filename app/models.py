@@ -9,15 +9,12 @@ from flask import current_app, request, url_for
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
 from . import db, login_manager
-import app
-
-import sys
-if sys.version_info >= (3, 0):
-    enable_search = False
+import app,sys
+if sys.version_info >= (3, 0):                                              
+      enable_search = False
 else:
-    enable_search = True
-    import flask.ext.whooshalchemy as whooshalchemy
-
+      enable_search = True
+      import flask.ext.whooshalchemy as whooshalchemy 
 class Permission:
     FOLLOW = 0x01
     COMMENT = 0x02
@@ -489,7 +486,8 @@ db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
 
-
+if enable_search:                                                           
+      whooshalchemy.whoosh_index(app, Post)
 class Comment_Follow(db.Model):
     __tablename__ = 'comment_follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('comments.id'),
@@ -624,8 +622,6 @@ class Category(db.Model):
 
 
 
-if enable_search:
-    whooshalchemy.whoosh_index(app, Post)
 
 
 

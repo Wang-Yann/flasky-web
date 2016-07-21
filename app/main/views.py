@@ -57,6 +57,8 @@ def server_shutdown():
 def index():
     form = PostForm()
     form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
+    #if g.user.is_authenticated and g.search_form.validate_on_submit():
+     #   return redirect(url_for('.search'))    
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         post = Post(title=form.title.data,
@@ -517,7 +519,7 @@ def vote(post_id):
 @login_required
 def search():
     if not g.search_form.validate_on_submit():
-        return redirect(url_for('main.index'))
+         return redirect(url_for('.index'))
     return redirect(url_for('.search_results', query = g.search_form.search.data))
   #  form=SearchForm()
   #  if  form.validate_on_submit():
@@ -528,14 +530,13 @@ def search():
 @main.route('/search_results/<query>')
 @login_required
 def search_results(query):
-    page = request.args.get('page', 1, type=int)
-    pagination = Post.query.whoosh_search(query, current_app.config['MAX_SEARCH_RESULTS']).\
-             paginate(page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-             error_out=False)
-    posts=pagination.items
+#    page = request.args.get('page', 1, type=int)
+    posts=Post.query.whoosh_search(query, current_app.config['MAX_SEARCH_RESULTS']).all()
+#    pagination = posts.order_by(Post.timestamp.desc()).\
+ #               paginate(page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],\
+  #              error_out=False)
 
-    return render_template('search_results.html',posts=posts,
-                           pagination=pagination, endpoint='.search_results')
+    return render_template('search_results.html',posts=posts,query=query)
 
 
 

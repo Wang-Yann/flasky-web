@@ -79,4 +79,3 @@ class CommentForm(Form):
 
 class SearchForm(Form):
     search = StringField('search', validators=[Required()])
-    submit=SubmitField('Submit')

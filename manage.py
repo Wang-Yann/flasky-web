@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import os
+import sys
+
+
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
     import coverage
@@ -22,7 +25,6 @@ from flask.ext.migrate import Migrate, MigrateCommand
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
-
 
 app.jinja_env.globals['Comment'] = Comment
 app.jinja_env.globals['Post'] = Post
@@ -83,3 +85,5 @@ def deploy():
 
 if __name__ == '__main__':
     manager.run()
+
+

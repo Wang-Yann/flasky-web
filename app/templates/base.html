@@ -39,13 +39,7 @@
                 <li><a href="{{ url_for('main.index') }}">Home</a></li>
                 {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-                <div class="input-group"> 
-                <form style="display: inline;" action="{{url_for('.search')}}" method="post" name="search">
-                    {{g.search_form.csrf_token }}
-                    {{g.search_form.search}}
-                    {{g.search_form.submit}}
-                </form>
-                </div> 
+                <li>{% include '_search.html' %} </li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
