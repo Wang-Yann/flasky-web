@@ -1,7 +1,7 @@
 <html>
 <!-- {% extends "bootstrap/base.html" %} -->
 {% block html_attribs %} lang="en" {% endblock %}
-
+{% import "_macros.html" as macros %}
 {% block head %}
 {{ super() }}
     {% block title %}Yann{% endblock %}
@@ -79,7 +79,8 @@
         <li><a href="#section3">“编程”</a></li>
         <li><a href="#section3">"Linux"</a></li>
         <li><a href="#section3">“生活”</a></li>
-      </ul><br>
+      </ul>
+      <br>
 
       <div class="input-group">
         <input type="text" class="form-control" placeholder="Search Blog..">
@@ -89,9 +90,12 @@
           </button>
         </span>
       </div>
-    </div>
-  
+ 
+        <div class="page-sidebar">    
+        {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
+        </div>
 
+    </div>
     <div class="col-sm-9 container">
     {% for message in get_flashed_messages() %}
     <div class="alert alert-warning">
@@ -101,6 +105,21 @@
     {% endfor %}
 
     {% block page_content %}{% endblock %}
+
+    <footer class="blog-footer">
+        <hr>
+        <p class="text-center">
+            Powered by <a href="http://flask.pocoo.org">Flask</a>, 
+            <a href="http://getbootstrap.com">Bootstrap</a> and <a href="http://python.org">Python</a>,
+            developed &amp; written by <a href="mailto:hexbot@163.com" target="_top">hexbot</a>. &nbsp;
+        </p>
+        <p class="text-center">
+            <a href="#">Back to Top</a>
+        </p>
+    </footer>
+
+
+
   </div>
 </div>
 {% endblock %}

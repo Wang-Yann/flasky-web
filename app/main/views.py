@@ -25,13 +25,13 @@ def after_request(response):
                    query.context))
     return response
 
-#@main.teardown_request
-#def teardown_request(exception):
-#    if exception:
-#        db.session.rollback()
-#        db.session.remove()
+@main.teardown_request
+def teardown_request(exception):
+    if exception:
+        db.session.rollback()
+        db.session.remove()
 #    db.session.close()
-#
+
 
 @main.before_request
 def before_request():

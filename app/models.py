@@ -4,12 +4,15 @@ import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
+from jieba.analyse import ChineseAnalyzer
+
 import bleach
 from flask import current_app, request, url_for
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
 from . import db, login_manager
 import app,sys
+import flask_whooshalchemyplus
 if sys.version_info >= (3, 0):                                              
       enable_search = False
 else:
@@ -372,10 +375,11 @@ post_tag_ref=\
 class Post(db.Model):
     __tablename__ = 'posts'
 
-    __searchable__ = ['body']
+    __searchable__ = ['title','body']
+    __analyzer__=ChineseAnalyzer()
     id = db.Column(db.Integer, primary_key=True)
     title=db.Column(db.String(128),unique=True,index=True)
-    body = db.Column(db.Text)
+    body = db.Column(db.Text,index=True)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     update_time=db.Column(db.DateTime,index=True,default=datetime.utcnow)
@@ -486,8 +490,10 @@ db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
 
-if enable_search:                                                           
-      whooshalchemy.whoosh_index(app, Post)
+#if enable_search:           
+ #       whooshalchemy.whoosh_index(app, Post)
+
+
 class Comment_Follow(db.Model):
     __tablename__ = 'comment_follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('comments.id'),
@@ -618,7 +624,6 @@ class Category(db.Model):
         return Post.query.filter_by(Post.category==self.id)
     def __repr__(self):
         return '<Category %r>' % self.name
-
 
 
 

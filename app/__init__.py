@@ -7,6 +7,7 @@ from flask.ext.login import LoginManager
 from flask_wtf.csrf import CsrfProtect
 from flask.ext.pagedown import PageDown
 from config import config
+import flask_whooshalchemyplus
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -32,6 +33,8 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     pagedown.init_app(app)
+    flask_whooshalchemyplus.init_app(app)
+
 
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify
@@ -47,3 +50,6 @@ def create_app(config_name):
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
 
     return app
+
+
+

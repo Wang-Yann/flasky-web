@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
-
+#import flask_whooshalchemyplus
 
 COV = None
 if os.environ.get('FLASK_COVERAGE'):

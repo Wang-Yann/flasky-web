@@ -4,6 +4,5 @@ venv
 *.sqlite
 *.py~
 *.txt~
-*.env~
 node_modules
-Index
+
