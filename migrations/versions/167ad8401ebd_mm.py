@@ -1,13 +1,13 @@
-"""kk
+"""mm
 
-Revision ID: 333415720eb3
+Revision ID: 167ad8401ebd
 Revises: None
-Create Date: 2016-07-20 10:11:29.410231
+Create Date: 2016-07-24 21:20:40.475000
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '333415720eb3'
+revision = '167ad8401ebd'
 down_revision = None
 
 from alembic import op
@@ -75,15 +75,18 @@ def upgrade():
     sa.Column('title', sa.String(length=128), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('body_html', sa.Text(), nullable=True),
+    sa.Column('body_pre', sa.UnicodeText(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('update_time', sa.DateTime(), nullable=True),
     sa.Column('author_id', sa.Integer(), nullable=True),
+    sa.Column('read_count', sa.Integer(), nullable=True),
+    sa.Column('private', sa.Boolean(), nullable=True),
     sa.Column('category_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('ix_posts_timestamp', 'posts', ['timestamp'], unique=False)
+    op.create_index('ix_posts_body', 'posts', ['body'], unique=False)
     op.create_index('ix_posts_title', 'posts', ['title'], unique=True)
     op.create_index('ix_posts_update_time', 'posts', ['update_time'], unique=False)
     op.create_table('comments',
@@ -136,7 +139,7 @@ def downgrade():
     op.drop_table('comments')
     op.drop_index('ix_posts_update_time', 'posts')
     op.drop_index('ix_posts_title', 'posts')
-    op.drop_index('ix_posts_timestamp', 'posts')
+    op.drop_index('ix_posts_body', 'posts')
     op.drop_table('posts')
     op.drop_table('follows')
     op.drop_index('ix_users_username', 'users')

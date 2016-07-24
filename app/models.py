@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+﻿# -*- coding:utf-8 -*-
 from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -381,10 +381,13 @@ class Post(db.Model):
     title=db.Column(db.String(128),unique=True,index=True)
     body = db.Column(db.Text,index=True)
     body_html = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    update_time=db.Column(db.DateTime,index=True,default=datetime.utcnow)
+    body_pre = db.Column(db.UnicodeText)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    update_time = db.Column(db.DateTime,index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    read_count = db.Column(db.Integer)
     
+    private = db.Column(db.Boolean) # non-public, or hidden
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
     tags = db.relationship('Tag', secondary=post_tag_ref, 
@@ -452,17 +455,35 @@ class Post(db.Model):
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
+        markdown_exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite', 
+                    ]
+        markdown_exts_configs = {
+                        'markdown.extensions.codehilite':
+                                {
+                                    'css_class': 'highlight',   # default class is 'codehilite'
+                                },
+                    }
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
                         'h1', 'h2', 'h3','h4','h5','h6','p','img']
-        attrs={
-                '*':['class'],
-                'a':['href','rel'],
-                'img':['src','alt'],
+        allowed_attrs={
+                '*': ['class', 'style'],
+                'a': ['href', 'rel', 'title'],
+                'img': ['alt', 'src', 'title'],
               }
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags,attributes=attrs,strip=True))
+        allowed_styles = ['*']
+        html = markdown(value, output_format='html5', 
+                    extensions=markdown_exts, extension_configs=markdown_exts_configs)
+        
+        target.body_html = html
+        lines = target.body_html.split("\n")
+        target.body_pre = "\n".join(lines[:20])
+              
+              
+              
+        # target.body_html = bleach.linkify(bleach.clean(
+            # markdown(value, output_format='html'),
+            # tags=allowed_tags,attributes=allowed_attrs,strip=True))
 
     def to_json(self):
         json_post = {
@@ -487,7 +508,6 @@ class Post(db.Model):
 
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)
-
 
 
 #if enable_search:           
@@ -552,11 +572,11 @@ class Comment(db.Model):
         else:
             url = 'http://www.gravatar.com/avatar'
         hash = self.avatar_hash 
-		# or hashlib.md5(
+        # or hashlib.md5(
             # self.email.encode('utf-8')).hexdigest()
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
-			
+            
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',

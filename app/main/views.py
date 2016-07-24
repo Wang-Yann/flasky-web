@@ -8,7 +8,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
-    CommentForm,ChangeAvatarForm,SearchForm,allowed_file
+    CommentForm,ChangeAvatarForm,SearchForm,EditForm,allowed_file
 from .. import db
 from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,UserLikePost,\
     str_to_obj,remark
@@ -84,7 +84,61 @@ def index():
     return render_template('index.html', form=form, posts=posts,categories=categories,
                         show_followed=show_followed, pagination=pagination)
 
+@main.route('/edit/<opid>', methods=['GET', 'POST'])
+@login_required
+def edit(opid):
+    form = EditForm()
+    form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        # new or edit post received
+        if form.id.data == 'new':
+            post = Post(title='', body='',
+                        author=current_user._get_current_object(), 
+                        read_count=0)
+        else:
+            post=Post.query.get_or_404(form.id.data)
+        post.update_time = datetime.utcnow
+        post.title = form.title.data
+        post.body = form.body.data
+        post.private = form.private.data
 
+        # if form.category_id.data == 'new':
+            # category = Category(name=form.category_new.data)
+            # db.session.add(category)
+        # else:
+            # category = Category.get_or_404(form.category_id.data)
+        post.category_id=form.category_id.data
+        # post.tags = str_to_obj(form.tags.data)
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('.index'))
+    
+    else:
+        # # display new or edit page
+       
+        # form.category_id.choices.append(('new', u'--新建分类--'))    # special category hint
+
+        if opid == 'new':
+            new = True
+            form.id.data = 'new'
+            form.category_id.data = '1'    # default category
+            return render_template('edit.html', form=form, new=True)
+        else:
+            id = int(opid)
+            post = Post.query.get_or_404(id)
+            form.id.data = id
+            form.title.data = post.title
+            form.body.data = post.body
+            form.private.data = post.private
+            form.category_id.data = post.category_id
+            form.tags.data=post.post_tags
+            
+            return render_template('edit.html', form=form, new=False)
+                        
+                        
+                        
+                        
+                        
 @main.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
@@ -282,9 +336,9 @@ def delete(id):
 
 
     
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@main.route('/edit1/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit(id):
+def edit1(id):
     post = Post.query.get_or_404(id)
     if current_user != post.author and \
             not current_user.can(Permission.ADMINISTER):

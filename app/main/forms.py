@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
-    SubmitField,FileField 
+    SubmitField,FileField, HiddenField
 from wtforms.validators import Required, Length, Email, Regexp,Optional
 from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
@@ -67,8 +67,36 @@ class PostForm(Form):
     body = PageDownField("What's on your mind?", validators=[Required()])
     category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
     tags=StringField(u"标签")
-    submit = SubmitField('Submit')
+    submit = SubmitField( 'Submit')
 
+class EditForm(Form):
+    id = HiddenField('new')
+    title = TextAreaField(u'标题', validators=[Required()])
+    body = PageDownField(u'内容', validators=[Required()])
+    
+    
+    tags = StringField(u'标签')
+    private = BooleanField(u'不公开')
+    submit = SubmitField(u'完成')
+    category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
+    # def new_category_validator(form, field):
+        # if form.category_id.data == 'new':
+            # if not len(field.data):
+                # raise ValidationError(u'在此输入新分类名')
+            # elif field.data in [c[1] for c in form.category_id.choices]:
+                # raise ValidationError(u'分类名已存在')
+	
+    category_new = StringField('')
+    # startup needs to create all necessary tables before the following query operation
+    
+    
+    # categories_e = categories.query.order_by(Category.id).all()
+    # choices = [(str(c.id), c.name) for c in categories_e]
+    # choices.append(('new', u'--新建分类--'))    # special category hint
+    # category = SelectField(u'分类', choices=choices, validators=[Required()])
+    # # the category name when create new category
+    
+    
 
 class CommentForm(Form):
     name=StringField(u'昵称',validators=[Required()])

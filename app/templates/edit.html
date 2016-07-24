@@ -1,20 +1,9 @@
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Article editting{% endblock %}
+{% block title %}Post editting{% endblock %}
 
 {% block page_content %}
-<!--
-<div class="page-header">
-	<h1>文章编辑</h1>
-</div>
--->
-
-<!--
-<div>
-    {{ wtf.quick_form(form) }}
-</div>
--->
 
 <div>
 <form action="" method="post" class="form" role="form">
@@ -28,14 +17,11 @@
         {{ form.title(class="form-control") }}{{ macros.field_error(form.title) }}
     </div>
     <div class="row form-group-sm required">
-        <div class="col-md-1"><p class="text-right">{{ form.category.label }}</p></div>
-        <div class="col-md-5">{{ form.category(class="form-control") }}{{ macros.field_error(form.category) }}</div>
+        <div class="col-md-1"><p class="text-right">{{ form.category_id.label }}</p></div>
+        <div class="col-md-5">{{ form.category_id(class="form-control") }}{{ macros.field_error(form.category_id) }}</div>
         <div class="col-md-6">{{ form.category_new(class="form-control") }}{{ macros.field_error(form.category_new) }}</div>
     </div>
-    <div class="row form-group-sm required">
-        <div class="col-md-1"><p class="text-right">{{ form.series.label }}</p></div>
-        <div class="col-md-5">{{ form.series(class="form-control") }}{{ macros.field_error(form.series) }}</div>
-        <div class="col-md-6">{{ form.series_new(class="form-control") }}{{ macros.field_error(form.series_new) }}</div>
+
     </div>
     <div class="row form-group-sm required">
         <div class="col-md-1"><p class="text-right">{{ form.tags.label }}</p></div>
@@ -44,13 +30,13 @@
         <div class="col-md-1">{{ form.private() }}</div>
     </div>
     <div class="form-group required">
-        {{ form.content.label }}
-        {{ form.content(only_preview=True) }}
-        {{ form.content(only_input=True, class="form-control", rows="15%") }}
+        {{ form.body.label }}
+        {{ form.body(only_preview=True) }}
+        {{ form.body(only_input=True, class="form-control", rows="15%") }}
     </div>
     <div class="form-group required">
         <div class="btn-group pull-right">
-            <a href="{{ url_for('article', id=help_article_id) }}" target="_blank" class="btn btn-default" role="button">帮助</a>
+            <a href="{{ url_for('.index') }}" target="_blank" class="btn btn-default" role="button">帮助</a>
             {{ form.submit(class="btn btn-default") }}
         </div>
     </div>

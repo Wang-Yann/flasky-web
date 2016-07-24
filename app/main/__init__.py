@@ -17,9 +17,9 @@ def fill_sidebar_data():
         'tags':[],
         'share':None
         }
-    categories = Category.query.order_by(Category.name).all()
+    categories = Category.query.order_by(Category.id).all()
     for category in categories:
-         sidebar_data['category'][category] = len(category.post_id.all())
+        sidebar_data['category'][category] = len(category.post_id.all())
     
     tags_cache = Tag.query.all()
     tags_data = [(tag.id,tag.tag_name, tag.posts.count()) for tag in tags_cache]

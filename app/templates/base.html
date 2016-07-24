@@ -13,13 +13,16 @@
         
         <link rel="shortcut icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
         <link rel="icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
-        <link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
+<!--    <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
+ -->    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-        
-        
+		
+		<link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+       
     {% endblock %}
 {% endblock %}
+
 <body>
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
@@ -39,7 +42,17 @@
                 <li><a href="{{ url_for('main.index') }}">Home</a></li>
                 {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-                <li>{% include '_search.html' %} </li>
+				
+				<li><span class="input-group"> 
+						<form id = "search_form" style="display: inline;"                        
+							action="{{url_for('.search')}}" method="post" name="search_form">
+							{{ g.search_form.hidden_tag()}}
+							{{ g.search_form.search(size=20) }}
+        					<input type="submit" value="GO!">
+						</form>
+					</span>
+				
+				</li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -53,6 +66,8 @@
                         Account <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
+						<li><a href="{{url_for('main.edit',opid='new')}}">写文章</a></li>
+						<li><a href="{{ url_for('main.index') }}" target="_blank">管理</a></li>
                         <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
                         <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
                         <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
@@ -67,45 +82,55 @@
 </div>
 {% endblock %}
 
+
 {% block content %}
-<div class="container-fluid">
-  <div class="row content">
-    <div class="col-sm-2 sidenav">
-      <h4>Yann's Blog</h4>
-      <ul class="nav nav-pills nav-stacked">
-        <li class="active"><a href="#section1">Home</a></li>
-        <li><a href="{{url_for('main.cg',id=1)}}">"Web技术"</a></li>
-        <li><a href="#section3">"数据库"</a></li>
-        <li><a href="#section3">“编程”</a></li>
-        <li><a href="#section3">"Linux"</a></li>
-        <li><a href="#section3">“生活”</a></li>
-      </ul>
-      <br>
+<div class="container">
 
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search Blog..">
-        <span class="input-group-btn">
-          <button class="btn btn-default" type="button">
-            <span class="glyphicon glyphicon-search"></span>
-          </button>
-        </span>
-      </div>
+	<div class="row">
+  
+		<div class="col-sm-3 sidebar">
+			<h4>Yann's Blog</h4>
+			<ul class="nav nav-pills nav-stacked">
+			<li class="active"><a href="#section1">Home</a></li>
+			<li><a href="{{url_for('main.cg',id=1)}}">Web技术</a></li>
+			<li><a href="#section3">数据库</a></li>
+			<li><a href="#section3">编程</a></li>
+			<li><a href="#section3">Linux</a></li>
+			<li><a href="#section3">生活</a></li>
+			</ul>
+			<br>
+			
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Search Blog..">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button">
+						<span class="glyphicon glyphicon-search"></span>
+					</button>
+				</span>
+			</div>
  
-        <div class="page-sidebar">    
-        {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
-        </div>
+			{% block sidebar %}
+				{{ macros.widget_tags(sidebar_data['tags'], 'post') }}
+				
+			{% endblock %}
+      	</div>
+	
+	
+		<div class="col-sm-9 container">
+			{% for message in get_flashed_messages() %}
+			<div class="alert alert-warning">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				{{ message }}
+			</div>
+			{% endfor %}
+	
+	
+			{% block page_content %}
+			{% endblock %}
+		</div>
+	</div>
 
-    </div>
-    <div class="col-sm-9 container">
-    {% for message in get_flashed_messages() %}
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {{ message }}
-    </div>
-    {% endfor %}
-
-    {% block page_content %}{% endblock %}
-
+	{% block footer %}
     <footer class="blog-footer">
         <hr>
         <p class="text-center">
@@ -117,10 +142,7 @@
             <a href="#">Back to Top</a>
         </p>
     </footer>
-
-
-
-  </div>
+	{% endblock %}
 </div>
 {% endblock %}
 
@@ -144,12 +166,3 @@
     {{ moment.include_moment() }}
     {{ moment.lang('zh-cn') }}
 {% endblock %}
-
-{% block footer %}
-	<div class="mastfoot">
-		<div class="inner">
-			<a href='http://www.miitbeian.gov.cn/'>浙ICP备16013637号</a>
-		</div>
-	</div>
-{% endblock %}
-</html>
