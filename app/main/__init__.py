@@ -15,8 +15,10 @@ def fill_sidebar_data():
     sidebar_data={
         'category':collections.OrderedDict(),
         'tags':[],
+
         'share':None
         }
+
     categories = Category.query.order_by(Category.id).all()
     for category in categories:
         sidebar_data['category'][category] = len(category.post_id.all())

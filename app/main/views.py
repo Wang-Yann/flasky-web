@@ -41,7 +41,6 @@ def before_request():
        db.session.add(g.user)
        db.session.commit()
        g.search_form = SearchForm()
-    #g.search_enabled=WHOOSH_ENABLED
 @main.route('/shutdown')
 def server_shutdown():
     if not current_app.testing:
@@ -55,85 +54,97 @@ def server_shutdown():
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = PostForm()
-    form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
-    #if g.user.is_authenticated and g.search_form.validate_on_submit():
-     #   return redirect(url_for('.search'))    
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        post = Post(title=form.title.data,
-                    body=form.body.data,
-                    author=current_user._get_current_object(),
-                    category_id=form.category_id.data,
-                    tags=str_to_obj(form.tags.data))
-        db.session.add(post)
-        return redirect(url_for('.index'))
-    page = request.args.get('page', 1, type=int)
+    by=request.args.get('by') or 'all'
+    
     show_followed = False
     if current_user.is_authenticated:
         show_followed = bool(request.cookies.get('show_followed', ''))
-    if show_followed:
-        query = current_user.followed_posts
+        if by == 'show_followed':
+            query = current_user.followed_posts        
+        elif by == 'concerns':
+            query=current_user.concerns
+        elif by == 'votes':
+            query=Post.query.join(UserLikePost,UserLikePost.user_id==current_user.id)\
+                    .filter(UserLikePost.post_id==Post.id)
+        else:
+            query=Post.query.order_by(Post.timestamp.desc())
     else:
-        query = Post.query
-    pagination = query.order_by(Post.timestamp.desc()).paginate(
+        if by=='read_count': 
+            query=Post.query.order_by(Post.read_count.desc())
+        elif by=='comment_count':
+            query=Post.query.order_by(Post.comments.count)
+        else:
+            query=Post.query.order_by(Post.timestamp.desc())
+        
+
+    page = request.args.get('page', 1, type=int)
+#    if show_followed:
+#        query = current_user.followed_posts
+#    else:
+#        query = Post.query
+    pagination = query.paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
-    categories = Category.query.all()
-    return render_template('index.html', form=form, posts=posts,categories=categories,
-                        show_followed=show_followed, pagination=pagination)
+    return render_template('index.html', posts=posts,by=by,
+                         pagination=pagination)
 
-@main.route('/edit/<opid>', methods=['GET', 'POST'])
+
+@main.route('/all')
+def show_all():
+    resp = make_response(redirect(url_for('.index')))
+    resp.set_cookie('show_followed', '', max_age=30*24*60*60)
+    return resp
+
+
+@main.route('/followed')
 @login_required
-def edit(opid):
+def show_followed():
+    resp = make_response(redirect(url_for('.index')))
+    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
+    return resp
+
+@main.route('/post/new', methods=['GET', 'POST'])
+@login_required
+def post_new():
     form = EditForm()
     form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         # new or edit post received
-        if form.id.data == 'new':
-            post = Post(title='', body='',
-                        author=current_user._get_current_object(), 
-                        read_count=0)
-        else:
-            post=Post.query.get_or_404(form.id.data)
-        post.update_time = datetime.utcnow
-        post.title = form.title.data
-        post.body = form.body.data
-        post.private = form.private.data
-
-        # if form.category_id.data == 'new':
-            # category = Category(name=form.category_new.data)
-            # db.session.add(category)
-        # else:
-            # category = Category.get_or_404(form.category_id.data)
-        post.category_id=form.category_id.data
-        # post.tags = str_to_obj(form.tags.data)
+        post = Post(
+        title = form.title.data,
+        body = form.body.data,
+        private = form.private.data,
+        category_id=form.category_id.data,
+        author=current_user._get_current_object(), 
+        tags=str_to_obj(form.tags.data),
+        read_count=0)
         db.session.add(post)
-        db.session.commit()
-        return redirect(url_for('.index'))
-    
-    else:
+        flash(u"发表成功")
+    #else:
+     #   post=Post.query.get_or_404(form.id.data)
+        return redirect(url_for('.post_new'))
+    return render_template('edit_post.html',form=form)
         # # display new or edit page
-       
-        # form.category_id.choices.append(('new', u'--新建分类--'))    # special category hint
+           
+            # form.category_id.choices.append(('new', u'--新建分类--'))    # special category hint
 
-        if opid == 'new':
-            new = True
-            form.id.data = 'new'
-            form.category_id.data = '1'    # default category
-            return render_template('edit.html', form=form, new=True)
-        else:
-            id = int(opid)
-            post = Post.query.get_or_404(id)
-            form.id.data = id
-            form.title.data = post.title
-            form.body.data = post.body
-            form.private.data = post.private
-            form.category_id.data = post.category_id
-            form.tags.data=post.post_tags
-            
-            return render_template('edit.html', form=form, new=False)
+            ##if opid == 'new':
+            ##    new = True
+            ##    form.id.data = 'new'
+            ##    form.category_id.data = '1'    # default category
+            ##    return render_template('edit.html', form=form, new=True)
+   #     else: 
+   #        id = int(opid)
+   #        post = Post.query.get_or_404(id)
+   #        form.styles.data = "edit"
+   #        form.title.data = post.title
+   #        form.body.data = post.body
+   #        form.private.data = post.private
+   #        form.category_id.data = post.category_id
+   #        form.tags.data=post.post_tags
+   #        
+   #        return render_template('edit.html', form=form)
                         
                         
                         
@@ -265,6 +276,8 @@ def edit_profile_admin(id):
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
+    post.read_count+=1
+    db.session.add(post)    #######
     form = CommentForm(request.form,follow=-1)
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
@@ -297,7 +310,7 @@ def post(id):
     comments = pagination.items
     #post.add_view(post,db)
 
-    return render_template('post.html', posts=[post], form=form,page=page,
+    return render_template('post.html', post=post, form=form,page=page,
                            comments=comments, pagination=pagination,endpoint='.post',\
                            id=post.id)
 
@@ -336,14 +349,14 @@ def delete(id):
 
 
     
-@main.route('/edit1/<int:id>', methods=['GET', 'POST'])
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit1(id):
+def post_edit(id):
     post = Post.query.get_or_404(id)
     if current_user != post.author and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
-    form = PostForm()
+    form = EditForm()
     form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
     if form.validate_on_submit():
         post.title=form.title.data
@@ -425,22 +438,6 @@ def followed_by(username):
                            follows=follows)
 
 
-@main.route('/all')
-@login_required
-def show_all():
-    resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '', max_age=30*24*60*60)
-    return resp
-
-
-@main.route('/followed')
-@login_required
-def show_followed():
-    resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
-    return resp
-
-
 @main.route('/moderate')
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
@@ -498,6 +495,7 @@ def tag(tag_id):
 
 
 @main.route('/concerns/<username>')
+@login_required 
 def concerns(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -508,26 +506,10 @@ def concerns(username):
         page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
         error_out=False)
     posts=pagination.items
-    return render_template('concerns.html', posts=posts,user=user, title="concerns of ",
+    return render_template('index.html', posts=posts,user=user, title="concerns of ",
                            endpoint='.concerns', pagination=pagination)
 
 
-#@main.route('/concerners/<int:post_id>')
-#def concerners(post_id):
-#    Post = Post.query.get_or_404(post_id)
-#    if Post is None:
-#        flash('Invalid post.')
-#        return redirect(url_for('.index'))
-#    page = request.args.get('page', 1, type=int)
-#    pagination = Post.users.paginate(
-#        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-#        error_out=False)
-#    follows = [{'user': item.follower, 'timestamp': item.timestamp}
-#               for item in pagination.items]
-#    return render_template('concerners.html', user=user, title="Followers of",
-#                           endpoint='.followers', pagination=pagination,
-#                           follows=follows)
-#
 
 @main.route('/concern/<int:post_id>')
 @login_required

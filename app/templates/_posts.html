@@ -53,12 +53,12 @@
                 {% if current_user == post.author %}
                     <span class="label label-primary">删除</span>
                 </a>
-                <a href="{{ url_for('.edit1', id=post.id) }}">
+                <a href="{{ url_for('.post_edit', id=post.id) }}">
                     <span class="label label-primary">Edit</span>
                 </a>
 
                 {% elif current_user.is_administrator() %}
-                <a href="{{ url_for('.edit1', id=post.id) }}">
+                <a href="{{ url_for('.post_edit', id=post.id) }}">
                     <span class="label label-danger">Edit [Admin]</span>
                 </a>
                 <a href="{{ url_for('.delete', id=post.id) }}">

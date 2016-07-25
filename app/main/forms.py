@@ -70,7 +70,7 @@ class PostForm(Form):
     submit = SubmitField( 'Submit')
 
 class EditForm(Form):
-    id = HiddenField('new')
+    types = HiddenField('new')
     title = TextAreaField(u'标题', validators=[Required()])
     body = PageDownField(u'内容', validators=[Required()])
     
@@ -86,7 +86,7 @@ class EditForm(Form):
             # elif field.data in [c[1] for c in form.category_id.choices]:
                 # raise ValidationError(u'分类名已存在')
 	
-    category_new = StringField('')
+#    category_new = StringField('')
     # startup needs to create all necessary tables before the following query operation
     
     

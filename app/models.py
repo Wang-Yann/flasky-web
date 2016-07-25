@@ -6,6 +6,8 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
+from flask.ext.pagedown import PageDown
+
 import bleach
 from flask import current_app, request, url_for
 from flask.ext.login import UserMixin, AnonymousUserMixin
@@ -379,8 +381,8 @@ class Post(db.Model):
     __analyzer__=ChineseAnalyzer()
     id = db.Column(db.Integer, primary_key=True)
     title=db.Column(db.String(128),unique=True,index=True)
-    body = db.Column(db.Text,index=True)
-    body_html = db.Column(db.Text)
+    body = db.Column(db.UnicodeText)
+    body_html = db.Column(db.UnicodeText)
     body_pre = db.Column(db.UnicodeText)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime,index=True, default=datetime.utcnow)
@@ -472,10 +474,11 @@ class Post(db.Model):
                 'img': ['alt', 'src', 'title'],
               }
         allowed_styles = ['*']
-        html = markdown(value, output_format='html5', 
-                    extensions=markdown_exts, extension_configs=markdown_exts_configs)
-        
-        target.body_html = html
+        target.body_html = bleach.linkify(bleach.clean(\
+                markdown(value, output_format='html5',extensions=markdown_exts,\
+                extension_configs=markdown_exts_configs),\
+                tags=allowed_tags,attributes=allowed_attrs,strip=True))
+
         lines = target.body_html.split("\n")
         target.body_pre = "\n".join(lines[:20])
               
@@ -509,9 +512,6 @@ class Post(db.Model):
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
-
-#if enable_search:           
- #       whooshalchemy.whoosh_index(app, Post)
 
 
 class Comment_Follow(db.Model):
