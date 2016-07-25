@@ -389,6 +389,7 @@ class Post(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     read_count = db.Column(db.Integer)
     
+    popularity = db.Column(db.Integer)
     private = db.Column(db.Boolean) # non-public, or hidden
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
@@ -397,7 +398,12 @@ class Post(db.Model):
                             lazy='dynamic',
                             single_parent=True,
                             cascade='all, delete-orphan')
-
+    
+    @staticmethod
+    def update_data(post,db):
+        post.popularity=post.comments.count()+post.read_count+3*post.remark_count
+        db.session.add(post)
+        db.session.commit()
     #@property
     #def concern_users(self):
     #   return self.users.all().count()

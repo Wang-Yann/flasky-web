@@ -72,7 +72,7 @@ def index():
         if by=='read_count': 
             query=Post.query.order_by(Post.read_count.desc())
         elif by=='comment_count':
-            query=Post.query.order_by(Post.comments.count)
+            query=Post.query.order_by(Post.popularity.desc())
         else:
             query=Post.query.order_by(Post.timestamp.desc())
         
@@ -276,8 +276,9 @@ def edit_profile_admin(id):
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
-    post.read_count+=1
-    db.session.add(post)    #######
+    
+    
+    ###db.session.add(post)    #######
     form = CommentForm(request.form,follow=-1)
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
@@ -294,6 +295,7 @@ def post(id):
             comment.reply_to=followed.author_name
             db.session.add(f)
             db.session.add(comment)
+            
             db.session.commit()
         flash('Your comment has been published.')
         return redirect(url_for('.post', id=post.id, page=-1))
@@ -309,7 +311,8 @@ def post(id):
         error_out=False)
     comments = pagination.items
     #post.add_view(post,db)
-
+    post.read_count+=1
+    post.update_data(post,db)
     return render_template('post.html', post=post, form=form,page=page,
                            comments=comments, pagination=pagination,endpoint='.post',\
                            id=post.id)
@@ -506,6 +509,7 @@ def concerns(username):
         page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
         error_out=False)
     posts=pagination.items
+    
     return render_template('index.html', posts=posts,user=user, title="concerns of ",
                            endpoint='.concerns', pagination=pagination)
 
@@ -535,6 +539,7 @@ def unconcern(post_id):
     current_user.unconcern(post)
     flash('You are not concerning anymore.')
     return redirect(url_for('.post', id=post_id))
+    
 @main.route('/vote/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.FOLLOW)
@@ -545,6 +550,7 @@ def vote(post_id):
 #        db.session.add(r)
 #        db.session.commit()
         remark(current_user,post)
+        post.update_data(post,db)
         flash('success')
         return redirect(url_for('.post',id=post_id))
     return redirect(url_for('.post',id=post_id))

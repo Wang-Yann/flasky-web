@@ -26,6 +26,8 @@
     min-height: 260px;
     margin-left: 280px;
 }
+
+
 div.post-tabs {
     margin-top: 16px;
 }
@@ -46,8 +48,10 @@ ul.posts li.post {
 ul.posts li.post:hover {
     background-color: #f0f0f0;
 }
+
+
 div.post-date {
-    float: right;
+    float: left;
 }
 div.post-author {
     font-weight: bold;
@@ -55,6 +59,7 @@ div.post-author {
 div.post-thumbnail {
     position: absolute;
 }
+
 div.post-content {
     margin-left: 48px;
     min-height: 48px;
@@ -62,19 +67,12 @@ div.post-content {
 div.post-header {
     font-weight:bold;
 }
-div.post-footer {
-    text-align: right;
-}
-ul.comments {
-    list-style-type: none;
-    padding: 0px;
-    margin: 16px 0px 0px 0px;
-}
-ul.comments li.comment {
-    margin-left: 32px;
-    padding: 8px;
-    border-bottom: 1px solid #e0e0e0;
-}
+
+
+
+
+
+
 ul.comments li.comment:nth-child(1) {
     border-top: 1px solid #e0e0e0;
 }
