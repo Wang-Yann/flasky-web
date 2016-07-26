@@ -23,7 +23,7 @@ class Config:
     UPLOAD_FOLDER =basedir+'/app/static'
     WHOOSH_BASE = basedir+'/Index'
     MAX_SEARCH_RESULTS = 50
-
+    BABEL_DEFAULT_LOCALE='zh_CN'
  
     @staticmethod
     def init_app(app):

@@ -6,12 +6,13 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
-from flask.ext.pagedown import PageDown
 
+from flask.ext.pagedown import PageDown
 import bleach
 from flask import current_app, request, url_for
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
+
 from . import db, login_manager
 import app,sys
 import flask_whooshalchemyplus
@@ -104,6 +105,10 @@ class Follow(db.Model):
 concern_posts=db.Table('concern_posts',
     db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
     db.Column('post_id',db.Integer,db.ForeignKey('posts.id')))
+
+
+
+
 
 
 
@@ -572,14 +577,6 @@ class Comment(db.Model):
     # def follwed_name(self):
         # if self.is_reply():
             # return self.followed.author_name
-    def gravatar(self, size=40, default='identicon', rating='g'):
-        if request.is_secure:
-            url = 'https://secure.gravatar.com/avatar'
-        else:
-            url = 'http://www.gravatar.com/avatar'
-        hash = self.avatar_hash 
-        # or hashlib.md5(
-            # self.email.encode('utf-8')).hexdigest()
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
             
@@ -650,6 +647,7 @@ class Category(db.Model):
         return Post.query.filter_by(Post.category==self.id)
     def __repr__(self):
         return '<Category %r>' % self.name
+
 
 
 

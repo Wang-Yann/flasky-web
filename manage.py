@@ -2,6 +2,13 @@
 import os
 import sys
 #import flask_whooshalchemyplus
+import flask_admin as admin
+from flask_admin import BaseView,expose
+from flask_admin.contrib import sqla
+from flask_admin.contrib.sqla import filters
+from wtforms import validators
+
+
 
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
@@ -80,6 +87,48 @@ def deploy():
     Category.insert_categories()
     # create self-follows for all users
     User.add_self_follows()
+
+###customized User model admin
+class UserAdmin(sqla.ModelView):
+    inline_models = (User,)
+
+class PostAdmin(sqla.ModelView):
+    column_excluded_list = ['body']
+
+    column_sortable_list = ( 'title',('author_id','author_id'),'timestamp')
+
+    column_labels = dict(title='Post title')
+
+    column_searchable_list = ('title',User.username,'tags.tag_name')
+
+    column_filters = ('author_id','title','timestamp','tags',
+                        filters.FilterLike(Post.title,'Fixed title',options=(('test1','Test 1'),('test2','Test 2'))))
+
+    form_args = dict(text=dict(label='Big Text',validators=[validators.required()]))
+    
+   # form_ajax_refs={'user':{'fields':(User.username,User.email)},
+    #                'tags':{'fields':(Tag.tag_name,)} }
+
+    def __init__(self,session):
+        super(PostAdmin,self).__init__(Post,session)
+class CategoryView(sqla.ModelView):
+    form_excluded_columns = ['post_id',]
+
+class MyView(BaseView):
+    @expose('/')
+    def index(self):
+        return self.render('index.html')
+
+
+admin=admin.Admin(app,name="LOBSTER",template_mode='bootstrap3')
+
+#admin.add_view(UserAdmin(User,db.session))
+admin.add_view(sqla.ModelView(Tag,db.session))
+admin.add_view(PostAdmin(db.session))
+admin.add_view(CategoryView(Category,db.session))
+admin.add_view(MyView(name="hello 1",endpoint="test1",category="test"))
+
+
 
 
 if __name__ == '__main__':
