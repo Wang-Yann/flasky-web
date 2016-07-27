@@ -6,11 +6,12 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
+from flask_security import UserMixin,RoleMixin,current_user
 
 from flask.ext.pagedown import PageDown
 import bleach
 from flask import current_app, request, url_for
-from flask.ext.login import UserMixin, AnonymousUserMixin
+from flask.ext.login import  AnonymousUserMixin    ###remove Usermixin
 from app.exceptions import ValidationError
 
 from . import db, login_manager
@@ -29,13 +30,13 @@ class Permission:
     ADMINISTER = 0x80
 
 
-class Role(db.Model):
+class Role(db.Model,RoleMixin):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=False, index=True)
     permissions = db.Column(db.Integer)
-    users = db.relationship('User', backref='role', lazy='dynamic')
+ #   users = db.relationship('User', backref='role', lazy='dynamic')
 
     @staticmethod
     def insert_roles():
@@ -60,6 +61,10 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role %r>' % self.name
+    def __unicode__(self):
+        return self.name
+
+
 
 ####对文章的点赞
 #class RemarkPost(db.Model):
@@ -84,7 +89,7 @@ class UserLikePost(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     user_id=db.Column(db.Integer)
     post_id=db.Column(db.Integer)
-    
+        
     #timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 def remark(user,post):
         r=UserLikePost(user_id=user.id,post_id=post.id)
@@ -100,7 +105,7 @@ class Follow(db.Model):
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'),
                             primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
+    
 
 concern_posts=db.Table('concern_posts',
     db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
@@ -109,8 +114,9 @@ concern_posts=db.Table('concern_posts',
 
 
 
-
-
+roles_users=db.Table('roles_users',
+        db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
+        db.Column('role_id',db.Integer,db.ForeignKey('roles.id')))
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -127,6 +133,9 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
     new_avatar_file=db.Column(db.String(128))
+
+    roles=db.relationship('Role',secondary=roles_users,
+                        backref=db.backref('users',lazy='dynamic'))
 
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow',
@@ -356,7 +365,8 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
-
+    def __unicode__(self): 
+        return self.username
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
@@ -374,7 +384,7 @@ def load_user(user_id):
 
 
 post_tag_ref=\
-    db.Table('post_tag_ref',
+    db.Table('post_tag_ref',db.Model.metadata,
        db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
        db.Column('tag_id',db.Integer, db.ForeignKey('tags.id')))
 
@@ -396,14 +406,11 @@ class Post(db.Model):
     
     popularity = db.Column(db.Integer)
     private = db.Column(db.Boolean) # non-public, or hidden
-    comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    comments = db.relationship('Comment', backref='post',lazy='dynamic')
     category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
-    tags = db.relationship('Tag', secondary=post_tag_ref, 
-                            backref=db.backref('posts',lazy='dynamic'),
-                            lazy='dynamic',
-                            single_parent=True,
-                            cascade='all, delete-orphan')
-    
+    tags = db.relationship('Tag', secondary=post_tag_ref,
+                             backref=db.backref('posts',lazy='dynamic'))
+    ##
     @staticmethod
     def update_data(post,db):
         post.popularity=post.comments.count()+post.read_count+3*post.remark_count
@@ -577,8 +584,17 @@ class Comment(db.Model):
     # def follwed_name(self):
         # if self.is_reply():
             # return self.followed.author_name
-        return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
-            url=url, hash=hash, size=size, default=default, rating=rating)
+
+    def gravatar(self, size=40, default='identicon', rating='g'):
+    ####    if self.is_avatar_default: 
+            if request.is_secure:
+                url = 'https://secure.gravatar.com/avatar'
+            else:
+                url = 'http://www.gravatar.com/avatar'
+            hash = self.avatar_hash or hashlib.md5(
+                self.author.email.encode('utf-8')).hexdigest()
+            return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(\
+                url=url, hash=hash, size=size, default=default, rating=rating)
             
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -604,7 +620,8 @@ class Comment(db.Model):
         if body is None or body == '':
             raise ValidationError('comment does not have a body')
         return Comment(body=body)
-
+    def __unicode__(self):
+        return self.body
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
 
 
@@ -613,7 +630,8 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key= True)
     tag_name = db.Column(db.String(80),unique=True)  
  
-   
+    def __unicode__(self):
+        return self.tag_name 
     #@property
     #def tag_posts(self):
    #     return Post.query.join(post_tag_ref.post_id==Post.id).filter(post_tag_ref.tag_id==self.id)
@@ -647,7 +665,8 @@ class Category(db.Model):
         return Post.query.filter_by(Post.category==self.id)
     def __repr__(self):
         return '<Category %r>' % self.name
-
+    def __unicode__(self):
+        return self.name
 
 
 

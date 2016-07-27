@@ -16,7 +16,7 @@ mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
 pagedown = PageDown()
-babel = Babel()
+babel = Babel
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'

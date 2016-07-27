@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import os
 import sys
-#import flask_whooshalchemyplus
 import flask_admin as admin
-from flask_admin import BaseView,expose
 from flask_admin.contrib import sqla
-from flask_admin.contrib.sqla import filters
 from wtforms import validators
+from app.adminviews import CommentAdmin,\
+    PostAdmin,FileAdminView,MyView,MyModelView
 
+from flask_security import Security,SQLAlchemyUserDatastore
+from flask_admin import helpers as admin_helpers
 
 
 COV = None
@@ -88,46 +89,31 @@ def deploy():
     # create self-follows for all users
     User.add_self_follows()
 
-###customized User model admin
-class UserAdmin(sqla.ModelView):
-    inline_models = (User,)
-
-class PostAdmin(sqla.ModelView):
-    column_excluded_list = ['body']
-
-    column_sortable_list = ( 'title',('author_id','author_id'),'timestamp')
-
-    column_labels = dict(title='Post title')
-
-    column_searchable_list = ('title',User.username,'tags.tag_name')
-
-    column_filters = ('author_id','title','timestamp','tags',
-                        filters.FilterLike(Post.title,'Fixed title',options=(('test1','Test 1'),('test2','Test 2'))))
-
-    form_args = dict(text=dict(label='Big Text',validators=[validators.required()]))
-    
-   # form_ajax_refs={'user':{'fields':(User.username,User.email)},
-    #                'tags':{'fields':(Tag.tag_name,)} }
-
-    def __init__(self,session):
-        super(PostAdmin,self).__init__(Post,session)
-class CategoryView(sqla.ModelView):
-    form_excluded_columns = ['post_id',]
-
-class MyView(BaseView):
-    @expose('/')
-    def index(self):
-        return self.render('index.html')
+user_datastore=SQLAlchemyUserDatastore(db,User,Role)
+security=Security(app,user_datastore)
 
 
-admin=admin.Admin(app,name="LOBSTER",template_mode='bootstrap3')
+@security.context_processor
+def security_context_processor():
+    return dict(
+        admin_base_template=admin.base_template,
+        admin_view=admin.index_view,
+        h=admin_helpers,
+        get_url=url_for
+        )
 
-#admin.add_view(UserAdmin(User,db.session))
+
+admin=admin.Admin(app,name="LOBSTER",base_template='my_master.html',template_mode='bootstrap3')
+
+admin.add_view(MyModelView(Role,db.session))
+admin.add_view(MyModelView(User,db.session))
+##admin.add_view(MyModelView(PostAdmin,db.session))
+admin.add_view(CommentAdmin(db.session))
+admin.add_view(sqla.ModelView(Category,db.session))
 admin.add_view(sqla.ModelView(Tag,db.session))
-admin.add_view(PostAdmin(db.session))
-admin.add_view(CategoryView(Category,db.session))
-admin.add_view(MyView(name="hello 1",endpoint="test1",category="test"))
-
+admin.add_view(sqla.ModelView(Follow,db.session))
+admin.add_view(MyView(name="yann",endpoint="extra",category="others"))
+admin.add_view(FileAdminView(app.config.get('UPLOAD_FILE_PATH'),'/static/files/',name='Files'))
 
 
 
