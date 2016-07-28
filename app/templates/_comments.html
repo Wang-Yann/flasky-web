@@ -55,11 +55,13 @@
                 {% endif %}
                 </div>
                 <div class="col-sm-1" {%if current_user.is_authenticated%}col-sm-offset-10 {% endif %}>
-                    <button class="btn btn-sm btn-info" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
-                        <span class="glyphicon glyphicon-comment"></span>回复
+                    <button class="btn btn-xs btn-default" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
+                        <span class="glyphicon glyphicon-comment" style="color: rgb(208, 208, 255);"></span> 回复
                     </button>
                 </div>
 			</div>
+			
+			
     </li>
 	
     {% endfor %}

@@ -388,7 +388,7 @@ login_manager.anonymous_user = AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))  ##########query
-	
+    
 
 
 post_tag_ref=\
@@ -670,10 +670,12 @@ class Category(db.Model):
     id = db.Column(db.Integer,primary_key = True)
     name = db.Column(db.Unicode(80),unique=True)
     posts = db.relationship('Post',backref='category',lazy='dynamic')
+    
+    parent_id =db.Column(db.Integer,default=0)
 
     @staticmethod
     def insert_categories():
-        categories =[u"Web技术", u"数据库", u"编程", u"生活",u"Linux"] 
+        categories =[u"未分类",u"Web技术", u"数据库", u"编程", u"生活",u"Linux"] 
         for n in categories:
             category = Category(name=n)
             db.session.add(category)
@@ -706,15 +708,15 @@ class Shortmessage(db.Model):
     def __unicode__(self):
         return self.subject
 
-class Image(db.Model):
-    __tablename__ = 'images'
+class Photo(db.Model):
+    __tablename__ = 'photoes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(64), unique=True, index=True, nullable=False)
     description = db.Column(db.UnicodeText)
     path = db.Column(db.Unicode(256), nullable=False) # stored in local directory instead
 
     def __repr__(self):
-        return '<Image r%>' % self.name
+        return '<Photo r%>' % self.name
     def __unicode__(self):
         return self.name
 

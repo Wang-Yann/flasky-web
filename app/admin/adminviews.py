@@ -13,75 +13,61 @@ from wtforms import validators
 from app.models import User, Follow, Role, Permission, Post, Comment,UserLikePost,Category,Tag,Comment_Follow
 from flask_admin.contrib.fileadmin import FileAdmin
 
-#from flask_security
 
 #####customized User model admin
 class UserAdmin(sqla.ModelView):
+    
+    
     can_create=False
-    page_size=50
+    page_size=30
     ##inline_models=[(Post,dict(form_columns=['title']))]   ##内联使用
     column_exclude_list=['id','password_hash','location','member_since','name','avatar_hash','about_me']
     column_auto_select_related=False 
-    #form_extra_fields={'password':PasswordField('Password')} 
     form_ajax_refs={ "posts":{"fields":(Post.title,)} }
-
-                    
-
-    def __init__(self,session):
-        super(UserAdmin,self).__init__(User,session)
-class RoleAdmin(sqla.ModelView):
+    def is_accessible(self):
+        return current_user.is_administrator()  
     
+class RoleAdmin(sqla.ModelView):
+                
     can_create=False
-    page_size=50
-
-    def __init__(self,session):
-        super(RoleAdmin,self).__init__(Role,session)
+    page_size = 30
+    
+    
 
 class CommentAdmin(sqla.ModelView):
     
     can_create=False
-    page_size=50
-
-    def __init__(self,session):
-        super(CommentAdmin,self).__init__(Comment,session)
+    page_size=30
+    
 
 class PostAdmin(sqla.ModelView):
     can_view_details=True
     page_size=50
     column_auto_select_related=False      ######小坑，因为flask-admin默认使用join模式，所以增加这句
-    #column_select_related_list=('comments','tags')
-    #inline_models=('Tag',dict(form_columns=['tag_name']))
-    column_list=('title','body','comments','tags')
-    #column_exclude_list = ['body','body_html','update_time','popularity',]
+    #####column_select_related_list=('comments','tags')
+    
+    ###############column_list=('title','body')####tags,'comments'不能显示关联列
+    column_exclude_list = ['body','body_html','update_time','popularity',]
     column_formatters=dict(comments=Post.comments)
     column_sortable_list = ( 'title',('author','author.username'),('category','category.name'),'timestamp')
-
     column_labels = dict(title='Title',body_pre="PreView")
-
     column_searchable_list = ('title',User.username,'tags.tag_name')
-
     column_filters = ('author_id','title','timestamp','tags',
                         filters.FilterLike(Post.title,'Fixed title',options=(('test1','Test 1'),('test2','Test 2'))))
-
 
     form_args = dict(text=dict(label='Big Text',validators=[validators.required()]))
     
     form_ajax_refs={ 'comments':{'fields':(Comment.id,Comment.body)},
                                         
-                     'tags':{'fields':(Tag.tag_name,)} }
-
+                      'tags':{'fields':(Tag.tag_name,)} }######ajax要和column_list配合才能显示，但是使用安全视图未成功
+    def is_accessible(self):
+        return current_user.is_administrator() 
     def __init__(self,session):
         super(PostAdmin,self).__init__(Post,session)
-#class CategoryView(sqla.ModelView):
- #   form_exclude_columns = ['post_id',]
+
 
 class FileAdminView(FileAdmin):
     pass
-####class MyView(BaseView):
-####    @expose('/')
-####    def index(self):
-####        return self.render('admin/index.html')
-####
 
 class MyModelView(sqla.ModelView):
     def is_accessible(self):
@@ -89,7 +75,6 @@ class MyModelView(sqla.ModelView):
             return False
         if current_user.is_administrator():
             return True
-
         return False
     def inaccessible_callback(self, name, **kwargs):
         # redirect to login page if user doesn't have access
@@ -104,7 +89,6 @@ class MyModelView(sqla.ModelView):
 ###
 # Create customized index view class that handles login & registration
 class MyAdminIndexView(admin.AdminIndexView):
-
     @expose('/')
     def index(self):
 #        if not current_user.is_authenticated:
@@ -158,10 +142,10 @@ class MyAdminIndexView(admin.AdminIndexView):
         return redirect(url_for('.index'))
 
 
-# Flask views
-#@app.route('/')
-#def index():
- #   return render_template('index.html')
+		
+
+
+
 
 
 

@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: 1215cb3583f6
+Revision ID: 4e15c4d83a22
 Revises: None
-Create Date: 2016-07-27 23:08:03.020000
+Create Date: 2016-07-28 23:00:45.707000
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '1215cb3583f6'
+revision = '4e15c4d83a22'
 down_revision = None
 
 from alembic import op
@@ -19,17 +19,18 @@ def upgrade():
     op.create_table('categories',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.Unicode(length=80), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
-    op.create_table('images',
+    op.create_table('photoes',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.Unicode(length=64), nullable=False),
     sa.Column('description', sa.UnicodeText(), nullable=True),
     sa.Column('path', sa.Unicode(length=256), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('ix_images_name', 'images', ['name'], unique=True)
+    op.create_index('ix_photoes_name', 'photoes', ['name'], unique=True)
     op.create_table('roles',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=True),
@@ -97,12 +98,6 @@ def upgrade():
     )
     op.create_index('ix_posts_title', 'posts', ['title'], unique=True)
     op.create_index('ix_posts_update_time', 'posts', ['update_time'], unique=False)
-    op.create_table('roles_users',
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('role_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], )
-    )
     op.create_table('shortmessages',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('send_id', sa.Integer(), nullable=False),
@@ -166,7 +161,6 @@ def downgrade():
     op.drop_table('comments')
     op.drop_index('ix_shortmessages_timestamp', 'shortmessages')
     op.drop_table('shortmessages')
-    op.drop_table('roles_users')
     op.drop_index('ix_posts_update_time', 'posts')
     op.drop_index('ix_posts_title', 'posts')
     op.drop_table('posts')
@@ -178,7 +172,7 @@ def downgrade():
     op.drop_table('tags')
     op.drop_index('ix_roles_default', 'roles')
     op.drop_table('roles')
-    op.drop_index('ix_images_name', 'images')
-    op.drop_table('images')
+    op.drop_index('ix_photoes_name', 'photoes')
+    op.drop_table('photoes')
     op.drop_table('categories')
     ### end Alembic commands ###

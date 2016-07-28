@@ -1,4 +1,6 @@
+#-*-coding:utf-8-*-
 #!/usr/bin/env python
+
 import os
 import sys
 import flask_admin as admin
@@ -25,11 +27,11 @@ if os.path.exists('.env'):
             os.environ[var[0]] = var[1]
 
 
-			
+            
 from app import create_app, db
 from app.models import User,UserLikePost, Follow, Role, Permission,concern_posts,\
      Post, post_tag_ref,Comment,Category,Tag,Comment_Follow,\
-     Shortmessage,Image
+     Shortmessage,Photo
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -40,7 +42,7 @@ migrate = Migrate(app, db)
 app.jinja_env.globals['Comment'] = Comment
 app.jinja_env.globals['Post'] = Post
 
-filepath=app.config.get('UPLOAD_FILE_PATH')	
+filepath=app.config.get('UPLOAD_FILE_PATH') 
 try:
     os.mkdir(filepath)
 except OSError:
@@ -52,7 +54,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,\
                 Permission=Permission, Post=Post, Comment=Comment,\
                 UserLikePost=UserLikePost,Category=Category,Tag=Tag,\
-                Shortmessage=Shortmessage,Image=Image)
+                Shortmessage=Shortmessage,Photo=Photo)
                 
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
@@ -93,7 +95,7 @@ def profile(length=25, profile_dir=None):
 def deploy():
     """Run deployment tasks."""
     from flask.ext.migrate import upgrade
-    from app.models import Role, User
+    
 
     
     
@@ -107,15 +109,19 @@ def deploy():
     # create self-follows for all users
     User.add_self_follows()
     u=User(email='abc@abc.com',username="abcd",password='abc',confirmed=True,role_id=2) 
-    v=User(email='a@abc.com',username="ab",password='abc',confirmed=True,role_id=3)
+    v=User(email='a@abc.com',username="a",password='abc',confirmed=True,role_id=3)
+    x=User(email='b@abc.com',username="b",password='abc',confirmed=True,role_id=3)
+    y=User(email='c@abc.com',username="c",password='abc',confirmed=True,role_id=3)
     db.session.add(u)
     db.session.add(v)
+    db.session.add(x)
+    db.session.add(y)
     db.session.commit()
-    User.generate_fake(10)
+    User.generate_fake(2)
     Post.generate_fake(10)
     Comment.generate_fake(12)
-	
-	
+    
+    
 ########user_datastore=SQLAlchemyUserDatastore(db,User,Role)
 ####security=Security(app,user_datastore)
 ####
@@ -131,18 +137,21 @@ def deploy():
 ####        get_url=url_for
 ####        )
 ####
-
 admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
         index_view=MyAdminIndexView(),\
         base_template='admin/my_master.html',template_mode='bootstrap3')
 
 #admin.add_view(MyModelView(Role,db.session))
-admin.add_view(MyModelView(User,db.session))
-##admin.add_view(MyModelView(PostAdmin,db.session))
-admin.add_view(MyModelView(Comment,db.session))
-admin.add_view(sqla.ModelView(Category,db.session))
-admin.add_view(sqla.ModelView(Tag,db.session))
-admin.add_view(sqla.ModelView(Follow,db.session))
+
+admin.add_view(UserAdmin(User,db.session))
+
+admin.add_view(PostAdmin(db.session))
+
+admin.add_view(MyModelView(Comment,db.session))    ####三种式样的view注意区分
+
+admin.add_view(MyModelView(Category,db.session))
+admin.add_view(MyModelView(Tag,db.session))
+admin.add_view(MyModelView(Follow,db.session))
 ##admin.add_view(MyView(name="yann",endpoint="extra",category="others"))
 admin.add_view(FileAdminView(filepath,name='Files'))
 
