@@ -6,12 +6,12 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
-from flask_security import UserMixin,RoleMixin, AnonymousUser##,current_user
+###from flask_security import UserMixin,RoleMixin, AnonymousUser
   
 from flask.ext.pagedown import PageDown
 import bleach
 from flask import current_app, request, url_for
-from flask.ext.login import  AnonymousUserMixin    ###remove Usermixin
+from flask.ext.login import  AnonymousUserMixin,UserMixin
 from app.exceptions import ValidationError
 
 from . import db, login_manager
@@ -30,13 +30,13 @@ class Permission:
     ADMINISTER = 0x80
 
 
-class Role(db.Model,RoleMixin):
+class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=False, index=True)
     permissions = db.Column(db.Integer)
- #   users = db.relationship('User', backref='role', lazy='dynamic')
+    users = db.relationship('User', backref='role', lazy='dynamic')
 
     @staticmethod
     def insert_roles():
@@ -114,10 +114,10 @@ concern_posts=db.Table('concern_posts',
 
 
 
-roles_users=db.Table('roles_users',
-        db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
-        db.Column('role_id',db.Integer,db.ForeignKey('roles.id')))
-
+###roles_users=db.Table('roles_users',
+###        db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
+###        db.Column('role_id',db.Integer,db.ForeignKey('roles.id')))
+###
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -139,8 +139,8 @@ class User(UserMixin, db.Model):
     
     
     
-    roles=db.relationship('Role',secondary=roles_users,
-                        backref=db.backref('users',lazy='dynamic'))
+ ####   roles=db.relationship('Role',secondary=roles_users,
+ #####                       backref=db.backref('users',lazy='dynamic'))
 
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow',
@@ -221,7 +221,7 @@ class User(UserMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.roles is None:  ############
+        if self.role is None:  ############
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
@@ -373,21 +373,21 @@ class User(UserMixin, db.Model):
     def __unicode__(self): 
         return self.username
 
-class MyAnonymousUser(AnonymousUser):  #####
-    
-    
+class AnonymousUser(AnonymousUserMixin):  #####
+#    def __init__(self, **kwargs):
+ #        super(MyAnonymousUser, self).__init__(**kwargs)
+
     def can(self, permissions):
         return False
 
     def is_administrator(self):
         return False
 
-###login_manager.anonymous_user = AnonymousUser
-login_manager.anonymous_user = MyAnonymousUser
+login_manager.anonymous_user = AnonymousUser
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.objects.get(int(user_id))  ##########query
+    return User.query.get(int(user_id))  ##########query
 	
 
 

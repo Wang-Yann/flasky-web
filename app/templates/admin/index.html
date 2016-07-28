@@ -1,4 +1,12 @@
 {% extends 'admin/master.html' %}
+{% block head %}
+{{ super() }}
+    {% block meta %}
+        <meta name="csrf-token" content="{{ csrf_token() }}"/>
+    {% endblock %}
+{% endblock %}
+
+
 {% block body %}
 {{ super() }}
 <div class="container">
@@ -19,3 +27,15 @@
     </div>
 </div>
 {% endblock body %}
+{% block scripts %}
+    <script>
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        })
+    </script>
+{% endblock %}

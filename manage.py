@@ -4,11 +4,11 @@ import sys
 import flask_admin as admin
 from flask_admin.contrib import sqla
 from wtforms import validators
-from app.adminviews import CommentAdmin,\
-    PostAdmin,FileAdminView,MyView,MyModelView
+from app.adminviews import CommentAdmin,UserAdmin,\
+    PostAdmin,FileAdminView,MyModelView,MyAdminIndexView
 
-from flask_security import Security,SQLAlchemyUserDatastore
-from flask_admin import helpers as admin_helpers
+##from flask_security import Security,SQLAlchemyUserDatastore
+###from flask_admin import helpers as admin_helpers
 
 
 COV = None
@@ -28,7 +28,7 @@ if os.path.exists('.env'):
 			
 from app import create_app, db
 from app.models import User,UserLikePost, Follow, Role, Permission,concern_posts,\
-     roles_users, Post, post_tag_ref,Comment,Category,Tag,Comment_Follow,\
+     Post, post_tag_ref,Comment,Category,Tag,Comment_Follow,\
      Shortmessage,Image
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
@@ -116,32 +116,34 @@ def deploy():
     Comment.generate_fake(12)
 	
 	
-user_datastore=SQLAlchemyUserDatastore(db,User,Role)
-security=Security(app,user_datastore)
+########user_datastore=SQLAlchemyUserDatastore(db,User,Role)
+####security=Security(app,user_datastore)
+####
+####
+####
+####
+####@security.context_processor
+####def security_context_processor():
+####    return dict(
+####        admin_base_template=admin.base_template,
+####        admin_view=admin.index_view,
+####        h=admin_helpers,
+####        get_url=url_for
+####        )
+####
 
+admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
+        index_view=MyAdminIndexView(),\
+        base_template='admin/my_master.html',template_mode='bootstrap3')
 
-
-
-@security.context_processor
-def security_context_processor():
-    return dict(
-        admin_base_template=admin.base_template,
-        admin_view=admin.index_view,
-        h=admin_helpers,
-        get_url=url_for
-        )
-
-
-admin=admin.Admin(app,name="LOBSTER",base_template='index.html',template_mode='bootstrap3')
-
-admin.add_view(MyModelView(Role,db.session))
+#admin.add_view(MyModelView(Role,db.session))
 admin.add_view(MyModelView(User,db.session))
 ##admin.add_view(MyModelView(PostAdmin,db.session))
-admin.add_view(CommentAdmin(db.session))
+admin.add_view(MyModelView(Comment,db.session))
 admin.add_view(sqla.ModelView(Category,db.session))
 admin.add_view(sqla.ModelView(Tag,db.session))
 admin.add_view(sqla.ModelView(Follow,db.session))
-admin.add_view(MyView(name="yann",endpoint="extra",category="others"))
+##admin.add_view(MyView(name="yann",endpoint="extra",category="others"))
 admin.add_view(FileAdminView(filepath,name='Files'))
 
 

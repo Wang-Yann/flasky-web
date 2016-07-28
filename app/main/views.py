@@ -55,7 +55,6 @@ def server_shutdown():
     shutdown()
     return 'Shutting down...'
 
-
 @main.route('/', methods=['GET', 'POST'])
 def index():
     by=request.args.get('by') or 'all'
