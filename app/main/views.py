@@ -4,7 +4,11 @@ from PIL import Image
 from datetime import datetime
 from flask import render_template, redirect, url_for, abort, flash, request,\
     current_app, make_response,  g
-from flask.ext.login import login_required, current_user
+	
+from flask_security import current_user,login_required
+	
+	
+#from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\

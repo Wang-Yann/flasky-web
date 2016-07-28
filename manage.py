@@ -24,8 +24,12 @@ if os.path.exists('.env'):
         if len(var) == 2:
             os.environ[var[0]] = var[1]
 
+
+			
 from app import create_app, db
-from app.models import User, Follow, Role, Permission, Post, Comment,UserLikePost,Category,Tag,Comment_Follow
+from app.models import User,UserLikePost, Follow, Role, Permission,concern_posts,\
+     roles_users, Post, post_tag_ref,Comment,Category,Tag,Comment_Follow,\
+     Shortmessage,Image
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -36,10 +40,20 @@ migrate = Migrate(app, db)
 app.jinja_env.globals['Comment'] = Comment
 app.jinja_env.globals['Post'] = Post
 
+filepath=app.config.get('UPLOAD_FILE_PATH')	
+try:
+    os.mkdir(filepath)
+except OSError:
+    pass
+
+
+
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,
+    return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,\
                 Permission=Permission, Post=Post, Comment=Comment,\
-                UserLikePost=UserLikePost,Category=Category)
+                UserLikePost=UserLikePost,Category=Category,Tag=Tag,\
+                Shortmessage=Shortmessage,Image=Image)
+                
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
@@ -74,12 +88,16 @@ def profile(length=25, profile_dir=None):
                                       profile_dir=profile_dir)
     app.run()
 
+
 @manager.command
 def deploy():
     """Run deployment tasks."""
     from flask.ext.migrate import upgrade
     from app.models import Role, User
 
+    
+    
+    
     # migrate database to latest revision
     upgrade()
     
@@ -88,9 +106,20 @@ def deploy():
     Category.insert_categories()
     # create self-follows for all users
     User.add_self_follows()
-
+    u=User(email='abc@abc.com',username="abcd",password='abc',confirmed=True,role_id=2) 
+    v=User(email='a@abc.com',username="ab",password='abc',confirmed=True,role_id=3)
+    db.session.add(u)
+    db.session.add(v)
+    db.session.commit()
+    User.generate_fake(10)
+    Post.generate_fake(10)
+    Comment.generate_fake(12)
+	
+	
 user_datastore=SQLAlchemyUserDatastore(db,User,Role)
 security=Security(app,user_datastore)
+
+
 
 
 @security.context_processor
@@ -103,7 +132,7 @@ def security_context_processor():
         )
 
 
-admin=admin.Admin(app,name="LOBSTER",base_template='my_master.html',template_mode='bootstrap3')
+admin=admin.Admin(app,name="LOBSTER",base_template='index.html',template_mode='bootstrap3')
 
 admin.add_view(MyModelView(Role,db.session))
 admin.add_view(MyModelView(User,db.session))
@@ -113,7 +142,7 @@ admin.add_view(sqla.ModelView(Category,db.session))
 admin.add_view(sqla.ModelView(Tag,db.session))
 admin.add_view(sqla.ModelView(Follow,db.session))
 admin.add_view(MyView(name="yann",endpoint="extra",category="others"))
-admin.add_view(FileAdminView(app.config.get('UPLOAD_FILE_PATH'),'/static/files/',name='Files'))
+admin.add_view(FileAdminView(filepath,name='Files'))
 
 
 

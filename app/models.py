@@ -6,8 +6,8 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
-from flask_security import UserMixin,RoleMixin,current_user
-
+from flask_security import UserMixin,RoleMixin, AnonymousUser##,current_user
+  
 from flask.ext.pagedown import PageDown
 import bleach
 from flask import current_app, request, url_for
@@ -133,7 +133,12 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
     new_avatar_file=db.Column(db.String(128))
-
+    
+    sender=db.relationship('Shortmessage',foreign_keys='Shortmessage.send_id')
+    rcver=db.relationship('Shortmessage',foreign_keys='Shortmessage.rcv_id')
+    
+    
+    
     roles=db.relationship('Role',secondary=roles_users,
                         backref=db.backref('users',lazy='dynamic'))
 
@@ -216,7 +221,7 @@ class User(UserMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.role is None:
+        if self.roles is None:  ############
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
@@ -368,19 +373,22 @@ class User(UserMixin, db.Model):
     def __unicode__(self): 
         return self.username
 
-class AnonymousUser(AnonymousUserMixin):
+class MyAnonymousUser(AnonymousUser):  #####
+    
+    
     def can(self, permissions):
         return False
 
     def is_administrator(self):
         return False
 
-login_manager.anonymous_user = AnonymousUser
-
+###login_manager.anonymous_user = AnonymousUser
+login_manager.anonymous_user = MyAnonymousUser
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.objects.get(int(user_id))  ##########query
+	
 
 
 post_tag_ref=\
@@ -422,8 +430,7 @@ class Post(db.Model):
     @property
     def remark_count(self):
         return UserLikePost.query.filter_by(post_id=self.id).count()
-#    agree_count=db.Column(db.Integer,default=0)
-#   against_count=db.Column(db.Integer,default=0)
+
     
 ##     
 ##    def remarkPost_count(self,type):
@@ -468,7 +475,10 @@ class Post(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = Post(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                     title=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
                      timestamp=forgery_py.date.date(True),
+                     category_id=randint(1, 5),
+                     read_count=randint(10, 566),
                      author=u)
             db.session.add(p)
             db.session.commit()
@@ -555,13 +565,7 @@ class Comment(db.Model):
     comment_type=db.Column(db.String(80),default='comment')
     reply_to=db.Column(db.String(128),default='notReply')
     
-##    agree_count=db.Column(db.Integer,default=0)    
-##    against_count=db.Column(db.Integer,default=0)    
-##    remarks=db.relationship('Remark',foreign_keys=[Remark.comment_id],
-##                            backref=db.backref('comment',lazy='joined'),
-##                            lazy='dynamic',
-##                            cascade='all,delete-orphan')
-##
+
     followed = db.relationship('Comment_Follow',
                                foreign_keys=[Comment_Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'),
@@ -580,10 +584,24 @@ class Comment(db.Model):
         # return self.followed.filter_by(followed_id=self.id).first() is not None
         return self.followed.count()!=0
             
-# #   @property     
-    # def follwed_name(self):
-        # if self.is_reply():
-            # return self.followed.author_name
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        user_count = User.query.count()
+        
+        post_count = Post.query.count()
+        for i in range(count):
+            u = User.query.offset(randint(0, user_count - 1)).first()
+            p= Post.query.offset(randint(0,post_count - 1)).first()
+            c= Comment(body=forgery_py.lorem_ipsum.sentences(randint(1, 9)),
+                     timestamp=forgery_py.date.date(True),
+                     author_id=randint(0, user_count - 1),
+                     post=p)
+            db.session.add(c)
+            db.session.commit()
 
     def gravatar(self, size=40, default='identicon', rating='g'):
     ####    if self.is_avatar_default: 
@@ -629,12 +647,12 @@ class Tag(db.Model):
     __tablename__='tags'  
     id = db.Column(db.Integer, primary_key= True)
     tag_name = db.Column(db.String(80),unique=True)  
- 
+    
+    def __repr__(self):
+        return '<Tag %r>' % self.name
     def __unicode__(self):
         return self.tag_name 
-    #@property
-    #def tag_posts(self):
-   #     return Post.query.join(post_tag_ref.post_id==Post.id).filter(post_tag_ref.tag_id==self.id)
+    
 
 def str_to_obj(tags):
    r = []
@@ -651,7 +669,7 @@ class Category(db.Model):
     __tablename__='categories'
     id = db.Column(db.Integer,primary_key = True)
     name = db.Column(db.Unicode(80),unique=True)
-    post_id = db.relationship('Post',backref='category',lazy='dynamic')
+    posts = db.relationship('Post',backref='category',lazy='dynamic')
 
     @staticmethod
     def insert_categories():
@@ -670,10 +688,35 @@ class Category(db.Model):
 
 
 
+class Shortmessage(db.Model):
+    __tablename__='shortmessages'
+    id= db.Column(db.Integer,primary_key=True)
+    
+    send_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    rcv_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    
+    subject= db.Column(db.String)
+    body= db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    status = db.Column(db.Boolean,default=False)
+    
+    
+    def __repr__(self):
+        return '<Shortmessage %r>' % self.id
+    def __unicode__(self):
+        return self.subject
 
+class Image(db.Model):
+    __tablename__ = 'images'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64), unique=True, index=True, nullable=False)
+    description = db.Column(db.UnicodeText)
+    path = db.Column(db.Unicode(256), nullable=False) # stored in local directory instead
 
-
-
+    def __repr__(self):
+        return '<Image r%>' % self.name
+    def __unicode__(self):
+        return self.name
 
 
 
