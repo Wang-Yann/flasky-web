@@ -4,6 +4,7 @@ venv
 *.sqlite
 *.py~
 *.txt~
-*.env~
+.env~
 node_modules
 Index
+.gitignore~
