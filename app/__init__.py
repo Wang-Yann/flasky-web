@@ -10,6 +10,11 @@ from config import config
 import flask_whooshalchemyplus
 # from flask.ext.babel import Babel
 
+##from flask.ext.openid import OpenID
+###from config import basedir
+
+
+
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
@@ -22,7 +27,6 @@ pagedown = PageDown()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
-
 
 # @babel.localeselector
 # def get_locale():
@@ -44,6 +48,7 @@ def create_app(config_name):
     pagedown.init_app(app)
     flask_whooshalchemyplus.init_app(app)
     # babel(app)
+        
 
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify

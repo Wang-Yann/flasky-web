@@ -8,6 +8,8 @@ from flask_admin.contrib import sqla
 from wtforms import validators
 from app.adminviews import CommentAdmin,UserAdmin,\
     PostAdmin,FileAdminView,MyModelView,MyAdminIndexView
+from flask.ext.openid import OpenID
+
 
 ##from flask_security import Security,SQLAlchemyUserDatastore
 ###from flask_admin import helpers as admin_helpers
@@ -38,6 +40,9 @@ from flask.ext.migrate import Migrate, MigrateCommand
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+
+oid=OpenID(app,os.path.join(basedir,'tmp'))
+
 
 app.jinja_env.globals['Comment'] = Comment
 app.jinja_env.globals['Post'] = Post
