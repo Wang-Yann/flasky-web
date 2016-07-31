@@ -5,6 +5,62 @@
 
 {% block page_content %}
 
+
+
+<div class="container">
+<div class="page-header">
+    <h1>Login</h1>
+</div>
+
+<div class="row  ">
+    <div class="col-md-5">
+    {{ wtf.quick_form(loginform) }}
+    <br>
+    <p>Forgot your password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>
+    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
+    </div>
+</div>
+
+
+<div class="row  " >
+    <div class="col-md-5">
+    <form action="" method="post" name="login">
+        {{ openidloginform.hidden_tag() }}
+        <p>
+            <br>
+            {{ openidloginform.openid(size=80,type='hidden') }}
+            
+            {% for error in openidloginform.openid.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            
+            <br>
+            
+            |{% for pr in providers %}
+                <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');">{{ pr.name }}</a> |
+            {% endfor %}
+        </p>
+        <p><input type="submit" value="Sign In"></p>
+    </form>
+    </div>
+</div>
+
+<div class="row  " >
+    <div class="col-md-5">
+    <a href=#>使用社交账号登陆</a>
+    <a href="{{url_for('github_login.index')}}">github</a>
+    <a href="{{url_for('google_login.index')}}">google</a>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}
+
+
+
+{%block scripts %}
+
 <script type="text/javascript">
     function set_openid(openid, pr)
     {
@@ -17,34 +73,5 @@
         form = document.forms['login'];
         form.elements['openid'].value = openid;
     }
-</script>
-
-
-<div class="page-header">
-    <h1>Login</h1>
-</div>
-<h1>Sign In</h1>
-    <form action="" method="post" name="login">
-        {{ form.hidden_tag() }}
-        <p>
-            Please enter your OpenID, or select one of the providers below:<br>
-            {{ form.openid(size=80) }}
-            {% for error in form.openid.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}<br>
-            |{% for pr in providers %}
-                <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');">{{ pr.name }}</a> |
-            {% endfor %}
-        </p>
-        <p>{{ form.remember_me }} Remember Me</p>
-        <p><input type="submit" value="Sign In"></p>
-    </form>
-
-
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
-    <br>
-    <p>Forgot your password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>
-    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
-</div>
+ </script>
 {% endblock %}

@@ -74,24 +74,27 @@
 
 
 {% block content %}
-<div class="col-sm-12 container">
+<div class="container-fluid">
 
 	<div class="row">
   
-		<div class="col-sm-12 container">
+		<div class="col-sm-12 container-fluid">
 			{% for message in get_flashed_messages() %}
 			<div class="alert alert-warning">
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 				{{ message }}
 			</div>
 			{% endfor %}
-	
-	
-			
+            
+            
+            {% block page_content %}{% endblock %}
 		</div>
-	</div>
-	{% block page_content %}{% endblock %}
 	
+	
+	</div>
+            
+            
+    <div class="col-sm-12 container-fluid">
 	{% block footer %}
     <footer class="blog-footer">
         <hr>
@@ -105,6 +108,7 @@
         </p>
     </footer>
 	{% endblock %}
+    </div>
 </div>
 {% endblock %}
 

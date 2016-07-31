@@ -8,7 +8,7 @@ from flask_admin.contrib import sqla
 from wtforms import validators
 from app.adminviews import CommentAdmin,UserAdmin,\
     PostAdmin,FileAdminView,MyModelView,MyAdminIndexView
-from flask.ext.openid import OpenID
+
 
 
 ##from flask_security import Security,SQLAlchemyUserDatastore
@@ -41,7 +41,7 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 
-oid=OpenID(app,os.path.join(basedir,'tmp'))
+
 
 
 app.jinja_env.globals['Comment'] = Comment
@@ -112,7 +112,8 @@ def deploy():
     Role.insert_roles()
     Category.insert_categories()
     # create self-follows for all users
-    User.add_self_follows()
+    User.generate_fake(12)
+    
     u=User(email='abc@abc.com',username="abcd",password='abc',confirmed=True,role_id=2) 
     v=User(email='a@abc.com',username="a",password='abc',confirmed=True,role_id=3)
     x=User(email='b@abc.com',username="b",password='abc',confirmed=True,role_id=3)
@@ -122,7 +123,7 @@ def deploy():
     db.session.add(x)
     db.session.add(y)
     db.session.commit()
-    User.generate_fake(2)
+    User.add_self_follows()
     Post.generate_fake(10)
     Comment.generate_fake(12)
     

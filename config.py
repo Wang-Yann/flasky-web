@@ -25,12 +25,13 @@ class Config:
     MAX_SEARCH_RESULTS = 50
     BABEL_DEFAULT_LOCALE='zh_CN'
     UPLOAD_FILE_PATH=basedir+'/app/static/files' 
+    
+        
     OPENID_PROVIDERS = [
-    {'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id'},
-    {'name': 'Yahoo', 'url': 'https://me.yahoo.com'},
-    {'name': 'AOL', 'url': 'http://openid.aol.com/<username>'},
-    {'name': 'Flickr', 'url': 'http://www.flickr.com/<username>'},
-    {'name': 'MyOpenID', 'url': 'https://www.myopenid.com'}]
+    {'name': 'Yahoo', 'url': 'https://me.yahoo.com/'},
+    {'name':'steam', 'url':'https://steamcommunity.com/openid/'},
+    {'name': 'AOL', 'url': 'http://openid.aol.com/<username>'}       
+    ]
 
 
 
@@ -54,7 +55,7 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') 
-	##or \
+    ##or \
         ###'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 
     @classmethod

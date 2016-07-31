@@ -45,6 +45,7 @@ def before_request():
        db.session.add(g.user)
        db.session.commit()
        g.search_form = SearchForm()
+       
 @main.route('/shutdown')
 def server_shutdown():
     if not current_app.testing:

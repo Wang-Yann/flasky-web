@@ -7,4 +7,5 @@ venv
 .env~
 node_modules
 Index
+tmp
 .gitignore~

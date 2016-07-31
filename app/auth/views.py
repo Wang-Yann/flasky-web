@@ -1,13 +1,31 @@
-from flask import render_template, redirect, request, url_for, flash,g##
+from flask import render_template, redirect, request, url_for, flash,g,current_app,session##
 from flask.ext.login import login_user, logout_user, login_required, \
     current_user
 from . import auth
-from .. import db ,oid   ###+++++++++
+from .. import db 
+import os,app
+
 from ..models import User
 from ..email import send_email
-from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
+from .forms import LoginForm, OpenIDLoginForm,RegistrationForm, ChangePasswordForm,\
     PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
+from flask.ext.openid import OpenID
+from config import basedir
 
+oid=OpenID(app,os.path.join(basedir,'tmp'))
+
+ 
+
+@auth.before_app_request
+def before_request():
+    g.user=current_user #####
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed \
+                and request.endpoint[:5] != 'auth.' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
+            
 @oid.after_login
 def after_login(resp):
     if resp.email is None or resp.email == "":
@@ -15,31 +33,20 @@ def after_login(resp):
         return redirect(url_for('auth.login'))
     user = User.query.filter_by(email=resp.email).first()
     if user is None:
-        username = resp.username
+        username = resp.nickname
         if username is None or username == "":
             username = resp.email.split('@')[0]
-        user = User(username=username, email=resp.email)
+        user = User(username=username, email=resp.email,role_id=3,confirmed=True)
         db.session.add(user)
         db.session.commit()
     remember_me = False
     if 'remember_me' in session:
         remember_me = session['remember_me']
         session.pop('remember_me', None)
+	user.confirmed=True
+	db.session.add(user)
     login_user(user, remember = remember_me)
-    return redirect(request.args.get('next') or url_for('main.index'))
-
-
-
-
-@auth.before_app_request
-def before_request():
-  ###  g.user=current_user #####
-    if current_user.is_authenticated:
-        current_user.ping()
-        if not current_user.confirmed \
-                and request.endpoint[:5] != 'auth.' \
-                and request.endpoint != 'static':
-            return redirect(url_for('auth.unconfirmed'))
+    return redirect( url_for('main.index'))
 
 
 @auth.route('/unconfirmed')
@@ -54,17 +61,22 @@ def unconfirmed():
 def login():
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('main.index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        session['remember_me']=form.remember_me.data
-        return oid.try_login(form.openid.data,ask_for=['username','email']) 
-
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
+        
+    loginform = LoginForm()
+    openidloginform=OpenIDLoginForm()
+    if openidloginform.validate_on_submit() and request.method=='POST':
+        
+        ####session['remember_me']=openidloginform.remember_me.data
+        session['openid']=openidloginform.openid.data
+        return oid.try_login(openidloginform.openid.data,ask_for=['nickname','email']) 
+    if loginform.validate_on_submit():
+        user = User.query.filter_by(email=loginform.email.data).first()
+        if user is not None and user.verify_password(loginform.password.data):
+            login_user(user, loginform.remember_me.data)
             return redirect(request.args.get('next') or url_for('main.index'))
         flash('Invalid username or password.')
-    return render_template('auth/login.html', form=form,providers=app.config['OPENID_PROVIDERS'])
+    return render_template('auth/login.html', loginform=loginform,openidloginform=openidloginform,\
+        providers=current_app.config['OPENID_PROVIDERS'])
 
 
 

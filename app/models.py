@@ -353,7 +353,22 @@ class User(UserMixin, db.Model):
             'post_count': self.posts.count()
         }
         return json_user
-
+    
+    
+    @staticmethod                    ########## +++++++++++++++++++
+    def from_json(data):
+        username = data['login']
+        name=data['name']
+        email=data['email']
+        location=data['location']
+        about_me=data['url']
+        if email is None or email == '':
+            raise ValidationError('User does not have an email')
+        return User(email=email,username=username,name=name,location=location,about_me=about_me,confirmed=True)
+    
+    
+    
+    
     def generate_auth_token(self, expiration):
         s = Serializer(current_app.config['SECRET_KEY'],
                        expires_in=expiration)
