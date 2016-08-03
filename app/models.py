@@ -14,6 +14,11 @@ from flask import current_app, request, url_for
 from flask.ext.login import  AnonymousUserMixin,UserMixin
 from app.exceptions import ValidationError
 
+try:
+    import enum 
+except ImportError:
+    enum = None
+
 from . import db, login_manager
 import app,sys
 import flask_whooshalchemyplus
@@ -134,8 +139,8 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
     new_avatar_file=db.Column(db.String(128))
     
-    sender=db.relationship('Shortmessage',foreign_keys='Shortmessage.send_id')
-    rcver=db.relationship('Shortmessage',foreign_keys='Shortmessage.rcv_id')
+    # sender=db.relationship('Shortmessage',foreign_keys='Shortmessage.send_id')
+    # rcv_sms=db.relationship('Shortmessage'###,foreign_keys='Shortmessage.rcv_id')
     
     
     
@@ -467,7 +472,7 @@ class Post(db.Model):
     @property 
     def post_tags(self):
         r=''
-        for tag in self.tags.all():
+        for tag in self.tags:
             r=r+tag.tag_name+' '
         return r
     @property    
@@ -705,17 +710,27 @@ class Category(db.Model):
 
 
 
+        
+class sms_status(enum.Enum):
+    read = "read"
+    unread = "unread"
+    delete = "delete"
+sms_types=('private','public','all')
+            
+        
 class Shortmessage(db.Model):
     __tablename__='shortmessages'
-    id= db.Column(db.Integer,primary_key=True)
+    id= db.Column(db.Integer,primary_key=True)####,autoincrement=True
     
-    send_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
-    rcv_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    send_id=db.Column(db.Integer)
+    rcv_id=db.Column(db.Integer)
     
-    subject= db.Column(db.String)
+    subject= db.Column(db.String(80))
     body= db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    status = db.Column(db.Boolean,default=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    message_status= db.Column('status',db.Enum("read","unread","delete"),default='unread')
+    message_types = db.Column('types',db.Enum(*sms_types), default='public')  ###'private','public','all'
+    
     
     
     def __repr__(self):

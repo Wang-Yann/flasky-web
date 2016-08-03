@@ -3,14 +3,18 @@
 {% block title %}Search results for "{{query}}":{% endblock %}
 
 {% block page_content %}
-    <h2> Search Results for "{{query}}"</h2>
-    {% include '_posts.html' %}
+    <div class="page-header">
+        <h3>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h3>
+    </div>
 
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, endpoint) }}
-</div>
-{% endif %}
+    <h2> Search Results for "{{query}}"</h2>
+    <!-- {% include '_posts.html' %} -->
+
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, endpoint) }}
+        </div>
+    {% endif %}
 
 {% endblock %}
 

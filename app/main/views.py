@@ -4,18 +4,21 @@ from PIL import Image
 from datetime import datetime
 from flask import render_template, redirect, url_for, abort, flash, request,\
     current_app, make_response,  g
-	
+    
 from flask_security import current_user,login_required
-	
-	
+    
+    
 #from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
+
 from . import main
+
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
-    CommentForm,ChangeAvatarForm,SearchForm,EditForm,allowed_file
+    CommentForm,ChangeAvatarForm,SearchForm,EditForm,SMSForm,allowed_file
 from .. import db
-from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,UserLikePost,\
-    str_to_obj,remark
+from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,\
+    UserLikePost,Shortmessage,\
+    str_to_obj,remark,sms_types,sms_status
 from ..decorators import admin_required, permission_required
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
@@ -66,7 +69,7 @@ def index():
         if by == 'show_followed':
             query = current_user.followed_posts        
         elif by == 'concerns':
-            query=current_user.concerns
+            query = current_user.concerns
         elif by == 'votes':
             query=Post.query.join(UserLikePost,UserLikePost.user_id==current_user.id)\
                     .filter(UserLikePost.post_id==Post.id)
@@ -93,7 +96,31 @@ def index():
     return render_template('index.html', posts=posts,by=by,
                          pagination=pagination)
 
-
+                         
+@main.route('/post_result/<parameter>/<value>', methods=['GET', 'POST'])
+def post_result(parameter,value):
+    if parameter=='cg':
+        category=Category.query.get_or_404(value)
+        query=category.posts
+    elif parameter=='tag':
+        current_tag=Tag.query.get_or_404(value)
+        query=current_tag.posts
+    elif parameter=='timestamp':
+        year,month=value.split('-')
+        month1=str(int(month)+1)
+        date0=datetime.strptime(year+'-'+month, '%Y-%m')
+        date1=datetime.strptime(year+'-'+month1, '%Y-%m')
+        query=Post.query.filter(Post.timestamp.between(date0,date1))
+    else: 
+        query=Post.query.filter_by(parameter=value)    
+    page = request.args.get('page', 1, type=int)
+    pagination = query.paginate(
+        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        error_out=False)
+    posts = pagination.items
+    return render_template('post_result.html', posts=posts,parameter=parameter,\
+                            value=value,pagination=pagination)                        
+                         
 @main.route('/all')
 def show_all():
     resp = make_response(redirect(url_for('.index')))
@@ -129,26 +156,7 @@ def post_new():
      #   post=Post.query.get_or_404(form.id.data)
         return redirect(url_for('.post_new'))
     return render_template('edit_post.html',form=form)
-        # # display new or edit page
-           
-            # form.category_id.choices.append(('new', u'--新建分类--'))    # special category hint
-
-            ##if opid == 'new':
-            ##    new = True
-            ##    form.id.data = 'new'
-            ##    form.category_id.data = '1'    # default category
-            ##    return render_template('edit.html', form=form, new=True)
-   #     else: 
-   #        id = int(opid)
-   #        post = Post.query.get_or_404(id)
-   #        form.styles.data = "edit"
-   #        form.title.data = post.title
-   #        form.body.data = post.body
-   #        form.private.data = post.private
-   #        form.category_id.data = post.category_id
-   #        form.tags.data=post.post_tags
-   #        
-   #        return render_template('edit.html', form=form)
+       
                         
                         
                         
@@ -281,8 +289,6 @@ def edit_profile_admin(id):
 def post(id):
     post = Post.query.get_or_404(id)
     
-    
-    ###db.session.add(post)    #######
     form = CommentForm(request.form,follow=-1)
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
@@ -479,26 +485,6 @@ def moderate_disable(id):
     return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
 
-@main.route('/cg/<int:id>')
-def cg(id):
-    page = request.args.get('page', 1, type=int)
-    pagination = Post.query.filter_by(category_id=id).paginate(
-            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-            error_out=False)
-    posts = pagination.items
-    return render_template('cg.html',posts=posts,
-                           pagination=pagination, endpoint='.cg',id=id)
-
-@main.route('/tag/<int:tag_id>')
-def tag(tag_id):
-    page = request.args.get('page', 1, type=int)
-    current_tag=Tag.query.get_or_404(tag_id)
-    pagination =current_tag.posts.paginate(
-            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-            error_out=False)
-    posts = pagination.items
-    return render_template('tag.html',posts=posts,
-                           pagination=pagination, endpoint='.tag',tag_id=tag_id)
 
 
 @main.route('/concerns/<username>')
@@ -584,5 +570,58 @@ def search_results(query):
 
     return render_template('search_results.html',posts=posts,query=query)
 
+@main.route('/send_sms',methods = ['GET','POST'])
+@login_required
+def send_sms():
+    form=SMSForm()
+    form.message_types.choices = [(a,) for a in sms_types]
+    if form.validate_on_submit():
+        rcver=User.query.filter_by(username=form.rcver.data).first_or_404()
+        sms=Shortmessage(send_id=current_user.id,
+        rcv_id=rcver.id,
+        message_types=form.message_types.data,
+        subject = form.subject.data,
+        body = form.body.data,
+        message_status='unread')
+        
+        db.session.add(sms)
+        db.session.commit()
+        flash('Your sms has beensended.')
+        # return redirect(url_for('.send_sms', form=form))
+    return render_template('send_sms.html', form=form)
 
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+####待删    
+@main.route('/cg/<int:id>')
+def cg(id):
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.filter_by(category_id=id).paginate(
+            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            error_out=False)
+    posts = pagination.items
+    return render_template('cg.html',posts=posts,
+                           pagination=pagination, endpoint='.cg',id=id)
+
+@main.route('/tag/<int:tag_id>')
+def tag(tag_id):
+    page = request.args.get('page', 1, type=int)
+    current_tag=Tag.query.get_or_404(tag_id)
+    pagination =current_tag.posts.paginate(
+            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            error_out=False)
+    posts = pagination.items
+    return render_template('tag.html',posts=posts,
+                           pagination=pagination, endpoint='.tag',tag_id=tag_id)
 

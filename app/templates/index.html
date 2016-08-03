@@ -21,6 +21,7 @@
         <li{% if by=="votes" %} class="active"{% endif %} ><a href="{{url_for('.index',by="votes")}}">我喜欢</a> </li>
         {% endif %}
     </ul>
+    
     {% include '_posts.html' %}
 </div>
 {% if pagination %}

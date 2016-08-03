@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}tag{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3>Search Results for "{{query}}"</h3>
+    </div>
+    <hr>
+
+    
+    {% include '_posts.html' %}
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination,'.post_result',parameter=parameter,value=value) }}
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

@@ -68,7 +68,18 @@ class PostForm(Form):
     category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
     tags=StringField(u"标签")
     submit = SubmitField( 'Submit')
-
+class SMSForm(Form):
+    message_types=SelectField(u'类型',validators=[Required()])
+    rcver=StringField(u'收件人',validators=[Required()])
+    subject=StringField(u'主题',validators=[Required()])
+    body = PageDownField(u"内容", validators=[Required()])
+    submit = SubmitField('send')
+    def validate_rcver(self, field):
+        if User.query.filter_by(username=field.data).first() is None:
+            raise ValidationError('Username not in use.')
+    
+    
+    
 class EditForm(Form):
     types = HiddenField('new')
     title = TextAreaField(u'标题', validators=[Required()])
@@ -100,7 +111,7 @@ class EditForm(Form):
 
 class CommentForm(Form):
     name=StringField(u'昵称',validators=[Required()])
-    body = StringField('Enter your comment', validators=[Required()])
+    body = TextAreaField('Enter your comment', validators=[Required()])
     follow=StringField(validators=[Required()])
     submit = SubmitField('Submit')
 

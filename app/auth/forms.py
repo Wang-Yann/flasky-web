@@ -16,6 +16,9 @@ class OpenIDLoginForm(Form):
     openid=TextField('openid',validators=[Required()])
     # submit = SubmitField('Log In')
 
+    
+    
+
 class RegistrationForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64),
                                            Email()])

@@ -30,6 +30,19 @@
 
 
 
+{% macro widget_category(data, endpoint) %}			
+    <ul class="nav nav-pills nav-stacked">
+        {% for category, num in data.items() %}
+            <li {% if category.id %} class="active"{% endif %}> 
+                <a href="/post_result/cg/{{category.id}}">{{ category.name }} 
+                 <span class="badge pull-right">{{ num }}</span>
+                </a>
+            </li>
+        {% endfor %}
+                    
+{% endmacro %}
+
+
 {% macro widget_tags(data, endpoint) %}
     {% set _,num_min, num_max = data[0] %}
     {% set font_min, font_max = (90, 270) %}
@@ -40,22 +53,137 @@
     {% endif %}
 
 
-    {% set color_class = cycler('color:#ac1dfe;','color:#bcb46e;','color:#4298e7;','color:#a7bce8','color:#e6eca8    ;','color:#d4349a;','color:#5b48ce;','color:#b5b1ea;','color:#fe4516;','color:#a68d32;','color:#68d6e5;','color:#5c8d29;','color:#9c7da1;','color:#243f2a;','color:    #6c7d99;','color:#9cade9;','color:#1ced29;','color:#ec3de9;','color:#367d29;','color:#cccd29;') %}
+    {% set color_class = cycler('color:#ac1dfe;','color:#bcb46e;','color:#4298e7;','color:#a7bce8;',
+    'color:#e6eca8;','color:#d4349a;','color:#5b48ce;','color:#b5b1ea;','color:#fe4516;','color:#a68d32;',
+    'color:#68d6e5;','color:#5c8d29;','color:#9c7da1;','color:#243f2a;','color:#6c7d99;',
+    'color:#9cade9;','color:#1ced29;','color:#ec3de9;','color:#367d29;','color:#cccd29;') %}
 
 
 <div class="panel panel-default ">
     <div class="panel-heading">
-    <h3 class="panel-title">文章标签</h3>
+            <h3 class="panel-title">文章标签</h3>
     </div>
     <div class="panel-body" style="padding: 15px;">
         {% for tag in data[1:] %}
-        <a style="{{color_class.next()}} font-size:{{ (tag[2] - num_min) * size_delta +font_min }}%" href="/tag/{{tag[0]}}" >
+        <a style="{{color_class.next()}} font-size:{{ (tag[2] - num_min) * size_delta +font_min }}%" href="/post_result/tag/{{tag[0]}}" >
            {{ tag[1]}}
         </a>&nbsp;
         {% endfor %}
     </div>
 </div>
 {% endmacro %}
+
+{%  macro widget_archieve(data,endpoint) %}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+            <h3 class="panel-title">文章归档</h3>
+        </div>
+        
+        <div class="panel-body">
+            <ul>
+            {% for year,months  in data.items() %}
+                {% for month,num in months.items() %}
+                
+                    <li>
+                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
+                        {{year}}年{{"%02d"|format(month)}}月({{num}})
+                    </a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+        
+    </div>
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+{%  macro widget_newcomments(data,endpoint) %}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+            <h3 class="panel-title">文章归档</h3>
+        </div>
+        
+        <div class="panel-body">
+            <ul>
+            {% for year,months  in data.items() %}
+                {% for month,num in months.items() %}
+                
+                    <li>
+                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
+                        {{year}}年{{"%02d"|format(month)}}月({{num}})
+                    </a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+        
+    </div>
+{% endmacro %}
+
+{%  macro widget_visitor(data,endpoint) %}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+            <h3 class="panel-title">文章归档</h3>
+        </div>
+        
+        <div class="panel-body">
+            <ul>
+            {% for year,months  in data.items() %}
+                {% for month,num in months.items() %}
+                
+                    <li>
+                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
+                        {{year}}年{{"%02d"|format(month)}}月({{num}})
+                    </a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+        
+    </div>
+{% endmacro %}
+{%  macro widget_popular(data,endpoint) %}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+            <h3 class="panel-title">文章归档</h3>
+        </div>
+        
+        <div class="panel-body">
+            <ul>
+            {% for year,months  in data.items() %}
+                {% for month,num in months.items() %}
+                
+                    <li>
+                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
+                        {{year}}年{{"%02d"|format(month)}}月({{num}})
+                    </a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+        
+    </div>
+{% endmacro %}
+
+
+
+
+
+
+
+
+
 
 {% macro widget_share(url) %}
 <div class="btn-group">

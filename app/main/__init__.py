@@ -7,26 +7,42 @@ main = Blueprint('main', __name__)
 
 
 from . import views, errors
-from ..models import Permission,Category,Tag
+from ..models import Permission,Category,Tag,Post,Comment
 
-#@main.app_context_processor
-#def inject_user():
-#    return dict(user=current_user)
+
 @main.app_context_processor
 def inject_permissions():
     return dict(Permission=Permission)
+    
 @main.app_context_processor
 def fill_sidebar_data():
     sidebar_data={
         'category':collections.OrderedDict(),
+        'archieve':collections.OrderedDict(),
         'tags':[],
-
-        'share':None
+        'popular':[],
+        'visitor':[],
+        'newcomments':[],
+        'link':[],
         }
 
     categories = Category.query.order_by(Category.id).all()
     for category in categories:
         sidebar_data['category'][category] = len(category.posts.all())
+        
+    posts=Post.query.order_by(Post.timestamp.desc()).all()
+    year=month=-1
+    for post in posts:
+        if post.timestamp.year!=year:
+            year=post.timestamp.year
+            sidebar_data['archieve'][year]=collections.OrderedDict()
+        if post.timestamp.month!=month:
+            month=post.timestamp.month
+            sidebar_data['archieve'][year][month]=0
+        sidebar_data['archieve'][year][month]+=1 
+        
+        
+        
     
     tags_cache = Tag.query.all()
     tags_data = [(tag.id,tag.tag_name, tag.posts.count()) for tag in tags_cache]
@@ -37,6 +53,10 @@ def fill_sidebar_data():
     else:
         tags_data.insert(0, (-1, -1,-1))
     sidebar_data['tags'] = tags_data
+    
+    
+    
+    
      
     return dict(sidebar_data=sidebar_data)
 

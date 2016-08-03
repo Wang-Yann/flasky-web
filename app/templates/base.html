@@ -13,12 +13,12 @@
         
         <link rel="shortcut icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
         <link rel="icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
-<!--    <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet">
- -->    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-		
-		<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+		<!-- <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet"> -->
+		
+		
        
     {% endblock %}
 {% endblock %}
@@ -55,10 +55,27 @@
 				</li>
                 {% endif %}
             </ul>
+            
+            
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.can(Permission.MODERATE_COMMENTS) %}
                 <li><a href="{{ url_for('main.moderate') }}">Moderate Comments</a></li>
                 {% endif %}
+                {% if current_user.can(Permission.WRITE_ARTICLES) %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        我的消息 <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+						<li><a href="{{ url_for('main.send_sms') }}"> 发消息</a></li>
+						<li><a href=# >收消息</a></li>
+                        
+                    </ul>
+                </li>               
+                
+                {% endif %}
+                
+                
                 {% if current_user.is_authenticated %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -92,8 +109,8 @@
 			<h4>Yann's Blog</h4>
 			<ul class="nav nav-pills nav-stacked">
 			<li class="active"><a href="#section1">Home</a></li>
-			<li><a href="{{url_for('main.cg',id=1)}}">Web技术</a></li>
-			<li><a href="#section3">数据库</a></li>
+			<li><a href="{{url_for('main.cg',id=1)}}">Web技术 </a> </li>
+			<li><a href="/post_result/cg/3">数据库</a></li>
 			<li><a href="#section3">编程</a></li>
 			<li><a href="#section3">Linux</a></li>
 			<li><a href="#section3">生活</a></li>
@@ -110,7 +127,17 @@
 			</div>
  
 			{% block sidebar %}
-				{{ macros.widget_tags(sidebar_data['tags'], 'post') }}
+				{{ macros.widget_category(sidebar_data['category'], '.post_result') }}
+                {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
+                
+                {{  macros.widget_archieve(sidebar_data['archieve'],'.post_result') }}
+                {{  macros.widget_share(sidebar_data['link']) }}
+                {{  macros.widget_share(sidebar_data['newcomments']) }}
+                {{  macros.widget_share(sidebar_data['popular']) }}
+                {{  macros.widget_share(sidebar_data['visitor']) }}
+                
+                
+                
 				
 			{% endblock %}
       	</div>
