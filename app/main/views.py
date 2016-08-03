@@ -1,4 +1,9 @@
 #-*- coding:utf-8 -*-
+import sys  
+reload(sys)  
+sys.setdefaultencoding('utf8')
+
+
 import os
 from PIL import Image
 from datetime import datetime
@@ -574,19 +579,34 @@ def search_results(query):
 @login_required
 def send_sms():
     form=SMSForm()
-    form.message_types.choices = [(a,) for a in sms_types]
+ ###可以暂时保留记录，记得如何使用   form.message_types.choices = [(value,value) for (i,value) in enumerate(sms_types)]
     if form.validate_on_submit():
-        rcver=User.query.filter_by(username=form.rcver.data).first_or_404()
-        sms=Shortmessage(send_id=current_user.id,
-        rcv_id=rcver.id,
+        rcver=form.rcver.data 
         message_types=form.message_types.data,
+
+        sms=Shortmessage(send_id=current_user.id,
         subject = form.subject.data,
         body = form.body.data,
         message_status='unread')
-        
-        db.session.add(sms)
-        db.session.commit()
-        flash('Your sms has beensended.')
+        print(message_types) 
+        print(rcver)
+        if current_user.is_administrator and message_types==('all',) and rcver=='all':
+            sms.rcv_id=-1
+            sms.message_types='all'
+            db.session.add(sms)
+            flash('Your sms has been sended.') 
+        else :
+            sms_copy=[]
+            for name in rcver.split(';'):
+                user=User.query.filter_by(username=name).first()
+                sms_copy.append(
+                    Shortmessage(send_id=current_user.id,rcv_id=user.id,\
+                            subject=form.subject.data,\
+                            message_types=form.message_types.data,\
+                            body=form.body.data,message_status='unread'))
+            db.session.add_all(sms_copy)
+            db.session.commit()
+            flash('Your sms has been sended.')
         # return redirect(url_for('.send_sms', form=form))
     return render_template('send_sms.html', form=form)
 

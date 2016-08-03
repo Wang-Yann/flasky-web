@@ -149,7 +149,15 @@ admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
 
 #admin.add_view(MyModelView(Role,db.session))
 
-admin.add_view(UserAdmin(User,db.session))
+
+
+
+
+
+
+
+
+#admin.add_view(UserAdmin(User,db.session))
 
 admin.add_view(PostAdmin(db.session))
 

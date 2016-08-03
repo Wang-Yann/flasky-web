@@ -5,7 +5,7 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
 from wtforms.validators import Required, Length, Email, Regexp,Optional
 from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
-from ..models import Role, User,Category
+from ..models import Role, User,Category,sms_types
 from .. import db
 
 class NameForm(Form):
@@ -69,15 +69,21 @@ class PostForm(Form):
     tags=StringField(u"标签")
     submit = SubmitField( 'Submit')
 class SMSForm(Form):
-    message_types=SelectField(u'类型',validators=[Required()])
-    rcver=StringField(u'收件人',validators=[Required()])
+    message_types=SelectField(u'类型',choices=zip(sms_types,sms_types))
+    rcver=StringField(u'收件人')
     subject=StringField(u'主题',validators=[Required()])
     body = PageDownField(u"内容", validators=[Required()])
     submit = SubmitField('send')
-    def validate_rcver(self, field):
-        if User.query.filter_by(username=field.data).first() is None:
-            raise ValidationError('Username not in use.')
-    
+##    def validate_rcver(self, field):
+##        users=field.data
+##        if users.startswith('all'):
+##                pass
+##        else:
+##            for name in users.split(';'):
+##                user=User.query.filter_by(username=name).first() 
+##                if user is None:
+##                    raise ValidationError('请填写正确的收件人名称')
+##        
     
     
 class EditForm(Form):
