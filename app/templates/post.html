@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-<!-- {% import "bootstrap/wtf.html" as wtf %} -->
 {% import "_macros.html" as macros %}
 
 {% block title %}Flasky - Post{% endblock %}
@@ -22,8 +21,8 @@
 			{% endfor %}
 		</div>
 		<div class="right-info">
-			<span class="label label-primary">浏览{{post.read_count}}</span>
-			<span class="label label-primary">评论{{ post.comments.count() }}</span>
+			<span class="label label-info">浏览{{post.read_count}}</span>
+			<span class="label label-info">评论{{ post.comments.count() }}</span>
 		</div>
 	</div>
     
@@ -50,13 +49,27 @@
 		</div>
 		
 		<div class="right-info ">
-		
-			<button type="button" class="btn btn-info btn-sm">
-				<span class="glyphicon glyphicon-star-empty"></span> 收藏
+            {% if current_user.is_concerning(post) %}
+			<button type="button" class="btn btn-default btn-sm ">
+				<a href="{{ url_for('.unconcern', post_id=post.id) }}">
+                    <span class="glyphicon glyphicon-star "></span> 
+                取消收藏 | {{post.users.count()}}    
+                </a>
+                
 			</button>
-		
-			<button type="button" class="btn btn-default btn-sm">
-				<span class="glyphicon glyphicon-thumbs-up"></span> 喜欢
+            {% else %}
+            <button type="button" class="btn btn-default btn-sm ">
+				<a href="{{ url_for('.concern', post_id=post.id) }}">
+                    <span class="glyphicon glyphicon-star-empty"></span> 
+                     收藏 | {{post.users.count()}}
+                </a>
+			</button>
+            {% endif %}
+            
+			<button type="button" class="btn btn-default btn-sm ">
+                <a href="{{ url_for('.vote', post_id=post.id) }}">
+                    <span class="glyphicon glyphicon-thumbs-up"></span> 喜欢 | {{post.remark_count}}
+                </a>
 			</button>
 				
 		</div>
@@ -70,12 +83,12 @@
 	<div>
 		    
     <h5 id="comments"><span class="glyphicon glyphicon-comment">评论</span></h5>
-    {% include '_comments.html' %}
-        <!-- {% if pagination %} -->
+        {% include '_comments.html' %}
+        
         <div class="pagination">
             {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=id) }}
         </div>
-    <!-- {% endif %} -->
+    
 	</div>
 	<hr>
 	
@@ -97,13 +110,22 @@
             <a href="#" class="bds_renren" data-cmd="renren"></a>
             <a href="#" class="bds_weixin" data-cmd="weixin"></a>
         </div>
-        {% if current_user.is_authenticated %}
-        <div class="btn-group pull-right">
-            <a href="{{ url_for('.delete', id=id) }}" class="btn btn-default" role="button" id="article_del">删除</a>
-            <a href="{{ url_for('.post_edit', id=id) }}" class="btn btn-default" role="button" id="article_edit">编辑</a>
+        {% if current_user == post.author %}
+        <div class="btn-group col-sm-offset-2">
+            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning" 
+                role="button" id="post_edit">编辑</a>
+            <a href="{{ url_for('.delete', id=id) }}" class="btn btn-danger" role="button" id="post_del">删除</a>
         </div>
+        {% elif current_user.is_administrator() %}
+        <div class="btn-group col-sm-offset-2">
+            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning" 
+                role="button" id="post_edit">编辑[Admin]</a>
+            <a href="{{ url_for('.delete', id=id) }}" class="btn btn-danger" role="button" id="post_del">删除[Admin]</a>
+        </div>
+         
         {% endif %}
     </div>
+    
     <br/>
 </div>
 {% endblock %}

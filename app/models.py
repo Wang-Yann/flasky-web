@@ -402,6 +402,8 @@ class AnonymousUser(AnonymousUserMixin):  #####
 
     def is_administrator(self):
         return False
+    def is_concerning(self,post):
+        return False
 
 login_manager.anonymous_user = AnonymousUser
 

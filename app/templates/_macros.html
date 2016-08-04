@@ -105,23 +105,47 @@
 
 
 
-{%  macro widget_newcomments(data,endpoint) %}
+{%  macro widget_newcomments(data,endpoint,fragment='') %}
     <div class="panel panel-default ">
         <div class="panel-heading">
-            <h3 class="panel-title">文章归档</h3>
+            <h3 class="panel-title">最新评论</h3>
+        </div>
+        
+        <div class="panel-body">
+            <ol>
+            {% for comment  in data %}
+                
+                
+                    <li>
+                    <a href="{{url_for('.post',id=comment.post_id)}}{{ fragment }}">
+                        {{comment.author_name}}:{{comment.body}}
+                    </a>
+                    </li>
+                
+            {% endfor %}
+            </ol>
+        </div>
+        
+    </div>
+{% endmacro %}
+
+{%  macro widget_visitors(data,endpoint) %}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+            <h3 class="panel-title">最新访客</h3>
         </div>
         
         <div class="panel-body">
             <ul>
-            {% for year,months  in data.items() %}
-                {% for month,num in months.items() %}
-                
-                    <li>
-                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
-                        {{year}}年{{"%02d"|format(month)}}月({{num}})
+            {% for user  in data %}
+                     
+                    <div>
+                        <img src="{{ user.gravatar(size=18) }}">
+                    <a href="{{url_for('.user',username=user.username)}}">
+                        <p>{{user.username}}</p>
                     </a>
-                    </li>
-                {% endfor %}
+                    </div>
+                
             {% endfor %}
             </ul>
         </div>
@@ -129,48 +153,48 @@
     </div>
 {% endmacro %}
 
-{%  macro widget_visitor(data,endpoint) %}
-    <div class="panel panel-default ">
-        <div class="panel-heading">
-            <h3 class="panel-title">文章归档</h3>
-        </div>
-        
-        <div class="panel-body">
-            <ul>
-            {% for year,months  in data.items() %}
-                {% for month,num in months.items() %}
-                
-                    <li>
-                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
-                        {{year}}年{{"%02d"|format(month)}}月({{num}})
-                    </a>
-                    </li>
-                {% endfor %}
-            {% endfor %}
-            </ul>
-        </div>
-        
-    </div>
-{% endmacro %}
+
 {%  macro widget_popular(data,endpoint) %}
     <div class="panel panel-default ">
         <div class="panel-heading">
-            <h3 class="panel-title">文章归档</h3>
+            <h3 class="panel-title">热门推荐</h3>
         </div>
         
         <div class="panel-body">
-            <ul>
-            {% for year,months  in data.items() %}
-                {% for month,num in months.items() %}
-                
-                    <li>
-                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}">
-                        {{year}}年{{"%02d"|format(month)}}月({{num}})
+            <ol>
+            {% for post in data %}
+                    <li> <small>{{post.author}}: </small>
+                    <a href="{{url_for('.post',id=post.id)}}">
+                        {{post.title|truncate(30, True)}}
                     </a>
                     </li>
-                {% endfor %}
             {% endfor %}
-            </ul>
+            </ol>
+        </div>
+        
+    </div>
+{% endmacro %}
+
+{%  macro widget_links(data) %}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+            <h3 class="panel-title">友情链接</h3>
+        </div>
+        
+        <div class="panel-body">
+            <a href="http://weibo.com/vlobster" target="_blank">
+                     新浪微博 
+                    </a>
+            
+            <ol>
+            {% for post in data %}
+                    <li> 
+                    <a href="http://weibo.com/vlobster">
+                     新浪微博 
+                    </a>
+                    </li>
+            {% endfor %}
+            </ol>
         </div>
         
     </div>
@@ -184,22 +208,6 @@
 
 
 
-
-{% macro widget_share(url) %}
-<div class="btn-group">
-   <button type="button" class="btn btn-success dropdown-toggle btn-xs" data-toggle="dropdown">
-     分享到 <span class="caret"></span>
-   </button>
-   <ul class="dropdown-menu" role="menu">
-      <li><a href="#">邮件</a></li>
-      <li><a href="#">微博</a></li>
-      <li><a href="#">微信朋友圈</a></li>
-      <li><a href="#">QQ空间</a></li>
-      <li><a href="#">Facebook</a></li>
-      <li><a href="#">Twitter</a></li>
-   </ul>
-</div>
-{% endmacro %}
 
 {% macro field_error(field) %}
     {% if field.errors %}

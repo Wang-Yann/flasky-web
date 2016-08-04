@@ -6,7 +6,8 @@
 {% block sms_content %}
 
 
-<div class="col-md-7">
-    {{ wtf.quick_form(form) }}
+<div class="col-md-8">
+    {{ wtf.quick_form(form,form_type="horizontal", horizontal_columns=('md', 2, 8)) }}
+    
 </div>
 {% endblock %}

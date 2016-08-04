@@ -1,82 +1,82 @@
 <ul class="comments">
 	{% if comments %}
-
     {% for comment in comments %}
-    <li class="comment">
-        {% if comment.comment_type=='reply'%}
-            <p class="comment-reply-info">
-                <span class="glyphicon glyphicon-envelope"></span>
-                回复给<strong><i>
-                {% if comment.is_reply() %}
-                    {{comment.reply_to}}
-                {% else %}
-                    ({{comment.reply_to}}的该条评论已被删除）
-                {% endif %}
-                :</i></strong>
-            </p>
-        {% endif %}
-
-
-        <div class="comment-thumbnail">
-            <a href="{{ url_for('.user', username=comment.author.username) }}">
-                <img class="img-rounded profile-thumbnail" src="{{ comment.gravatar(40) }}">
-            </a>
-            
-            
-        </div>
-        
-        
-        
-        <div class="comment-info">
-            <div class="row">
-                <div class="comment-author "><a href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a></div>
-                <div class="comment-date ">{{ moment(comment.timestamp).fromNow() }}</div>
-            </div>
-            
-            
-            
-            <div class="comment-body">
-                {% if comment.disabled %}
-                <p><i>This comment has been disabled by a moderator.</i></p>
-                {% endif %}
-                {% if moderate or not comment.disabled %}
-                    {% if comment.body_html %}
-                        {{ comment.body_html | safe }}
+        <li class="comment">
+            {% if comment.comment_type=='reply'%}
+                <p class="comment-reply-info">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                    回复给<strong><i>
+                    {% if comment.is_reply() %}
+                        {{comment.reply_to}}
                     {% else %}
-                        {{ comment.body }}
+                        ({{comment.reply_to}}的该条评论已被删除）
                     {% endif %}
-                {% endif %}
-            
+                    :</i></strong>
+                </p>
+            {% endif %}
+
+
+            <div class="comment-thumbnail">
+                <a href="{{ url_for('.user', username=comment.author.username) }}">
+                    <img class="img-rounded profile-thumbnail" >
+                </a>
             </div>
-            
-            <div class="row comment-handle">
-                {% if current_user.is_authenticated %}
-                
-                
-                <div>
-                {% if moderate %}
-                    <br>
+                            
+            <div class="comment-info">
+                <div class="row">
+                    <div class="comment-author "><a href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a></div>
+                    <div class="comment-date ">{{ moment(comment.timestamp).fromNow() }}</div>
+                </div>
+                <div class="comment-body">
                     {% if comment.disabled %}
-                    <a class="btn btn-default btn-xs" href="{{ url_for('.moderate_enable', id=comment.id, page=page) }}">Enable</a>
-                    {% else %}
-                    <a class="btn btn-danger btn-xs" href="{{ url_for('.moderate_disable', id=comment.id, page=page) }}">Disable</a>
+                    <p><i>This comment has been disabled by a moderator.</i></p>
                     {% endif %}
-                {% endif %}
+                    {% if moderate or not comment.disabled %}
+                        {% if comment.body_html %}
+                            {{ comment.body_html | safe }}
+                        {% else %}
+                            {{ comment.body }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="row ">
+                {% if current_user.is_authenticated %}
+                                            
+                    {% if  not moderate %}
+                        <button class="btn btn-sm btn-default" style="margin:2px;" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
+                            <span class="glyphicon glyphicon-comment" style="color: rgb(208, 208, 238);"></span> 回复
+                        </button>
+                    {% endif %}  
+                    {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+                        <div class="btn-group  pull-right col-sm-pull-1" role="group" style="margin:3px;">
+                        {% if comment.disabled %}
+                        <a class="btn btn-success btn-sm" href="{{ url_for('.moderate_enable', by=by,id=comment.id, page=page) }}">恢复</a>
+                        {% else %}
+                        <a class="btn btn-warning btn-sm" href="{{ url_for('.moderate_disable',by=by, id=comment.id, page=page) }}">屏蔽</a>
+                        {% endif %}
+                        <a class="btn btn-danger btn-sm" href="{{ url_for('.delete_comment', by=by,id=comment.id, page=page) }}">删除</a>
+                        
+                        </div>
+                    {% endif %}    
+                    {% else %}    
+                        
+                    
                 {% endif %}
                 </div>
-                <div class="col-sm-1" {%if current_user.is_authenticated%}col-sm-offset-10 {% endif %}>
-                    <button class="btn btn-xs btn-default" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
-                        <span class="glyphicon glyphicon-comment" style="color: rgb(208, 208, 255);"></span> 回复
-                    </button>
-                </div>
-			</div>
-			
-            
-            
-		</div>	
-    </li>
-	
+                    
+            </div>
+      
+        </li>
+        
     {% endfor %}
+    {% else %}
+        <li class="comment">
+            <div class="comment-body text-center">
+            等你发表第一条评论
+            </div>
+        </li>
+    
 	{% endif %}
 </ul>
 

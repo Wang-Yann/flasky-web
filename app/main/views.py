@@ -441,6 +441,8 @@ def followers(username):
                            follows=follows)
 
 
+                           
+                           
 @main.route('/followed-by/<username>')
 def followed_by(username):
     user = User.query.filter_by(username=username).first()
@@ -457,17 +459,36 @@ def followed_by(username):
                            endpoint='.followed_by', pagination=pagination,
                            follows=follows)
 
-
+@main.route('/delete/comment/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE_COMMENTS)
+def delete_comment(id):
+    comment=Comment.query.get_or_404(id)
+    post_id=comment.post_id
+    db.session.delete(comment)
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'删除评论失败','danger')
+    else:
+        flash(u"你成功删除了该评论",'sucess')
+    if request.args.get('by')=='moderate':
+        page = request.args.get('page', 1, type=int)
+        return redirect(url_for('.moderate',page=page))
+    return redirect(url_for('.post',id=post_id))
+    
 @main.route('/moderate')
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderate():
     page = request.args.get('page', 1, type=int)
+    by=request.args.get('by')
     pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('moderate.html', comments=comments,
+    return render_template('moderate.html', comments=comments,by=by,
                            pagination=pagination, page=page)
 
 
@@ -476,10 +497,13 @@ def moderate():
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderate_enable(id):
     comment = Comment.query.get_or_404(id)
+    post_id=comment.post_id
     comment.disabled = False
     db.session.add(comment)
-    return redirect(url_for('.moderate',
+    if request.args.get('by')=='moderate':
+        return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
+    return redirect(url_for('.post',id=post_id))
 
 
 @main.route('/moderate/disable/<int:id>')
@@ -487,10 +511,13 @@ def moderate_enable(id):
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderate_disable(id):
     comment = Comment.query.get_or_404(id)
+    post_id=comment.post_id
     comment.disabled = True
     db.session.add(comment)
-    return redirect(url_for('.moderate',
+    if request.args.get('by')=='moderate':
+        return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
+    return redirect(url_for('.post',id=post_id))
 
 
 
@@ -642,7 +669,9 @@ def smsbox(username):
     
     
     
-    
+@main.route('/datepicker')
+def datepicker():  
+    return render_template('datepicker.html')
     
     
     
