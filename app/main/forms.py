@@ -74,16 +74,16 @@ class SMSForm(Form):
     subject=StringField(u'主题',validators=[Required()])
     body = PageDownField(u"内容", validators=[Required()])
     submit = SubmitField('send')
-##    def validate_rcver(self, field):
-##        users=field.data
-##        if users.startswith('all'):
-##                pass
-##        else:
-##            for name in users.split(';'):
-##                user=User.query.filter_by(username=name).first() 
-##                if user is None:
-##                    raise ValidationError('请填写正确的收件人名称')
-##        
+    def validate_rcver(self, field):
+       users=field.data
+       if users=='all':
+               pass
+       else:
+           for name in users.split(';'):
+               user=User.query.filter_by(username=name).first() 
+               if user is None:
+                   raise ValidationError('请填写正确的收件人名称')
+       
     
     
 class EditForm(Form):

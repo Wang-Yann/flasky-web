@@ -139,7 +139,7 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
     new_avatar_file=db.Column(db.String(128))
     
-    # sender=db.relationship('Shortmessage',foreign_keys='Shortmessage.send_id')
+    sendsms=db.relationship('Shortmessage',backref='sender',lazy='dynamic')
     # rcv_sms=db.relationship('Shortmessage'###,foreign_keys='Shortmessage.rcv_id')
     
     
@@ -722,14 +722,14 @@ class Shortmessage(db.Model):
     __tablename__='shortmessages'
     id= db.Column(db.Integer,primary_key=True)####,autoincrement=True
     
-    send_id=db.Column(db.Integer)
+    send_id=db.Column(db.Integer,db.ForeignKey('users.id'))####+++++
     rcv_id=db.Column(db.Integer)
     
     subject= db.Column(db.String(80))
     body= db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     message_status= db.Column('status',db.Enum("read","unread","delete"),default='unread')
-    message_types = db.Column('types',db.Enum(*sms_types), default='public')  ###'private','public','all'
+    message_types = db.Column('types',db.Enum(*sms_types), default='public')  
     
     
     

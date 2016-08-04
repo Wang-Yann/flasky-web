@@ -16,6 +16,8 @@ from flask_security import current_user,login_required
 #from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
 
+from sqlalchemy import or_,and_
+
 from . import main
 
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
@@ -575,40 +577,66 @@ def search_results(query):
 
     return render_template('search_results.html',posts=posts,query=query)
 
-@main.route('/send_sms',methods = ['GET','POST'])
+@main.route('/send_sms/<username>',methods = ['GET','POST'])
 @login_required
-def send_sms():
+def send_sms(username):
+    user = User.query.filter_by(username=username).first()
     form=SMSForm()
  ###可以暂时保留记录，记得如何使用   form.message_types.choices = [(value,value) for (i,value) in enumerate(sms_types)]
-    if form.validate_on_submit():
-        rcver=form.rcver.data 
+    if user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        rcvers=form.rcver.data 
         message_types=form.message_types.data,
-
-        sms=Shortmessage(send_id=current_user.id,
+        sms=Shortmessage(send_id=user.id,
         subject = form.subject.data,
         body = form.body.data,
         message_status='unread')
         print(message_types) 
-        print(rcver)
-        if current_user.is_administrator and message_types==('all',) and rcver=='all':
+        print(rcvers)
+        print(rcvers=='all')
+        if user.is_administrator and message_types==('all',) and rcvers=='all':
             sms.rcv_id=-1
             sms.message_types='all'
             db.session.add(sms)
             flash('Your sms has been sended.') 
-        else :
+        elif  rcvers is not None:
             sms_copy=[]
-            for name in rcver.split(';'):
-                user=User.query.filter_by(username=name).first()
+            for name in rcvers.split(';'):
+                rcver=User.query.filter_by(username=name).first_or_404()
                 sms_copy.append(
-                    Shortmessage(send_id=current_user.id,rcv_id=user.id,\
+                        Shortmessage(send_id=user.id,rcv_id=rcver.id,\
                             subject=form.subject.data,\
                             message_types=form.message_types.data,\
                             body=form.body.data,message_status='unread'))
             db.session.add_all(sms_copy)
             db.session.commit()
             flash('Your sms has been sended.')
-        # return redirect(url_for('.send_sms', form=form))
-    return render_template('send_sms.html', form=form)
+        else:            
+            return redirect(url_for('.send_sms', form=form,username=username))
+    return render_template('send_sms.html', form=form,username=username)
+    
+@main.route('/smsbox/<username>',methods = ['GET','POST'])
+@login_required
+def smsbox(username):
+    by=request.args.get('by')
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    if by=='inbox':
+        query= Shortmessage.query.filter\
+            (or_(Shortmessage.rcv_id==user.id,Shortmessage.rcv_id==-1))
+    elif by=='outbox':
+        query= Shortmessage.query.filter_by(send_id=user.id)
+    else:
+        return redirect(url_for('.send_sms',username=username))
+    
+    pagination = query.paginate(
+            page,per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+            error_out=False)
+    sms = pagination.items
+    return render_template('smsbox.html',sms=sms,page=page,username=username,
+                           pagination=pagination, by=by,endpoint='.smsbox')
+    
+    
+    
 
    
     

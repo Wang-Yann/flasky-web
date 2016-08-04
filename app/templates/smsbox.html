@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}smsbox{% endblock %}
+
+{% block page_content %}
+
+
+<div class="page-header">
+    <ul class="nav nav-pills">
+        <li role="presentation" {% if by=="inbox" %} class="active"{% endif %}>
+            <a href="{{ url_for('.smsbox',username=current_user.username,by='inbox') }}">收件箱</a></li>
+        <li {% if by=="outbox" %} class="active"{% endif %}>
+            <a href="{{ url_for('.smsbox',username=current_user.username,by='outbox') }}">发件箱</a></li>
+        <li {% if not by  %} class="active"{% endif %}>
+            <a  href="{{ url_for('.send_sms',username=current_user.username) }}">写邮件</a></li>
+    </ul>
+ </div>
+    {% block sms_content %}
+        {% include '_sms.html' %}
+        {% if pagination %}
+
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.smsbox',username=username) }}
+        </div>
+        {% endif %}
+    {% endblock %}
+{% endblock %}
