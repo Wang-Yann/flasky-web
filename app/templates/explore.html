@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+
+{% block title %}Yann{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h3>Hello, {{ current_user.username }}!</h3>
+</div>
+
+<div class="post-tabs">
+    <ul class="nav nav-tabs ">
+        <li{% if by=="show_followed" %} class="active"{% endif %}><a href="{{ url_for('.explore',by='show_followed') }}">我关注</a></li>
+        <li {% if by=="concerns" %} class="active"{% endif %}> <a href="{{url_for('.explore',by='concerns')}}">我收藏</a></li>
+        <li{% if by=="votes" %} class="active"{% endif %} ><a href="{{url_for('.explore',by='votes')}}">我喜欢</a> </li>
+        
+    </ul>
+    
+    {% include '_posts.html' %}
+</div>
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.explore') }}
+</div>
+{% endif %}
+{% endblock %}
+
+
+
+
+

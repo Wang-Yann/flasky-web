@@ -4,7 +4,7 @@
 {% block title %}Flasky - Post{% endblock %}
 
 {% block page_content %}
-<div class="post-box">
+<div class="post-entry-box">
 
 	<div class="post-entry-header">
 		<h3 class="post-entry-title">
@@ -17,7 +17,12 @@
 			<span class="label label-default">{{ moment(post.timestamp).format('LL') }}</span>&nbsp;
 
 			{% for tag in post.tags %}
-				<span class="label label-success">{{tag.tag_name}}</span>&nbsp;
+				<span class="label label-success">
+                    <a href="/post_result/tag/{{tag.id}}" >
+							{{tag.tag_name}}
+					</a>
+                </span>&nbsp;
+                
 			{% endfor %}
 		</div>
 		<div class="right-info">
@@ -26,7 +31,7 @@
 		</div>
 	</div>
     
-    <div class="post-body">
+    <div class="post-entry-body">
         {% if post.body_html %}
                {{ post.body_html | safe }}
         {% else %}
@@ -35,7 +40,7 @@
     </div>
 
 	
-    <div class="post-footer">
+    <div class="post-entry-footer">
 		<div class="left-info">
 			<p>
 			<button type="button" class="btn btn-default btn-sm" >
@@ -110,48 +115,58 @@
             <a href="#" class="bds_renren" data-cmd="renren"></a>
             <a href="#" class="bds_weixin" data-cmd="weixin"></a>
         </div>
-        {% if current_user == post.author %}
-        <div class="btn-group col-sm-offset-2">
-            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning" 
-                role="button" id="post_edit">编辑</a>
-            <a href="{{ url_for('.delete', id=id) }}" class="btn btn-danger" role="button" id="post_del">删除</a>
-        </div>
-        {% elif current_user.is_administrator() %}
+        {% if current_user.is_administrator() %}
         <div class="btn-group col-sm-offset-2">
             <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning" 
                 role="button" id="post_edit">编辑[Admin]</a>
-            <a href="{{ url_for('.delete', id=id) }}" class="btn btn-danger" role="button" id="post_del">删除[Admin]</a>
+            <a " class="btn btn-danger" data-toggle="modal" data-target="#myModal" role="button" id="post_del">删除[Admin]</a>
+        </div>
+        {% elif current_user == post.author %}
+        <div class="btn-group col-sm-offset-2">
+            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning">编辑</a>
+            <a  class="btn btn-danger" data-toggle="modal" data-target="#myModal" role="button" id="post_del">删除</a>
         </div>
          
         {% endif %}
     </div>
     
     <br/>
+    
+    <!-- 模态框（Modal） -->
+   <div class="modal fade" id="myModal" tabindex="-1" role="dialog" 
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span>
+            </button>
+            <h4 class="modal-title" id="myModalLabel">
+               确认删除文章
+            </h4>
+         </div>
+         <div class="modal-body">
+            <p>将该文章删除后不可恢复，您确认要删除吗？</p>
+            <p>同时本文的所有评论将被删除</p>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <a href="{{ url_for('main.delete_post', id=id) }}"  class="btn btn-success" >确定</a>
+         
+            
+         </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+
+    
+    
+    
 </div>
+
+
+
+
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{% block stylesheet %}
-    {{ super() }}
-    <link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
-{% endblock %}
-
 
 {% block scripts %}
 	{{ super() }}
@@ -191,4 +206,20 @@
         with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
     </script>
 {% endblock %} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

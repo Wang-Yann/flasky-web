@@ -1,16 +1,209 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}SYSUfm - 更换头像{% endblock %}
+{% block title %}更换头像{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>更换你的头像</h1>
-    <form class="change-avatar-form"  method="post" action="" enctype=multipart/form-data>
-        {{ form.csrf_token }}
-        {{ form.file.label }}{{ form.file}}
-        {{ form.submit}}
+    <h3>更换你的头像</h3>
+    
+    
+    <form class="form-inline"   method="post" action="" role="form" enctype=multipart/form-data>    
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /> 
+        <div class="form-group">
+            <label class="sr-only" for="upload">文件输入</label>
+            <input type='file' class="form-control input-lg" id="upload" name='file' style="color:blue; opacity:0.6;" aria-describedby="helpBlock">
+            
+            
+        </div>
+        <button class="btn btn-success btn-lg" type="submit" >上传原图</button>
+         
+       
+    
     </form>
-
+    
+    <span id="helpBlock" class="help-block" style="color:Silver;">建议将图片修剪后上传；如果直接上传，文件名称请不要包含特殊字符。</span>   
+    <button class="btn btn-primary btn-lg" id="show-hidden">预览</button>
+    
+    
+    <div class="croppie-container" id="vanilla-demo" ></div> 
+    <div class="action" align="center">
+        <button   class="btn btn-success vanilla-result" data-toggle="modal" data-target="#myModal">裁剪后上传</button>
+        <button  type="button" class="btn btn-info vanilla-rotate" data-deg="-90">Rotate Left</button>
+        <button  type="button" class="btn btn-info vanilla-rotate" data-deg="90">Rotate Right</button>
+    </div>
+    
+    
+    
+    
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myModalLabel">
+					修剪结果
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div id="result" align="center"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+				<button type="button" id="ajaxsubmit" class="btn btn-primary">
+					AJAX提交更改
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
 </div>
+ 
+ 
+ 
+ 
+ 
+ 
+    
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+ 
+
+  
+ <script>
+ $(function() {
+ var $uploadCrop;
+    function readFile(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            
+            
+            reader.onload = function (e) {
+                
+                $uploadCrop.croppie('bind', {
+                    url: e.target.result,
+                    orientation: 4,                    
+                    });
+
+                    
+                
+            }
+            $("#show-hidden").click(function(){
+                        
+                        reader.readAsDataURL(input.files[0]);
+                });        
+              
+            
+            
+            
+            
+        }
+        else {
+            swal("Sorry - you're browser doesn't support the FileReader API");
+        }
+    }
+    
+    $uploadCrop = $('#vanilla-demo').croppie({ 
+    viewport: { 
+        width: 200, 
+        height: 200, 
+        type: 'square' 
+    }, 
+    boundary: { 
+        width: 300, 
+        height: 300 
+    } ,
+    enableExif:true,
+    enableOrientation: true
+    }); 
+    
+        
+    $('#upload').on('change', function () { 
+        $(".croppie-container").show(); 
+        readFile(this); 
+    }); 
+    
+    var vEl = document.getElementById('vanilla-demo'),
+        vanilla = $uploadCrop.croppie;
+		
+        
+    vEl.addEventListener('update', function (ev) {
+        console.log('vanilla update', ev);
+    });
+    
+    document.querySelector('.vanilla-result').addEventListener('click', function (ev) {
+        $uploadCrop.croppie('result',{
+            type: 'canvas',
+            size: 'viewport'
+        }).then(function (src) {
+            popupResult({
+                src: src
+            });
+        });
+    });
+
+    $('.vanilla-rotate').on('click', function(ev) {
+        $uploadCrop.croppie('rotate',parseInt($(this).data('deg')) );
+    });
+        
+    function popupResult(result) { 
+        var html; 
+        if (result.html) { 
+          html = result.html; 
+        } 
+        if (result.src) { 
+          html = '<img id="abc" src="' + result.src + '" />'; 
+        } 
+        $("#result").html(html); 
+    }; 
+      
+    
+      
+      
+
+      
+});
+
+$('button[id=ajaxsubmit]').click(function(){
+    var str=$('#abc').attr("src");
+    
+    var imdata=str.split(',')[1];
+    var fd = new FormData();
+    fd.append('file', imdata);
+    
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
+   
+    fd.append('csrf_token', csrftoken);
+    console.log(csrftoken);
+
+
+    $.ajax({
+            url:'/api/v1.0/avatar',
+            type:'POST',
+            data:fd,
+            processData: false,
+            contentType: false,
+            
+            dataType:'json',
+            error: function(xhr, err){
+                alert('请求失败，原因可能是：' + err + '！')
+                },
+            success: function(data){  
+                alert('aadasd')             
+                } 
+        }); 
+});  
+
+
+ </script>
+ 
+
 {% endblock %}

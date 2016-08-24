@@ -1,3 +1,5 @@
+#-*- coding:utf-8 -*-
+
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -26,11 +28,12 @@ class Config:
     BABEL_DEFAULT_LOCALE='zh_CN'
     UPLOAD_FILE_PATH=basedir+'/app/static/files' 
     
+    ##WTF_CSRF_ENABLED=False #############取消csrf保护
         
     OPENID_PROVIDERS = [
-    {'name': 'Yahoo', 'url': 'https://me.yahoo.com/'},
-    {'name':'steam', 'url':'https://steamcommunity.com/openid/'},
-    {'name': 'AOL', 'url': 'http://openid.aol.com/<username>'}       
+    {'name': 'Yahoo', 'url': 'https://me.yahoo.com/', 'logo':'yahoo_logo.png'},
+    {'name':'steam', 'url':'https://steamcommunity.com/openid/', 'logo':'steam_logo.png'},
+    {'name': 'AOL', 'url': 'http://openid.aol.com/<username>', 'logo':'aol_logo.png'}       
     ]
 
 

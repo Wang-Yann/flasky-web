@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Alipay{% endblock %}
+
+{% block content %}
+
+<div class='container text-center' >
+    
+    <div class="page-header lead">
+        <h3>支付宝捐赠</h3>
+    </div>
+    
+    <div class='row-fluid'>
+    
+        <img src="{{ url_for('static', filename='images/myalipay.png') }}" width='350'>
+    </div>
+    
+    
+    <div>
+        <p>
+        如果您觉得从我的分享中得到了帮助，那就用你的支付宝扫一扫二维码捐赠本站吧，谢谢！ 
+        </p>
+    </div>
+</div>
+ 
+    
+    
+
+
+
+{% endblock %}

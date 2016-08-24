@@ -60,7 +60,7 @@ def fill_sidebar_data():
     sidebar_data['newcomments']=comments[:5]
     
     visitors=User.query.order_by(User.last_seen.desc())
-    sidebar_data['visitors'] = visitors[:6]
+    sidebar_data['visitors'] = visitors[:3]
     
      
     return dict(sidebar_data=sidebar_data)

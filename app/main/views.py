@@ -7,13 +7,11 @@ sys.setdefaultencoding('utf8')
 import os
 from PIL import Image
 from datetime import datetime
-from flask import render_template, redirect, url_for, abort, flash, request,\
-    current_app, make_response,  g
+from flask import render_template, redirect, url_for, abort, flash, request,json,\
+    current_app, make_response,  g ,jsonify
     
 from flask_security import current_user,login_required
-    
-    
-#from flask.ext.login import login_required, current_user
+ 
 from flask.ext.sqlalchemy import get_debug_queries
 
 from sqlalchemy import or_,and_
@@ -70,27 +68,40 @@ def server_shutdown():
 def index():
     by=request.args.get('by') or 'all'
     
-    show_followed = False
-    if current_user.is_authenticated:
-        show_followed = bool(request.cookies.get('show_followed', ''))
-        if by == 'show_followed':
-            query = current_user.followed_posts        
-        elif by == 'concerns':
-            query = current_user.concerns
-        elif by == 'votes':
-            query=Post.query.join(UserLikePost,UserLikePost.user_id==current_user.id)\
-                    .filter(UserLikePost.post_id==Post.id)
-        else:
-            query=Post.query.order_by(Post.timestamp.desc())
+    if by=='read_count': 
+        query=Post.query.order_by(Post.read_count.desc())
+    elif by=='popularity':
+        query=Post.query.order_by(Post.popularity.desc())
     else:
-        if by=='read_count': 
-            query=Post.query.order_by(Post.read_count.desc())
-        elif by=='comment_count':
-            query=Post.query.order_by(Post.popularity.desc())
-        else:
-            query=Post.query.order_by(Post.timestamp.desc())
-        
+        query=Post.query.order_by(Post.timestamp.desc())
+  
+    page = request.args.get('page', 1, type=int)
 
+    pagination = query.paginate(
+        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        error_out=False)
+    posts = pagination.items
+    return render_template('index.html', posts=posts,by=by,
+                         pagination=pagination)
+
+@main.route('/explore', methods=['GET', 'POST'])
+@login_required
+def explore():
+    by=request.args.get('by')
+    
+    show_followed = False
+    
+    show_followed = bool(request.cookies.get('show_followed', ''))
+    if by == 'show_followed':
+        query = current_user.followed_posts        
+    elif by == 'concerns':
+        query = current_user.concerns
+    elif by == 'votes':
+        query=Post.query.join(UserLikePost,UserLikePost.user_id==current_user.id)\
+                .filter(UserLikePost.post_id==Post.id)
+    else:
+        query=Post.query.order_by(Post.timestamp.desc())
+    
     page = request.args.get('page', 1, type=int)
 #    if show_followed:
 #        query = current_user.followed_posts
@@ -100,33 +111,52 @@ def index():
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
-    return render_template('index.html', posts=posts,by=by,
-                         pagination=pagination)
+    return render_template('explore.html', posts=posts,by=by,
+                         pagination=pagination)                         
+                         
+
+
+
+@main.route('/search', methods = ['POST'])
+@login_required
+def search():
+    if not g.search_form.validate_on_submit():
+         return redirect(url_for('.index'))
+    return redirect(url_for('.post_result', parameter='search_results',value = g.search_form.search.data))
+
 
                          
 @main.route('/post_result/<parameter>/<value>', methods=['GET', 'POST'])
 def post_result(parameter,value):
     if parameter=='cg':
         category=Category.query.get_or_404(value)
-        query=category.posts
+        posts=category.posts
+        name=u'目录:'+category.name
     elif parameter=='tag':
         current_tag=Tag.query.get_or_404(value)
-        query=current_tag.posts
+        posts=current_tag.posts
+        name=u'标签:'+current_tag.tag_name
     elif parameter=='timestamp':
         year,month=value.split('-')
         month1=str(int(month)+1)
         date0=datetime.strptime(year+'-'+month, '%Y-%m')
         date1=datetime.strptime(year+'-'+month1, '%Y-%m')
-        query=Post.query.filter(Post.timestamp.between(date0,date1))
+        posts=Post.query.filter(Post.timestamp.between(date0,date1))
+        name=u'归档:'+value
+    elif parameter=='search_results':
+        posts=Post.query.whoosh_search(value, current_app.config['MAX_SEARCH_RESULTS'])
+        name=u'搜索结果:'+value
     else: 
-        query=Post.query.filter_by(parameter=value)    
+        posts=Post.query.filter_by(parameter=value)
+        name=name
     page = request.args.get('page', 1, type=int)
-    pagination = query.paginate(
+    pagination = posts.paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
-    posts = pagination.items
+    
+    
     return render_template('post_result.html', posts=posts,parameter=parameter,\
-                            value=value,pagination=pagination)                        
+                            value=value,name=name,pagination=pagination)                        
                          
 @main.route('/all')
 def show_all():
@@ -158,7 +188,7 @@ def post_new():
         tags=str_to_obj(form.tags.data),
         read_count=0)
         db.session.add(post)
-        flash(u"发表成功")
+        flash(u"发表成功",'success')
     #else:
      #   post=Post.query.get_or_404(form.id.data)
         return redirect(url_for('.post_new'))
@@ -181,44 +211,37 @@ def user(username):
                            pagination=pagination)
 
 from flask import send_from_directory
+import base64  
 
 @main.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'],
                                filename)
-##@main.route('/', methods=['GET','POST'])
-##def upload_file():
-##    if request.method == 'POST':
-##        file = request.files['file']
-##        if file and allowed_file(file.filename):
-##            filename = secure_filename(file.filename)
-##            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-##            return redirect(url_for('uploaded_file',
-##                                   filename=filename))
-##    return '''
-##    <!doctype html>
-##    <title>Upload new File</title>
-##    <h1>Upload new File</h1>
-##    <form action="" method=post enctype=multipart/form-data>
-##      <p><input type=file name=file>
-##         <input type=submit value=Upload>
-##    </form>
-##    '''
-####def upload():
-##    upload_file = request.files['image01']
-##    if upload_file and allowed_file(upload_file.fiilename):
-##        filename = secure_filename(upload_file.filename)
-##        upload_file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
-##        return 'hello, '+request.form.get('name', 'little apple')+'. success'
-##    else:
-##        return 'hello, '+request.form.get('name', 'little apple')+'. failed'
-##
+                               
+                               
+@main.route('/upload_file', methods=['POST'])
+@login_required
+def upload_file():
+   
+   
+    data = request.get_data()
+    print request.json
+    return jsonify({'ok': True})
+       # # if file and allowed_file(file.filename):
+           # # filename = secure_filename(file.filename)
+       # file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+           # # return redirect(url_for('.uploaded_file',
+                                  # # filename=filename))
+   # return redirect(url_for('.change_avatar',username=current_user.username))
+
+   
+   
 @main.route('/edit-avatar/<username>', methods=['GET', 'POST'])
 @login_required
 def change_avatar(username):
     user = User.query.filter_by(username=username).first_or_404()
-    form = ChangeAvatarForm()
-    if request.method == 'POST' and form.validate_on_submit() :
+    # form = ChangeAvatarForm()
+    if request.method == 'POST':
         file = request.files['file']
         if 'file' not in request.files:
             flash('No file part')
@@ -231,14 +254,14 @@ def change_avatar(username):
             im = Image.open(file)
             im.thumbnail(size,Image.ANTIALIAS)
             if file and allowed_file(file.filename):
-                fname = 'av_'+secure_filename(file.filename)[:7]+'r'
+                fname = 'av_'+username+secure_filename(file.filename)[:5]+'.jpg'
                 im.save(os.path.join(current_app.config['UPLOAD_FOLDER'],'avatar', fname),'jpeg')
                 current_user.new_avatar_file = url_for('static', filename='%s/%s' % ('avatar', fname))
                 db.session.add(current_user)
                 current_user.is_avatar_default = False
                 flash(u'头像修改成功')
                 return redirect(url_for('.user', username=current_user.username))
-    return render_template('change_avatar.html',form=form)
+    return render_template('change_avatar.html')
 
 
 
@@ -334,38 +357,31 @@ def post(id):
                            comments=comments, pagination=pagination,endpoint='.post',\
                            id=post.id)
 
-#@main.route('/post/<int:id>', methods=['GET', 'POST'])
-#def post(id):
-#    post = Post.query.get_or_404(id)
-#    form = CommentForm()
-#    if form.validate_on_submit():
-#        comment = Comment(body=form.body.data,
-#                          post=post,
-#                          author=current_user._get_current_object())
-#        db.session.add(comment)
-#        flash('Your comment has been published.')
-#        return redirect(url_for('.post', id=post.id, page=-1))
-#    page = request.args.get('page', 1, type=int)
-#    if page == -1:
-#        page = (post.comments.count() - 1) // \
-#            current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1
-#    pagination = post.comments.order_by(Comment.timestamp.asc()).paginate(
-#        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-#        error_out=False)
-#    comments = pagination.items
-#    return render_template('post.html', posts=[post], form=form,
-#                           comments=comments, pagination=pagination)
-#
-@main.route('/delete/<int:id>')
+
+@main.route('/delete/post/<int:id>')
 @login_required
-def delete(id):
+def delete_post(id):
     post=Post.query.get_or_404(id)
     if current_user!=post.author and not current_user.can(Permission.ADMINISTER):
         abort(403)
-    u=current_user
+    count=post.comments.count()
+    for comment in post.comments:
+        db.session.delete(comment)
+    for tag in post.tags:
+        deltagcount=0
+        if tag.posts.count()==1:
+            deltagcount+=1
+            db.session.delete(tag)
     db.session.delete(post)
-    flash(u"你成功删除了该文章")
-    return redirect(url_for('.user',username=u.username))
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash(u'删除文章失败','danger')
+    else:
+        flash(u'你成功删除本文章, %s 条评论,%s 个标签'%(count,deltagcount),'success')
+    
+    return redirect(url_for('.user',username=current_user.username))
 
 
     
@@ -472,7 +488,7 @@ def delete_comment(id):
         db.session.rollback()
         flash(u'删除评论失败','danger')
     else:
-        flash(u"你成功删除了该评论",'sucess')
+        flash(u"你成功删除了该评论",'success')
     if request.args.get('by')=='moderate':
         page = request.args.get('page', 1, type=int)
         return redirect(url_for('.moderate',page=page))
@@ -581,28 +597,8 @@ def vote(post_id):
 
 
 
-@main.route('/search', methods = ['POST'])
-@login_required
-def search():
-    if not g.search_form.validate_on_submit():
-         return redirect(url_for('.index'))
-    return redirect(url_for('.search_results', query = g.search_form.search.data))
-  #  form=SearchForm()
-  #  if  form.validate_on_submit():
-  #      return redirect(url_for('search_results',form=form, query = form.search.data))
-  #  return redirect(url_for('index'))
-  #  
 
-@main.route('/search_results/<query>')
-@login_required
-def search_results(query):
-#    page = request.args.get('page', 1, type=int)
-    posts=Post.query.whoosh_search(query, current_app.config['MAX_SEARCH_RESULTS']).all()
-#    pagination = posts.order_by(Post.timestamp.desc()).\
- #               paginate(page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],\
-  #              error_out=False)
-
-    return render_template('search_results.html',posts=posts,query=query)
+ 
 
 @main.route('/send_sms/<username>',methods = ['GET','POST'])
 @login_required
@@ -669,9 +665,12 @@ def smsbox(username):
     
     
     
-@main.route('/datepicker')
-def datepicker():  
-    return render_template('datepicker.html')
+@main.route('/alipay')
+def alipay():  
+    return render_template('alipay.html')
+@main.route('/aboutme')
+def aboutme():  
+    return render_template('aboutme.html')
     
     
     
@@ -680,25 +679,5 @@ def datepicker():
     
     
     
-####待删    
-@main.route('/cg/<int:id>')
-def cg(id):
-    page = request.args.get('page', 1, type=int)
-    pagination = Post.query.filter_by(category_id=id).paginate(
-            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-            error_out=False)
-    posts = pagination.items
-    return render_template('cg.html',posts=posts,
-                           pagination=pagination, endpoint='.cg',id=id)
 
-@main.route('/tag/<int:tag_id>')
-def tag(tag_id):
-    page = request.args.get('page', 1, type=int)
-    current_tag=Tag.query.get_or_404(tag_id)
-    pagination =current_tag.posts.paginate(
-            page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-            error_out=False)
-    posts = pagination.items
-    return render_template('tag.html',posts=posts,
-                           pagination=pagination, endpoint='.tag',tag_id=tag_id)
 

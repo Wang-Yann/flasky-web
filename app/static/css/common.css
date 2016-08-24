@@ -13,7 +13,7 @@ body {
 
 .navbar {
   position: relative;
-  min-height: @navbar-height; // Ensure a navbar always shows (e.g., without a .navbar-brand in collapsed mode)
+  min-height: 100px; // Ensure a navbar always shows (e.g., without a .navbar-brand in collapsed mode)
   margin-bottom: @navbar-margin-bottom;
   border: 1px solid transparent;
   
@@ -24,6 +24,47 @@ body {
     border-radius: @navbar-border-radius;
   }
 }
+.navbar-default .navbar-nav > li > a{
+    color:#ffffff;
+    font-weight: bold;
+    font-size: 18px;
+}
+.navbar-default .navbar-brand{
+    color:#ffffff;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.navbar-default {
+    
+    background: #1886a5;
+    border-color: #1886a5;
+}
+.navbar-default div.container {
+    
+    margin-top:30px;
+    margin-bottom:auto;
+}
+.nav .dropdown-menu{
+    
+    background:  #e5e5ff;
+    border-color: #1aa3ff;
+}
+
+
+
+
+
+
+.panel .panel-title{
+    font-weight:bold;
+}
+
+
+
+
+    
+    
 
 .nav .navbar-inverse  {
 	
@@ -40,37 +81,77 @@ div.post-tabs {
 
 ul.posts {
     list-style-type: none;
-    padding: 0px;
-    margin: 16px 0px 0px 0px;
-    border-top: 1px solid #e0e0e0;
+    padding: 1px;
+    margin: 20px 0px 0px 0px;
+    border-bottom: 1px solid #e0e0e0;
+    
 }
 div.post-tabs ul.posts {
-    margin: 0px;
+    margin: 4px;
     border-top: none;
+    
 }
 ul.posts li.post {
-    padding: 8px;
-    border-bottom: 1px solid #e0e0e0;
+    margin: 15px  2px;
+    padding: 3px;
+    border: 1px solid #e0e0e0;
+    background: #f7fff7;
 }
 ul.posts li.post:hover {
     background-color: #f0f0f0;
 }
-div.post-date {
-    float: left;
+div.post-pre-title {
+    
+    text-align: center;
+    margin: 12px 10px;
 }
-div.post-author {
+div.post-pre-title a{
+    font-weight: bold;
+    color:#000000; 
+    text-decoration: none;
+}
+
+div.post-pre-author {
     font-weight: bold;
 }
-div.post-thumbnail {
-    position: absolute;
-}
 
-div.post-content {
+div.post-pre-content {
+    margin: 6px;
     margin-left: 48px;
-    min-height: 48px;
+    min-height: 50px;
 }
-div.post-header {
+div.post-pre-content a{
+     
+    text-decoration: none;
+}
+div.post-pre-header {
     font-weight:bold;
+    margin-top:3px;
+}
+div.post-pre-header a{
+    color:#FFFFFF;
+    text-decoration: none;
+}
+
+div.post-pre-body {
+	margin-top: 15px;
+    
+	margin-bottom:2px;
+    min-height: 36px;
+    text-align: left;
+}
+div.post-pre-button {
+	margin:9px 2px;
+    
+}
+div.post-pre-footer {
+	height: 16px;
+    vertical-align: middle;
+	margin:8px;
+}
+div.post-pre-footer a{
+    color:#696969;
+    text-decoration: none;
 }
 
 
@@ -78,8 +159,7 @@ div.post-header {
 
 
 
-
-.post-box {
+.post-entry-box {
     background: #f7fff7;
     padding: 30px;
 	margin-top:15px;
@@ -87,7 +167,7 @@ div.post-header {
     border: 1px solid #e6e6e6;
     border-radius: 6px;
 }
-.post-box:hover {
+.post-entry-box:hover {
     box-shadow: 4px 4px 8px rgba(0,0,0,.2);
     border-color: #d6d6d6;
 }
@@ -100,7 +180,7 @@ div.post-header {
 }
 .post-entry-title {
     text-align: center;
-    margin-bottom: 10px;
+    margin: 15px 10px;
 }
 .post-entry-title a {
     text-decoration: none;
@@ -109,6 +189,11 @@ div.post-header {
 .post-entry-info {
     height: 35px;
 }
+div.post-entry-info a{
+    color:#FFFFFF;
+    text-decoration: none;
+}
+
 .left-info {
     float: left;
 	vertical-align: middle;
@@ -117,21 +202,25 @@ div.post-header {
     float: right;
 	vertical-align: middle;
 }
-.post-body {
+.post-entry-body {
 	margin-top: 10px;
 	margin-bottom:10px;
-    min-height: 100px;
+    min-height: 150px;
 	
 	text-align: left;
 }
-div.post-footer {
+
+div.post-entry-footer {
 	height: 40px;
     vertical-align: middle;
 	margin-bottom:30px;
 }
-div.post-footer a{
+div.post-entry-footer a{
     text-decoration: none;
 }
+
+
+
 
 
 
@@ -154,14 +243,32 @@ div.post-footer a{
 
 
 .footer {
-	background: #474E5D;
-	padding: 15px 0 5px;
-	font-size: 13px;
+	background: #1c9dc2;
+	
+	font-size: 14px;
+    min-height: 40px;
+    margin-top: 150px;
+    padding-top: 20px;
+    
 }
+
 .footer-content {
+    
     text-align: center;
-    color: #8a6d3b;
+    color: #000000;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 div.pagination {
     width: 100%;
     text-align: right;
@@ -265,6 +372,17 @@ div.comment-form {
     border-radius: 6px;
     
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

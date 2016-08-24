@@ -312,7 +312,8 @@ class User(UserMixin, db.Model):
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
-
+    
+    
     def gravatar(self, size=100, default='identicon', rating='g'):
     ####    if self.is_avatar_default: 
             if request.is_secure:
@@ -323,6 +324,19 @@ class User(UserMixin, db.Model):
                 self.email.encode('utf-8')).hexdigest()
             return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
+    
+    @property
+    def portrait(self):
+        if self.new_avatar_file:
+            return self.new_avatar_file
+        elif self.email is not None:
+            return self.gravatar()
+        else:
+            return url_for('static', filename='%s/%s' % ('avatar','test001'))   #####待修改Photo 类
+            
+            
+            
+            
     def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self, followed=user)
@@ -699,7 +713,7 @@ class Category(db.Model):
     def insert_categories():
         categories =[u"未分类",u"Web技术", u"数据库", u"编程", u"生活",u"Linux"] 
         for n in categories:
-            category = Category(name=n)
+            category = Category(name=n,parent_id=0)
             db.session.add(category)
         db.session.commit() 
     @property

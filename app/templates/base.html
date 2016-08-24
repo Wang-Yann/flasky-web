@@ -1,14 +1,13 @@
-<html>
-<!-- {% extends "bootstrap/base.html" %} -->
-{% block html_attribs %} lang="en" {% endblock %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html lang="en">
+
 {% import "_macros.html" as macros %}
-{% block head %}
-{{ super() }}
-    {% block title %}Yann{% endblock %}
-    {% block meta %}
-        <meta charset="UTF-8">
-        <meta name="csrf-token" content="{{ csrf_token() }}"/>
-    {% endblock %}
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta name="csrf-token" content="{{ csrf_token()}}">
+       
     {% block style %}
         
         <link rel="shortcut icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
@@ -16,16 +15,24 @@
         <link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
-		<!-- <link href="{{ url_for('static', filename='css/mystyle.css') }}" rel="stylesheet"> -->
-		
-		
-       
+        
+        
+        <link href="{{ url_for('static', filename='css/croppie.css') }}" rel="stylesheet">
+        
+        <!-- <link  href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet"> -->
+	       
     {% endblock %}
-{% endblock %}
+    <title>
+    {% block title %}Yann{% endblock %}
+    </title>
+
+</head>
+
+
 
 <body>
 {% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -34,38 +41,30 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Yann</a>
+            <a class="navbar-brand" href=#>VLOBSTER</a>
         </div>
-        <div class="navbar-collapse collapse">
+        <div class="navbar-collapse collapse ">
 			
-            <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                <li><a href="{{ url_for('main.datepicker') }}">datepicker</a></li>
-                {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-				
-				<li><span class="input-group"> 
-						<form id = "search_form" style="display: inline;"                        
-							action="{{url_for('main.search')}}" method="post" name="search_form">
-							{{ g.search_form.hidden_tag()}}
-							{{ g.search_form.search(size=20) }}
-        					<input type="submit" value="GO!">
-						</form>
-					</span>
-				
-				</li>
+            <ul class="nav navbar-nav navbar-left">
+                {% if current_user.can(Permission.WRITE_ARTICLES) %}
+                <a href="{{url_for('main.post_new')}}">
+                    <button  class="btn btn-primary navbar-btn" style="margin-left:30px; font-weight:bold;">写文章</button>
+                </a>
                 {% endif %}
             </ul>
-            
+                 
             
             <ul class="nav navbar-nav navbar-right">
-                {% if current_user.can(Permission.MODERATE_COMMENTS) %}
-                <li><a href="{{ url_for('main.moderate') }}">Moderate Comments</a></li>
+                                
+                <li role="presentation"><a href="{{ url_for('main.index') }}">首页</a></li>
+                {% if current_user.is_authenticated %}
+                    <li role="presentation"><a href="{{ url_for('main.explore',by=by) }}">发现</a></li>
                 {% endif %}
+                <li role="presentation"><a href="{{ url_for('main.aboutme') }}"  target='_blank'>关于</a></li>
                 {% if current_user.can(Permission.WRITE_ARTICLES) %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        我的消息 <b class="caret"></b>
+                        消息 <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
 						<li>
@@ -76,33 +75,56 @@
                             <a href="{{url_for('main.smsbox',username=current_user.username,by='outbox') }}" > 发件箱</a></li>
                         
                     </ul>
-                </li>               
-                
+                </li> 
+                          
                 {% endif %}
                 
                 
                 {% if current_user.is_authenticated %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{ current_user.gravatar(size=18) }}">
-                        Account <b class="caret"></b>
+                        <img src="{{ current_user.portrait }}" width="20" >
+                        我 <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-						<li><a href="{{url_for('main.post_new')}}">写文章</a></li>
-						<li><a href="{{ url_for('admin.index') }}" target="_blank">后台管理</a></li>
-                        <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
-                        <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
-                        <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+                        <li ><a href="{{ url_for('main.user', username=current_user.username) }}">我的主页</a></li>
+			             
+                        <li><a href="{{ url_for('auth.change_password') }}">修改密码</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}">登出</a></li>
+                        {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{{ url_for('main.moderate') }}">管理评论</a></li>
+                        {% endif %}
+                        {% if current_user.can(Permission.ADMINISTER) %}
+                        <li><a href="{{ url_for('admin.index') }}" target="_blank">后台管理</a></li>
+                        {% endif %}
+                        
                     </ul>
                 </li>
+                <form class="navbar-form navbar-right" role='search' method="post" 
+                action="{{url_for('main.search')}}"  name="search_form">
+                    <div class="form-group">
+                    {{ g.search_form.csrf_token}}
+                    {{ g.search_form.search(size=20) }}
+                    </div>
+                    <button type='submit' class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                              
+                </form>
+                
                 {% else %}
-                <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
+                <li><a href="{{ url_for('auth.login') }}">登入</a></li>
+               
+                
+                
                 {% endif %}
             </ul>
         </div>
     </div>
 </div>
 {% endblock %}
+
+
 
 
 {% block content %}
@@ -112,103 +134,133 @@
   
 		<div class="col-sm-3 sidebar">
 			<h4>Yann's Blog</h4>
-			<ul class="nav nav-pills nav-stacked">
-			<li class="active"><a href="#section1">Home</a></li>
-			<li><a href="{{url_for('main.cg',id=1)}}">Web技术 </a> </li>
-			<li><a href="/post_result/cg/3">数据库</a></li>
-			<li><a href="#section3">编程</a></li>
-			<li><a href="#section3">Linux</a></li>
-			<li><a href="#section3">生活</a></li>
-			</ul>
-			<br>
-			
-			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Search Blog..">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="button">
-						<span class="glyphicon glyphicon-search"></span>
-					</button>
-				</span>
-			</div>
- 
+            {% if current_user.is_authenticated %}
+            <div class="panel panel-info ">
+                <div class="panel-heading">
+                <h3 class="panel-title" >文章搜索</h3>
+                </div>
+            
+                <br>
+                <div class="form-group" style="margin:10px;">
+                    <form class="form-horizontal "  role="form" action="{{url_for('main.search')}}" method="post" name="search_form">
+                            
+                     {{ g.search_form.hidden_tag()}}
+                     {{ g.search_form.search(size=20) }}
+                    <input type='submit' value='GO!'>
+                             					
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            
+            <!-- <div class="datePicker"></div> -->
+            
+            <br>
+            
 			{% block sidebar %}
+               
 				{{ macros.widget_category(sidebar_data['category'], '.post_result') }}
+   
                 {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
                 
                 {{  macros.widget_archieve(sidebar_data['archieve'],'.post_result') }}
                 
                 {{  macros.widget_newcomments(sidebar_data['newcomments'],'.post',fragment='#comments') }}
-                {{  macros.widget_popular(sidebar_data['popular'],'.post') }}
+                {{  macros.widget_popular(sidebar_data['popular'],'.post_result') }}
                 {{  macros.widget_visitors(sidebar_data['visitors'],'.user') }}
                 {{  macros.widget_links(sidebar_data['links']) }}
-                
-                
-                
+                        
 				
 			{% endblock %}
       	</div>
 	
 	
 		<div class="col-sm-9 container">
-			{% for message in get_flashed_messages() %}
-			<div class="alert alert-warning">
-				<button type="button" class="close" data-dismiss="alert">&times;</button>
+        
+        
+			{% for category,message in get_flashed_messages(with_categories=True) %}
+			<div class="alert alert-{{ category }} alert-dismissible" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close" >
+                    <span aria-hidden="true">&times;</span>
+                </button>
 				{{ message }}
 			</div>
 			{% endfor %}
-	
-	
+		
 			{% block page_content %}
 			{% endblock %}
 		</div>
 	</div>
 
-	{% block footer %}
-    <footer class="blog-footer">
-        <hr>
-        <a href="https://shenghuo.alipay.com/send/payment/fill.htm?optEmail=15986767879&payAmount=9.9&title=%B4%F2%C9%CD%C4%E3%B5%C4%A3%A1">收款</a>
-        <p class="text-center">
-            Powered by <a href="http://flask.pocoo.org">Flask</a>, 
-            <a href="http://getbootstrap.com">Bootstrap</a> and <a href="http://python.org">Python</a>,
-            developed &amp; written by <a href="mailto:hexbot@163.com" target="_top">hexbot</a>. &nbsp;
-        </p>
-        <p class="text-center">
-            <a href="#">Back to Top</a>
-        </p>
-    <div>
-        <form action="https://shenghuo.alipay.com/send/payment/fill.htm" method="post" target="_blank" accept-charset="GBK" id="paymentForm">
-        <input name="optEmail" type="hidden" value="15986767879" />
-        <input name="payAmount" type="hidden" value="1.00" />
-        <input id="title" name="title" type="hidden" value="捐赠给网站" />
-        <input name="memo" type="hidden" value="文章写的不错" />
-        <input name="pay" type="image" src="https://img.alipay.com/sys/personalprod/style/mc/btn-index.png" width="50" height="12">
-        </form>
-    </div>   
-        
-    </footer>
-	{% endblock %}
+	
 </div>
 {% endblock %}
 
-{%block scripts %}
+
+ 
+{% block footer %}
+<div class=" footer ">
+    <div class="footer-content">
+       
+        <p>
+            Developed  by  Wang-Yann</a> &nbsp;<span>：wzy-511@163.com</span>&nbsp;
+        {% if current_user.can(Permission.ADMINISTER) %}
+        <button class="btn btn-warning float-right">
+            <a href="{{ url_for('admin.index') }}" target="_blank">后台管理</a>
+        </button>
+        {% endif %}
+        </p>
+        
+    <div>
+        <a  href="{{ url_for('main.alipay') }}">
+        <image src="{{ url_for('static', filename='images/donate_me.png') }}"  height="20">
+        </a>
+        <button class="btn btn-info  pull-right">
+            <a href="#">Back to Top</a>
+        </button>
+    </div> 
+    <hr  />
+    
+    <span>Copyright © 2016  All rights reserved </span>&nbsp; 
+    <span>川 ICP备 09043268号</span>
+          
+    </div>  
+</div>    
+{% endblock %}
+
+
+
+
+
+
+{% block scripts %}
     <script src="{{ url_for('static', filename='js/jquery-2.2.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-	<!-- <script src="{{ url_for('static', filename='js/npm.js') }}"></script> -->
-    <script src="{{ url_for('static', filename='js/floatButton.js') }}"></script>
-    {# csrfToken for Ajax   #}
+    
+    <script src="{{ url_for('static', filename='js/croppie.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    
+    
+    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datePicker.js') }}"></script>
+   
+    
+    
+    
+    
     <script>
-        var csrfToken = $('meta[name="csrf-token"]').attr('content');
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
-                }
-            }
+        $('.mylink').each(function(){
+            $(this).mouseenter(function(){
+            $(this).addClass('active');
+            $(this).parent().children().not($(this)).removeClass('active');
+                })
         })
     </script>
-
+  
     {{ moment.include_moment() }}
-    {{ moment.lang('zh-cn') }}
+    
 {% endblock %}
 
 </body>

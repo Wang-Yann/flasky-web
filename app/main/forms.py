@@ -18,12 +18,18 @@ class EditProfileForm(Form):
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
+    
 class ChangeAvatarForm(Form):
-    file=FileField(u"选择图片",validators=[])
+    pass
+    # file=FileField(u"选择图片",validators=[])
 
-    submit = SubmitField("Send")
+    # submit = SubmitField("Send")
 
+    
+    
+    
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -124,3 +130,4 @@ class CommentForm(Form):
 
 class SearchForm(Form):
     search = StringField('search', validators=[Required()])
+    

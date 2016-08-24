@@ -7,28 +7,32 @@
 
 {% block page_content %}
 <div class="page-header">
-    <h3>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h3>
+    {% if current_user.is_authenticated %}
+    <h4>Hello, {{ current_user.username }}!</h4>
+    {% else %}
+    <h4>你好，更多精彩请登录!</h4>
+    {% endif %}
 </div>
 
 <div class="post-tabs">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs ">
         <li{% if by=="all" or None %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">最新</a></li>
-        <li{% if by=="read_count" %} class="active"{% endif %} ><a href="{{url_for('.index',by="read_count")}}">最热</a> </li>
-        <li{% if by=="comment_count" %} class="active"{% endif %}><a href="{{ url_for('.index',by="comment_count") }}">推荐</a></li>
-        {% if current_user.is_authenticated %}
-        <li{% if by=="show_followed" %} class="active"{% endif %}><a href="{{ url_for('.index',by="show_followed") }}">我关注</a></li>
-        <li {% if by=="concerns" %} class="active"{% endif %}> <a href="{{url_for('.index',by="concerns")}}">我收藏</a></li>
-        <li{% if by=="votes" %} class="active"{% endif %} ><a href="{{url_for('.index',by="votes")}}">我喜欢</a> </li>
-        {% endif %}
+        <li{% if by=="read_count" %} class="active"{% endif %} ><a href="{{url_for('.index',by='read_count')}}">最热</a> </li>
+        <li{% if by =="popularity" %} class="active"{% endif %}><a href="{{ url_for('.index',by='popularity') }}">推荐</a></li>
+        
     </ul>
     
     {% include '_posts.html' %}
 </div>
+
 {% if pagination %}
 <div class="pagination">
     {{ macros.pagination_widget(pagination, '.index') }}
 </div>
 {% endif %}
 {% endblock %}
+
+
+
 
 

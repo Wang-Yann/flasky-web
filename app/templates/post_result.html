@@ -5,18 +5,35 @@
 
 {% block page_content %}
     <div class="page-header">
-        <h3>Search Results for "{{query}}"</h3>
+        
+        <h3><span class="label label-info">{{name}}</span></h3>
+        
     </div>
-    <hr>
+   
 
     
     {% include '_posts.html' %}
-    {% if pagination %}
-        <div class="pagination">
-            {{ macros.pagination_widget(pagination,'.post_result',parameter=parameter,value=value) }}
-        </div>
-    {% endif %}
+    
+    {% if posts.all() %}
+        {% if pagination %}
+            <div class="pagination">
+                {{ macros.pagination_widget(pagination,'.post_result',parameter=parameter,value=value) }}
+            </div>
+        
+        {% endif %}
+    {% else %}
 
+        <ul class="column-md-8 posts">
+            <li class="post">
+                <div class="post-pre-title">
+                
+                暂时无文章可以显示
+                </div>
+            </li>
+        </ul>
+    {% endif %}
+    
+    
 {% endblock %}
 
 

@@ -41,6 +41,10 @@ $(document).ready(function () {
     });
 });
 
+
+
+
+
 //JS For confirm to delete a comment in articleDetails page
 function delCommentCfm(url) {
     $('#delCommentCfmClick').click(function(){
@@ -48,6 +52,9 @@ function delCommentCfm(url) {
     });
     $('#delCommentCfmModel').modal();
 }
+
+
+
 
 //JS For select comments to delete
 

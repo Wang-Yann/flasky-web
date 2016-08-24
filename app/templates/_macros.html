@@ -30,16 +30,24 @@
 
 
 
-{% macro widget_category(data, endpoint) %}			
+{% macro widget_category(data, endpoint) %}	
+	<div class="panel panel-info ">
+    <div class="panel-heading">
+            <h3 class="panel-title">分类目录</h3>
+    </div>
+    
+    
     <ul class="nav nav-pills nav-stacked">
+        
         {% for category, num in data.items() %}
-            <li {% if category.id %} class="active"{% endif %}> 
+            <li class="mylink"> 
                 <a href="/post_result/cg/{{category.id}}">{{ category.name }} 
                  <span class="badge pull-right">{{ num }}</span>
                 </a>
             </li>
         {% endfor %}
-                    
+    </ul>
+    </div>                
 {% endmacro %}
 
 
@@ -59,7 +67,7 @@
     'color:#9cade9;','color:#1ced29;','color:#ec3de9;','color:#367d29;','color:#cccd29;') %}
 
 
-<div class="panel panel-default ">
+<div class="panel panel-info ">
     <div class="panel-heading">
             <h3 class="panel-title">文章标签</h3>
     </div>
@@ -74,7 +82,7 @@
 {% endmacro %}
 
 {%  macro widget_archieve(data,endpoint) %}
-    <div class="panel panel-default ">
+    <div class="panel panel-info ">
         <div class="panel-heading">
             <h3 class="panel-title">文章归档</h3>
         </div>
@@ -106,7 +114,7 @@
 
 
 {%  macro widget_newcomments(data,endpoint,fragment='') %}
-    <div class="panel panel-default ">
+    <div class="panel panel-info ">
         <div class="panel-heading">
             <h3 class="panel-title">最新评论</h3>
         </div>
@@ -118,7 +126,7 @@
                 
                     <li>
                     <a href="{{url_for('.post',id=comment.post_id)}}{{ fragment }}">
-                        {{comment.author_name}}:{{comment.body}}
+                        <b>{{comment.author_name}}</b> :{{comment.body}}
                     </a>
                     </li>
                 
@@ -130,24 +138,28 @@
 {% endmacro %}
 
 {%  macro widget_visitors(data,endpoint) %}
-    <div class="panel panel-default ">
+    <div class="panel panel-info ">
         <div class="panel-heading">
             <h3 class="panel-title">最新访客</h3>
         </div>
         
-        <div class="panel-body">
-            <ul>
+        <div class="panel-body" >
+            
             {% for user  in data %}
-                     
-                    <div>
-                        <img src="{{ user.gravatar(size=18) }}">
-                    <a href="{{url_for('.user',username=user.username)}}">
-                        <p>{{user.username}}</p>
+            
+              <div class='pull-left' style='margin:5px 5px;' >
+                 <img src='{{user.portrait}}' width='25'>
+                 <div class="caption">
+                    <a href="{{url_for('main.user',username=user.username)}}"  >
+                    <p >{{user.username}}</p>
                     </a>
-                    </div>
+                 </div>
+              </div>
+           
+
                 
             {% endfor %}
-            </ul>
+            
         </div>
         
     </div>
@@ -155,7 +167,7 @@
 
 
 {%  macro widget_popular(data,endpoint) %}
-    <div class="panel panel-default ">
+    <div class="panel panel-info ">
         <div class="panel-heading">
             <h3 class="panel-title">热门推荐</h3>
         </div>
@@ -163,9 +175,9 @@
         <div class="panel-body">
             <ol>
             {% for post in data %}
-                    <li> <small>{{post.author}}: </small>
-                    <a href="{{url_for('.post',id=post.id)}}">
-                        {{post.title|truncate(30, True)}}
+                    <li> <b>{{post.author}}: </b>
+                    <a href="{{url_for('main.post',id=post.id)}}">
+                        {{post.title|truncate(20, True)}}
                     </a>
                     </li>
             {% endfor %}
@@ -176,7 +188,7 @@
 {% endmacro %}
 
 {%  macro widget_links(data) %}
-    <div class="panel panel-default ">
+    <div class="panel panel-success ">
         <div class="panel-heading">
             <h3 class="panel-title">友情链接</h3>
         </div>
@@ -195,6 +207,10 @@
                     </li>
             {% endfor %}
             </ol>
+            
+            <a href="https://github.com/Wang-Yann" target="_blank">github个人主页</a>
+            
+            
         </div>
         
     </div>
