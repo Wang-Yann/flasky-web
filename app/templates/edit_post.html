@@ -1,42 +1,78 @@
 {% extends 'base.html' %}
-
+{% import "_macros.html" as macros %}
 
 {% block title %}Post editting{% endblock %}
 
 {% block page_content %}
 
+
+
 <div>
-<form action="" method="post" class="form" id="frm1" role="form">
+<form action="" method="post" class="form-horizontal" id="frm1" role="form" name="form">
     <div style="display:none;">
         {{ form.csrf_token() }}
-        {{ form.types() }}
+        
     </div>
 
     <div class="form-group required">
+        <div class="col-sm-12">
         {{ form.title.label }}
         {{ form.title(class="form-control") }}{{ macros.field_error(form.title) }}
+        </div >
     </div>
-    <div class="row form-group-sm horizontal">
-        <div class="col-xs-2"><p class="text-left">{{ form.category_id.label }}</p></div>
-        <div class="col-sm-4">{{ form.category_id(class="form-control") }}{{ macros.field_error(form.category_id) }}</div>
+    <div class="row required">
+        
+            <div class="col-sm-2"><p class="text-left">{{ form.category_id.label }}</p></div>
+            <div class="col-sm-4">{{ form.category_id(class="form-control",id="first") }}{{ macros.field_error(form.category_id) }}</div>
+       
+        
+        <div class="form-group">
+        <label for="sub_category_id" class="col-sm-1 control-label">子目录</label> 
+       
+        
+        <div class="col-sm-5 form-group " name='sub' id="sub">
+            <select name="sub_category_id" class="form-control" id='area' required>
+            
+            {% if post and post.category.is_subcategory %}
+        
+                {% for n in post.category.siblings %}
+                
+                    {% if n.id==post.category_id %}
+                        <option value='{{n.id}}' selected='selected'>{{n.name}}</option>
+                    {% else %}    
+                        <option value='{{n.id}}'>{{n.name}}</option>
+                    {% endif %}
+                
+                {% endfor %}
+            
+            {% else %}
+                <option value='-1'>--请选择类型--</option>
+            {% endif %}
+            </select>
+            
+        </div>
+         </div>
+        
+        
+        
+        
+    </div>
 
+    </div>
+    <div class="row form-group required">
+        <div class="col-sm-1"><p class="text-left">{{ form.tags.label }}</p></div>
+        <div class="col-sm-9">{{ form.tags(class="form-control",placeholder="请用空格分隔各标签") }}{{ macros.field_error(form.tags) }}</div>
         <div class="col-sm-1"><p class="text-left">{{ form.private.label }}</p></div>
         
         <div class="col-sm-1">{{ form.private() }}</div>
     </div>
-
-    </div>
-    <div class="row form-group-sm required">
-        <div class="col-sm-1"><p class="text-right">{{ form.tags.label }}</p></div>
-        <div class="col-sm-9">{{ form.tags(class="form-control") }}{{ macros.field_error(form.tags) }}</div>
-    </div>
     <div class="form-group required">
         {{ form.body.label }}
-        {{ form.body(only_input=True, class="form-control", rows=20) }}
+        {{ form.body(only_input=True, class="form-control", rows=25) }}
     </div>
     <div class="btn-group pull-right">
             <a type="reset" onclick="formReset()" class="btn btn-default">清空</a>
-            {{ form.submit(class="btn btn-default") }}
+            {{ form.submit(class="btn btn-default",id='submit') }}
     </div>
     
 </form>
@@ -46,13 +82,48 @@
 
 
 
-{% block scripts%}
-    {{ pagedown.include_pagedown() }}
-    <script>
-        function formReset(){
-            document.getElementById("frm1").reset();
-}
+{% block scripts %}
+
+    {{super()}}
+ <script>
+    function formReset(){
+            document.getElementById("frm1").reset();};
     </script>
+
+    
+    
+<script>
+
+$(function(){
+    
+    
+    $('#first').change(function(){
+        var parentId=$('#first').val();
+        console.log(parentId)
+        
+        if (parentId != null && parentId != ''){
+            var options="<option value='-1'>--请选择类型--</option>";
+            var i = parseInt(parentId);
+            console.log(typeof(i))
+            
+            {% for n in Category.query.filter(parent_id==i ).all() %}
+                if ({{n.parent_id}}==i) {
+                
+                options += '<option value=' + {{n.id}} + ">" + '{{n.name}}' + '</option>'
+                }
+            {% endfor %}
+            
+                    };
+        $('#area').html(options);
+        
+        
+        } );
+        
+    
+        
+})
+</script>
+    
     
 {% endblock %}
 

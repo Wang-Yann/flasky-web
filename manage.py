@@ -42,10 +42,19 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 
-
-
+# def is_subcg_url(url):
+    # x,_,y=url.partition('/post_result/cg/')
+    # if y:
+        # id=y.split('#')[0]
+        # return Category.query.get_or_404(int(id)).parent_id!=0
+    # else:
+        # return False
 app.jinja_env.globals['Comment'] = Comment
-app.jinja_env.globals['Post'] = Post
+# app.jinja_env.globals['Post'] = Post
+app.jinja_env.globals['Category'] =Category
+
+# app.jinja_env.tests['subcg_url'] =is_subcg_url
+
 
 filepath=app.config.get('UPLOAD_FILE_PATH') 
 try:
@@ -59,7 +68,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,\
                 Permission=Permission, Post=Post, Comment=Comment,\
                 UserLikePost=UserLikePost,Category=Category,Tag=Tag,\
-                Shortmessage=Shortmessage,Photo=Photo)
+                Shortmessage=Shortmessage,Photo=Photo,post_tag_ref=post_tag_ref)
                 
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
@@ -112,66 +121,52 @@ def deploy():
     Role.insert_roles()
     Category.insert_categories()
     # create self-follows for all users
-    User.generate_fake(12)
-    
-    u=User(email='abc@abc.com',username="abcd",password='abc',confirmed=True,role_id=2) 
-    v=User(email='a@abc.com',username="a",password='abc',confirmed=True,role_id=3)
-    x=User(email='b@abc.com',username="b",password='abc',confirmed=True,role_id=3)
-    y=User(email='c@abc.com',username="c",password='abc',confirmed=True,role_id=3)
-    db.session.add(u)
+    User.generate_fake(5)
+    v=User(email='aaa@vlobster.com',username="AAA",password='abc',confirmed=True)
+    x=User(email='bbb@vlobster.com',username="BBB",password='abc',confirmed=True)
+    y=User(email='ccc@vlobster.com',username="CCC",password='abc',confirmed=True)
+    u=User(email='abc@vlobster.com',username="ABC",password='abc',confirmed=True,role_id=3)
+    v.role_id=2
+    x.role_id=2
+    y.role_id=2
     db.session.add(v)
     db.session.add(x)
     db.session.add(y)
+    db.session.add(u)
     db.session.commit()
     User.add_self_follows()
     Post.generate_fake(10)
-    Comment.generate_fake(12)
+    Comment.generate_fake(15)
     
-    
-########user_datastore=SQLAlchemyUserDatastore(db,User,Role)
-####security=Security(app,user_datastore)
-####
-####
-####
-####
-####@security.context_processor
-####def security_context_processor():
-####    return dict(
-####        admin_base_template=admin.base_template,
-####        admin_view=admin.index_view,
-####        h=admin_helpers,
-####        get_url=url_for
-####        )
-####
 admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
         index_view=MyAdminIndexView(),\
         base_template='admin/my_master.html',template_mode='bootstrap3')
+admin.add_view(UserAdmin(User,db.session))
 
-#admin.add_view(MyModelView(Role,db.session))
-
-
-
-
-
-
-
-
-
-#admin.add_view(UserAdmin(User,db.session))
-
+#admin.add_view(PostAdmin(Post,db.session))
 admin.add_view(PostAdmin(db.session))
-
-admin.add_view(MyModelView(Comment,db.session))    ####三种式样的view注意区分
-
+    ####三种式样的view注意区分
 admin.add_view(MyModelView(Category,db.session))
 admin.add_view(MyModelView(Tag,db.session))
-admin.add_view(MyModelView(Follow,db.session))
-##admin.add_view(MyView(name="yann",endpoint="extra",category="others"))
-admin.add_view(FileAdminView(filepath,name='Files'))
+admin.add_view(MyModelView(Comment,db.session))
+admin.add_view(MyModelView(Shortmessage,db.session))
+# admin.add_view(MyModelView(Follow,db.session))
+admin.add_view(MyModelView(Role,db.session))
+
+#########admin.add_view(MyAdminIndexView(name="mine",endpoint="extra",category="Others")) 自己的admin View
+admin.add_view(FileAdminView(filepath,name='StaticFiles'))    
+
+
 
 
 
 if __name__ == '__main__':
     manager.run()
+
+    
+    
+    
+    
+
 
 

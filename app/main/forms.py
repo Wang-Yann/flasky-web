@@ -5,7 +5,7 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
 from wtforms.validators import Required, Length, Email, Regexp,Optional
 from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
-from ..models import Role, User,Category,sms_types
+from ..models import Role, User,Category,Post,sms_types
 from .. import db
 
 class NameForm(Form):
@@ -68,12 +68,17 @@ class EditProfileAdminForm(Form):
             raise ValidationError('Username already in use.')
 
 
-class PostForm(Form):
-    title=StringField(u"标题",validators=[Required()])
-    body = PageDownField("What's on your mind?", validators=[Required()])
-    category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
-    tags=StringField(u"标签")
-    submit = SubmitField( 'Submit')
+# class PostForm(Form):
+    # title=StringField(u"标题",validators=[Required()])
+    # body = PageDownField("What's on your mind?", validators=[Required()])
+    # category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
+    
+   
+    
+    # tags=StringField(u"标签")
+    # submit = SubmitField('Submit')
+    
+    
 class SMSForm(Form):
     message_types=SelectField(u'类型',choices=zip(sms_types,sms_types))
     rcver=StringField(u'收件人')
@@ -93,33 +98,29 @@ class SMSForm(Form):
     
     
 class EditForm(Form):
-    types = HiddenField('new')
+    # types = HiddenField('new')
     title = TextAreaField(u'标题', validators=[Required()])
     body = PageDownField(u'内容', validators=[Required()])
-    
+    category_id = SelectField(u"博文类型",coerce=int)
     
     tags = StringField(u'标签')
     private = BooleanField(u'不公开')
-    submit = SubmitField(u'完成')
-    category_id = SelectField(u"博文类型",coerce=int,validators=[Required()])
-    # def new_category_validator(form, field):
-        # if form.category_id.data == 'new':
-            # if not len(field.data):
-                # raise ValidationError(u'在此输入新分类名')
-            # elif field.data in [c[1] for c in form.category_id.choices]:
-                # raise ValidationError(u'分类名已存在')
-	
-#    category_new = StringField('')
-    # startup needs to create all necessary tables before the following query operation
-    
-    
-    # categories_e = categories.query.order_by(Category.id).all()
-    # choices = [(str(c.id), c.name) for c in categories_e]
-    # choices.append(('new', u'--新建分类--'))    # special category hint
-    # category = SelectField(u'分类', choices=choices, validators=[Required()])
-    # # the category name when create new category
-    
-    
+    submit = SubmitField('Submit')
+    def __init__(self, post,*args, **kwargs):
+        super(EditForm, self).__init__(*args, **kwargs)
+        self.category_id.choices = [(a.id, a.name) for a in Category.query.filter(Category.parent_id==0).all()]
+        self.category_id.choices.insert(0,('-1','--请选择类型--'))
+        self.post = post
+    def validate_title(self, field):
+        
+        if self.post is  None:
+            if Post.query.filter_by(title=field.data).first():
+                raise ValidationError(u'已存在同名文章，请修改文章标题')
+        else:
+            if field.data != self.post.title and Post.query.filter_by(title=field.data).first():
+                raise ValidationError(u'已存在同名文章，请修改文章标题')
+ 
+
 
 class CommentForm(Form):
     name=StringField(u'昵称',validators=[Required()])

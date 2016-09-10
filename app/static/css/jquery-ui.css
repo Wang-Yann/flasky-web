@@ -400,7 +400,7 @@ button.ui-button::-moz-focus-inner {
 	pointer-events: none;
 }
 .ui-datepicker {
-	width: 17em;
+	width: 100%;
 	padding: .2em .2em 0;
 	display: none;
 }

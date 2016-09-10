@@ -3,6 +3,7 @@
 {% block title %}Flasky - Confirm your account{% endblock %}
 
 {% block content %}
+<div class="container">
 <div class="page-header">
     <h1>
         Hello, {{ current_user.username }}!
@@ -16,5 +17,6 @@
         Need another confirmation email?
         <a href="{{ url_for('auth.resend_confirmation') }}">Click here</a>
     </p>
+</div>
 </div>
 {% endblock %}

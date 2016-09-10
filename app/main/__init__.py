@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 
-from flask import Blueprint
+from flask import Blueprint,current_app
 import collections 
 
 
@@ -19,18 +19,25 @@ def inject_permissions():
 @main.app_context_processor
 def fill_sidebar_data():
     sidebar_data={
-        'category':collections.OrderedDict(),
+        'category':[],
         'archieve':collections.OrderedDict(),
         'tags':[],
         'popular':[],
         'visitors':[],
         'newcomments':[],
-        'links':[],
+        
         }
 
-    categories = Category.query.order_by(Category.id).all()
-    for category in categories:
-        sidebar_data['category'][category] = len(category.posts.all())
+    categories = Category.query.filter_by(parent_id=0).all()
+    
+        
+        # sidebar_data['category'][category]=0
+        # sub_categories=Category.query.filter(Category.parent_id==category.id).all()
+        # for sub_category in sub_categories:
+        
+        # sidebar_data['category'][category] = len(category.category_posts)
+    cg_data=[(cg,cg.category_posts.count(), cg.subcategories, map(lambda x:str(x.id),cg.subcategories) ) for cg in categories]
+    sidebar_data['category'] = cg_data
         
     posts=Post.query.order_by(Post.timestamp.desc()).all()
     year=month=-1
@@ -62,7 +69,7 @@ def fill_sidebar_data():
     visitors=User.query.order_by(User.last_seen.desc())
     sidebar_data['visitors'] = visitors[:3]
     
-     
+    sidebar_data['links'] =  current_app.config['SHARE_LINKS']
     return dict(sidebar_data=sidebar_data)
 
 

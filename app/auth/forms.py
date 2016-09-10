@@ -76,3 +76,8 @@ class ChangeEmailForm(Form):
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered.')
+
+            
+            
+class SearchForm(Form):
+    search = StringField('search', validators=[Required()])            

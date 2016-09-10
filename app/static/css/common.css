@@ -54,6 +54,59 @@ body {
 
 
 
+.navbar-default .navbar-nav .active a, .navbar-default .navbar-nav .active a:focus, .navbar-default .navbar-nav .active a:hover {
+    color: #555;
+    background-color: #dfeffc;
+    
+}
+.navbar-default .navbar-nav .active>a, .navbar-default .navbar-nav .open>a{
+    background-image:none;
+    
+}
+
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
+    color: #555;
+    background-color: #dfeffc;
+}
+
+#searchform {
+    
+    margin: 1px 3px;
+    padding: 4px 6px;
+    
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.0;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 3px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 .panel .panel-title{
@@ -141,7 +194,7 @@ div.post-pre-body {
     text-align: left;
 }
 div.post-pre-button {
-	margin:9px 2px;
+	margin:8px 2px;
     
 }
 div.post-pre-footer {
@@ -162,8 +215,8 @@ div.post-pre-footer a{
 .post-entry-box {
     background: #f7fff7;
     padding: 30px;
-	margin-top:15px;
-    margin-bottom: 30px;
+	margin:20px 10px 30px 10px;
+    height:auto;
     border: 1px solid #e6e6e6;
     border-radius: 6px;
 }
@@ -244,11 +297,14 @@ div.post-entry-footer a{
 
 .footer {
 	background: #1c9dc2;
-	
+	width:100%;
 	font-size: 14px;
     min-height: 40px;
-    margin-top: 150px;
+    margin-top: 150px;'
+    margin-right: 0px;
+    margin-left: 0px;
     padding-top: 20px;
+    
     
 }
 
@@ -375,12 +431,27 @@ div.comment-form {
 
 
 
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+    color: #555;
+    cursor: default;
+    background-color: #dfeffc;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+}
 
 
 
 
-
-
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    text-shadow: 0 -1px 0 #dfeffc;
+    z-index: 0;
+    color: #555;
+    cursor: default;
+    background-color: #dfeffc;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+    background-image: none;
+}
 
 
 

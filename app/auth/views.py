@@ -8,7 +8,7 @@ import os,app
 from ..models import User
 from ..email import send_email
 from .forms import LoginForm, OpenIDLoginForm,RegistrationForm, ChangePasswordForm,\
-    PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
+    PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm,SearchForm
 from flask.ext.openid import OpenID
 from config import basedir
 
@@ -25,6 +25,15 @@ def before_request():
                 and request.endpoint[:5] != 'auth.' \
                 and request.endpoint != 'static':
             return redirect(url_for('auth.unconfirmed'))
+@auth.before_request
+def before_request():
+    g.user = current_user
+    if g.user.is_authenticated:
+       
+       g.search_form = SearchForm()
+
+
+
             
 @oid.after_login
 def after_login(resp):

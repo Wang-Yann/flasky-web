@@ -18,7 +18,7 @@
 
             <div class="comment-thumbnail">
                 <a href="{{ url_for('.user', username=comment.author.username) }}">
-                    <img class="img-rounded profile-thumbnail" >
+                    <img class="img-rounded profile-thumbnail" src='{{comment.author.portrait}}' width='35'>
                 </a>
             </div>
                             
@@ -55,7 +55,7 @@
                         {% else %}
                         <a class="btn btn-warning btn-sm" href="{{ url_for('.moderate_disable',by=by, id=comment.id, page=page) }}">屏蔽</a>
                         {% endif %}
-                        <a class="btn btn-danger btn-sm" onclick="delCommentCfm('{{ url_for('.delete_comment', by=by,id=comment.id, page=page) }}')" >删除</a>
+                        <a class="btn btn-danger btn-sm" onclick="delCommentCfm('{{ url_for('.delete_comment',by=by, id=comment.id) }}')" >删除</a>
                         
                         </div>
                     {% endif %}    
@@ -99,8 +99,18 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <a onclick="" id="delCommentCfmClick" class="btn btn-success" data-dismiss="modal">确定</a>
+                <a onclick="" id="delCommentCfmClick" class="btn btn-success" data-dismiss="modal">删除</a>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->          
+
+<script>
+    function delCommentCfm(url){
+    
+    $("#delCommentCfmClick").click(function(){
+    window.location.href=url;
+    });
+    $("#delCommentCfmModel").modal();
+    }
+</script>

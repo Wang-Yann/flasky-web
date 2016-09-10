@@ -6,6 +6,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
+from sqlalchemy import or_,and_
 ###from flask_security import UserMixin,RoleMixin, AnonymousUser
   
 from flask.ext.pagedown import PageDown
@@ -329,10 +330,11 @@ class User(UserMixin, db.Model):
     def portrait(self):
         if self.new_avatar_file:
             return self.new_avatar_file
-        elif self.email is not None:
+        elif self.avatar_hash:
             return self.gravatar()
         else:
-            return url_for('static', filename='%s/%s' % ('avatar','test001'))   #####待修改Photo 类
+            return '/static/avatar/test001.jpg'
+            
             
             
             
@@ -444,9 +446,9 @@ class Post(db.Model):
     body_html = db.Column(db.UnicodeText)
     body_pre = db.Column(db.UnicodeText)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    update_time = db.Column(db.DateTime,index=True, default=datetime.utcnow)
+    update_time = db.Column(db.DateTime, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    read_count = db.Column(db.Integer)
+    read_count = db.Column(db.Integer,default=0)
     
     popularity = db.Column(db.Integer)
     private = db.Column(db.Boolean) # non-public, or hidden
@@ -454,6 +456,12 @@ class Post(db.Model):
     category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
     tags = db.relationship('Tag', secondary=post_tag_ref,
                              backref=db.backref('posts',lazy='dynamic'))
+    # def __init__(self, **kwargs):
+        # super(Post, self).__init__(**kwargs)
+        # if self.category_id is None:  ############
+            # self.category = Category.query.filter_by(name=u'未分类').first()
+        
+    
     ##
     @staticmethod
     def update_data(post,db):
@@ -508,13 +516,15 @@ class Post(db.Model):
 
         seed()
         user_count = User.query.count()
+        cg_count = Category.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
-            p = Post(body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                     title=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+            
+            p = Post(body=forgery_py.lorem_ipsum.sentences(randint(2, 7)),
+                     title=forgery_py.lorem_ipsum.title(),
                      timestamp=forgery_py.date.date(True),
-                     category_id=randint(1, 5),
-                     read_count=randint(10, 566),
+                     category_id=randint(1, cg_count),
+                     read_count=randint(10, 40),
                      author=u)
             db.session.add(p)
             db.session.commit()
@@ -632,7 +642,7 @@ class Comment(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p= Post.query.offset(randint(0,post_count - 1)).first()
-            c= Comment(body=forgery_py.lorem_ipsum.sentences(randint(1, 9)),
+            c= Comment(body=forgery_py.lorem_ipsum.sentences(randint(2, 6)),
                      timestamp=forgery_py.date.date(True),
                      author_id=randint(0, user_count - 1),
                      post=p)
@@ -685,40 +695,83 @@ class Tag(db.Model):
     tag_name = db.Column(db.String(80),unique=True)  
     
     def __repr__(self):
-        return '<Tag %r>' % self.name
+        return '<Tag %r>' % self.tag_name
     def __unicode__(self):
         return self.tag_name 
     
 
-def str_to_obj(tags):
+def str_to_obj(tagstr):
    r = []
-   for tag in tags.split():    ###此处遗漏split() ,一直失败
-       tag_obj = Tag.query.filter_by(tag_name=tag).first()
+   for tag in set(tagstr.split()):    ###此处遗漏split() ,一直失败
+       tag_obj = Tag.query.filter_by(tag_name=tag).first()### 此次修改一次 first_or_404
        if tag_obj is None:
            tag_obj = Tag(tag_name=tag)
        r.append(tag_obj)
    return r
 
+   
+post_categories ={u"未分类":[],
+        u"数据库":[u"MySql",u"Redis"],
+        u"Web技术":[u"Flask",u"Django"],
+        u"编程":[u"C++",u"Scheme",u"Python"],
+        u"生活":[u"工作",u"社会"],
+        u"其他":[],
+        u"Linux":[]}   
+   
 
 
 class Category(db.Model):
     __tablename__='categories'
     id = db.Column(db.Integer,primary_key = True)
-    name = db.Column(db.Unicode(80),unique=True)
+    name = db.Column(db.String(80),unique=True)
     posts = db.relationship('Post',backref='category',lazy='dynamic')
     
     parent_id =db.Column(db.Integer,default=0)
-
+    # @staticmethod
+    # def is_parent_of(pid,id):
+        # x='0'+str(pid)+str(id)
+        # if x.isdigit():
+        # # if  isinstance(pid,int) and id.isdigit(): 
+            # cg=Category.query.get_or_404(int(id))
+            # return cg.parent_id==int(pid)
+        # else:
+            # return False
+    @property
+    def siblings(self):
+        if self.is_subcategory:
+            return Category.query.filter(Category.parent_id==self.parent_id).all()
+    
+    @property
+    def is_subcategory(self):
+        return self.parent_id!=0
+    @property
+    def subcategories(self):
+        if not self.is_subcategory:
+            return Category.query.filter_by(parent_id=self.id).all()   
     @staticmethod
     def insert_categories():
-        categories =[u"未分类",u"Web技术", u"数据库", u"编程", u"生活",u"Linux"] 
-        for n in categories:
-            category = Category(name=n,parent_id=0)
+        for key,value in post_categories.items():
+            category = Category(name=key,parent_id=0)
             db.session.add(category)
-        db.session.commit() 
+            db.session.commit() 
+            for n in value:
+                subcategory = Category(name=n,parent_id=category.id)
+                db.session.add(subcategory)
+                db.session.commit() 
     @property
     def category_posts(self):
-        return Post.query.filter_by(Post.category==self.id)
+        if self.parent_id==0:
+            sub_categories=Category.query.filter(Category.parent_id==self.id).all()
+            s=[self.id]
+            for sub_category in sub_categories:
+                s.append(sub_category.id)
+            if self.name==u'未分类':
+                s.append(-1)
+            result=Post.query.filter(Post.category_id.in_(s))
+            
+            return result
+        else:
+            return Post.query.filter(Post.category_id==self.id)
     def __repr__(self):
         return '<Category %r>' % self.name
     def __unicode__(self):
@@ -746,7 +799,12 @@ class Shortmessage(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     message_status= db.Column('status',db.Enum("read","unread","delete"),default='unread')
     message_types = db.Column('types',db.Enum(*sms_types), default='public')  
-    
+    @property
+    def rcver(self):
+        if self.rcv_id==-1:
+            return u'全体成员'
+        else:
+            return User.query.get_or_404(self.rcv_id).username
     
     
     def __repr__(self):
@@ -754,7 +812,7 @@ class Shortmessage(db.Model):
     def __unicode__(self):
         return self.subject
 
-class Photo(db.Model):
+class Photo(db.Model): #######本来要保存头像图片，后保存在avatar
     __tablename__ = 'photoes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(64), unique=True, index=True, nullable=False)

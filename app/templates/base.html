@@ -1,11 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<html lang="en">
+<!DOCTYPE html>
 
-{% import "_macros.html" as macros %}
+<html lang="zh-CN">
+
+
 
 <head>
-
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta  http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="csrf-token" content="{{ csrf_token()}}">
        
     {% block style %}
@@ -19,11 +20,14 @@
         
         <link href="{{ url_for('static', filename='css/croppie.css') }}" rel="stylesheet">
         
-        <!-- <link  href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet"> -->
+        <link  href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet">
 	       
     {% endblock %}
+    
+    
+    
     <title>
-    {% block title %}Yann{% endblock %}
+    {% block title %} {% endblock %}
     </title>
 
 </head>
@@ -31,9 +35,10 @@
 
 
 <body>
+
 {% block navbar %}
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
-    <div class="container">
+    <div class="container" >
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -41,13 +46,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href=#>VLOBSTER</a>
+            <a class="navbar-brand"  name='top' id='top'>VLOBSTER</a>
         </div>
         <div class="navbar-collapse collapse ">
 			
             <ul class="nav navbar-nav navbar-left">
                 {% if current_user.can(Permission.WRITE_ARTICLES) %}
-                <a href="{{url_for('main.post_new')}}">
+                <a href="{{ url_for('main.post_new',username=current_user.username) }}">
                     <button  class="btn btn-primary navbar-btn" style="margin-left:30px; font-weight:bold;">写文章</button>
                 </a>
                 {% endif %}
@@ -102,15 +107,18 @@
                         
                     </ul>
                 </li>
+                <li role="presentation">
                 <form class="navbar-form navbar-right" role='search' method="post" 
                 action="{{url_for('main.search')}}"  name="search_form">
                     <div class="form-group">
                     {{ g.search_form.csrf_token}}
                     {{ g.search_form.search(size=20) }}
+                    
                     </div>
-                    <button type='submit' class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                    <button type='submit' class="btn btn-default" id='searchform'><span class="glyphicon glyphicon-search"></span></button>
                               
                 </form>
+                </li>
                 
                 {% else %}
                 <li><a href="{{ url_for('auth.login') }}">登入</a></li>
@@ -126,59 +134,70 @@
 
 
 
-
+<div class="container-fluid">
+<div class="row">
 {% block content %}
-<div class="container">
 
-	<div class="row">
+
+	
   
-		<div class="col-sm-3 sidebar">
-			<h4>Yann's Blog</h4>
-            {% if current_user.is_authenticated %}
-            <div class="panel panel-info ">
-                <div class="panel-heading">
-                <h3 class="panel-title" >文章搜索</h3>
-                </div>
-            
-                <br>
-                <div class="form-group" style="margin:10px;">
-                    <form class="form-horizontal "  role="form" action="{{url_for('main.search')}}" method="post" name="search_form">
-                            
-                     {{ g.search_form.hidden_tag()}}
-                     {{ g.search_form.search(size=20) }}
-                    <input type='submit' value='GO!'>
-                             					
-                    </form>
-                </div>
+    <div class="col-sm-3 ">
+    <div style="margin:1px 20px;">
+    {% block sidebar %}
+        
+        <h4>Yann's Blog</h4>
+        
+        {% if current_user.is_authenticated %}
+        <div class="panel panel-info ">
+            <div class="panel-heading">
+            <h3 class="panel-title" >文章搜索</h3>
             </div>
-            {% endif %}
-            
-            
-            <!-- <div class="datePicker"></div> -->
-            
+        
             <br>
+            <div class="form-group" align='center' style="margin:15px ">
+                <form class="form-horizontal "  role="form" action="{{url_for('main.search')}}" method="post" name="search_form">
+                 <div class="input-group">        
+                 {{ g.search_form.hidden_tag()}}
+                 {{ g.search_form.search(size=20) }}
+                 
+                 <input type='submit' class="btn btn-default" value='GO!' style="line-height: 1.0;margin-bottom:1px;">
+                 </div>                           
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div >
+            <div class="datePicker"></div>
+        </div>
+        
+        <br>
+        
+        {% import "_macros.html" as macros %}
+           
+        {{ macros.widget_category(sidebar_data['category'], '.post_result') }}  
+
+        {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
+        
+        {{  macros.widget_archieve(sidebar_data['archieve'],'.post_result') }}
+        
+        {{  macros.widget_newcomments(sidebar_data['newcomments'],'.post',fragment='#comments') }}
+        {{  macros.widget_popular(sidebar_data['popular'],'.post_result') }}
+        {{  macros.widget_visitors(sidebar_data['visitors'],'.user') }}
+        {{  macros.widget_links(sidebar_data['links']) }}
+                
             
-			{% block sidebar %}
-               
-				{{ macros.widget_category(sidebar_data['category'], '.post_result') }}
-   
-                {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
-                
-                {{  macros.widget_archieve(sidebar_data['archieve'],'.post_result') }}
-                
-                {{  macros.widget_newcomments(sidebar_data['newcomments'],'.post',fragment='#comments') }}
-                {{  macros.widget_popular(sidebar_data['popular'],'.post_result') }}
-                {{  macros.widget_visitors(sidebar_data['visitors'],'.user') }}
-                {{  macros.widget_links(sidebar_data['links']) }}
-                        
-				
-			{% endblock %}
-      	</div>
+    {% endblock %}
+    </div>
+    </div>
+    
+    
 	
-	
-		<div class="col-sm-9 container">
+		<div class="col-sm-9 ">
         
-        
+            
+            <div class="row">
+            <div class="col-sm-11 " style="margin:10px 20px;" >
 			{% for category,message in get_flashed_messages(with_categories=True) %}
 			<div class="alert alert-{{ category }} alert-dismissible" role="alert">
 				<button type="button" class="close" data-dismiss="alert" aria-label="Close" >
@@ -187,20 +206,34 @@
 				{{ message }}
 			</div>
 			{% endfor %}
-		
+            </div>
+            
+            <div class="row">
+            <div class="col-sm-11"  style="margin:10px 30px;">
 			{% block page_content %}
 			{% endblock %}
+            </div>
+            </div>
+            
+            </div>
 		</div>
-	</div>
+	
 
 	
-</div>
-{% endblock %}
 
+{% endblock %}
+</div>
+</div>
+
+
+
+<footer class='footer'>
 
  
-{% block footer %}
-<div class=" footer ">
+ {% block footer %}
+
+
+    
     <div class="footer-content">
        
         <p>
@@ -212,56 +245,45 @@
         {% endif %}
         </p>
         
-    <div>
+    <div align="center">
         <a  href="{{ url_for('main.alipay') }}">
         <image src="{{ url_for('static', filename='images/donate_me.png') }}"  height="20">
         </a>
-        <button class="btn btn-info  pull-right">
-            <a href="#">Back to Top</a>
+        <button class="btn btn-info  pull-right" id='bottom'>
+            <a href="#top">Back to Top</a>
         </button>
     </div> 
     <hr  />
     
     <span>Copyright © 2016  All rights reserved </span>&nbsp; 
     <span>川 ICP备 09043268号</span>
-          
-    </div>  
-</div>    
+        
+    </div>
+</div>       
 {% endblock %}
 
-
-
-
-
-
+</footer>
 {% block scripts %}
+   
+
     <script src="{{ url_for('static', filename='js/jquery-2.2.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     
     <script src="{{ url_for('static', filename='js/croppie.js') }}"></script>
     
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     
     
     <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/datePicker.js') }}"></script>
-   
-    
-    
-    
-    
-    <script>
-        $('.mylink').each(function(){
-            $(this).mouseenter(function(){
-            $(this).addClass('active');
-            $(this).parent().children().not($(this)).removeClass('active');
-                })
-        })
-    </script>
-  
+    <script src="{{ url_for('static', filename='js/mycommon.js') }}"></script>
     {{ moment.include_moment() }}
+    {{ pagedown.include_pagedown() }}
+    
     
 {% endblock %}
+
+
+
 
 </body>
 </html>

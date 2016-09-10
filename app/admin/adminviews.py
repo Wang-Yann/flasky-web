@@ -3,7 +3,7 @@ import flask_admin as admin
 
 
 
-###from auth.forms import LoginForm, RegistrationForm
+
 from flask import redirect,url_for,request,abort
 from flask.ext.login import login_user,logout_user,current_user
 from flask_admin import BaseView,expose,helpers
@@ -18,7 +18,7 @@ from flask_admin.contrib.fileadmin import FileAdmin
 class UserAdmin(sqla.ModelView):
     
     
-    can_create=False
+    can_create=True
     page_size=30
     ##inline_models=[(Post,dict(form_columns=['title']))]   ##内联使用
     column_exclude_list=['id','password_hash','location','member_since','name','avatar_hash','about_me']
@@ -29,7 +29,7 @@ class UserAdmin(sqla.ModelView):
     
 class RoleAdmin(sqla.ModelView):
                 
-    can_create=False
+    can_create=True
     page_size = 30
     
     
@@ -41,7 +41,7 @@ class CommentAdmin(sqla.ModelView):
     
 
 class PostAdmin(sqla.ModelView):
-    can_view_details=True
+    can_create=True
     page_size=50
     column_auto_select_related=False      ######小坑，因为flask-admin默认使用join模式，所以增加这句
     #####column_select_related_list=('comments','tags')
@@ -67,8 +67,13 @@ class PostAdmin(sqla.ModelView):
 
 
 class FileAdminView(FileAdmin):
-    pass
+    can_view_details=True
+    create_modal=True
+    edit_modal=True
 
+ 
+    
+    
 class MyModelView(sqla.ModelView):
     def is_accessible(self):
         if not current_user.is_active or not current_user.is_authenticated:
@@ -80,19 +85,10 @@ class MyModelView(sqla.ModelView):
         # redirect to login page if user doesn't have access
         return redirect(url_for('auth.login', next=request.url))
 
-###    def _handle_view(self,name,**kwargs):
-###        if not self.is_accessible():
-###            if current_user.is_authenticated:
-###                abort(403)
-###            else:
-###                return redirect(url_for('auth.login',next=request.url))
-###
-# Create customized index view class that handles login & registration
+## Create customized index view class that handles login & registration
 class MyAdminIndexView(admin.AdminIndexView):
     @expose('/')
     def index(self):
-#        if not current_user.is_authenticated:
-#            return redirect(url_for('.login_view'))
         if not current_user.is_administrator():
              abort(403)
 #   ##     return self.render('admin/index.html')
@@ -101,45 +97,15 @@ class MyAdminIndexView(admin.AdminIndexView):
     @expose('/login/', methods=('GET', 'POST'))
     def login_view(self):
         return redirect(url_for('auth.login'))
-        # handle user login
-##        form = LoginForm(request.form)
-##        if helpers.validate_form_on_submit(form):
-##            user = form.get_user()
-##            login.login_user(user)
-##
-##        if current_user.is_authenticated:
-##            return redirect(url_for('.index'))
-##        link = '<p>Don\'t have an account? <a href="' + url_for('.register_view') + '">Click here to register.</a></p>'
-##        self._template_args['form'] = form
-##        self._template_args['link'] = link
-##        return super(MyAdminIndexView, self).index()
-##
+        
     @expose('/register/', methods=('GET', 'POST'))
     def register_view(self):
         return redirect(url_for('auth.register'))
-###        form = RegistrationForm(request.form)
-###        if helpers.validate_form_on_submit(form):
-###            user = User()
-###
-###            form.populate_obj(user)
-###            # we hash the users password to avoid saving it as plaintext in the db,
-###            # remove to use plain text:
-###            user.password = generate_password_hash(form.password.data)
-###
-###            db.session.add(user)
-###            db.session.commit()
-###
-###            login_user(user)
-###            return redirect(url_for('.index'))
-###        link = '<p>Already have an account? <a href="' + url_for('.login_view') + '">Click here to log in.</a></p>'
-###        self._template_args['form'] = form
-###        self._template_args['link'] = link
-###        return super(MyAdminIndexView, self).index()
-###
+
     @expose('/logout/')
     def logout_view(self):
         logout_user()
-        return redirect(url_for('.index'))
+        return redirect(url_for('main.index'))
 
 
 		

@@ -1,7 +1,7 @@
 #-*- coding:utf-8 -*-
 import sys  
 reload(sys)  
-sys.setdefaultencoding('utf8')
+sys.setdefaultencoding('utf-8')
 
 
 import os
@@ -18,7 +18,7 @@ from sqlalchemy import or_,and_
 
 from . import main
 
-from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
+from .forms import EditProfileForm, EditProfileAdminForm, \
     CommentForm,ChangeAvatarForm,SearchForm,EditForm,SMSForm,allowed_file
 from .. import db
 from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,\
@@ -42,7 +42,7 @@ def teardown_request(exception):
     if exception:
         db.session.rollback()
         db.session.remove()
-#    db.session.close()
+ #   db.session.close()
 
 
 @main.before_request
@@ -64,7 +64,7 @@ def server_shutdown():
     shutdown()
     return 'Shutting down...'
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/')
 def index():
     by=request.args.get('by') or 'all'
     
@@ -130,25 +130,35 @@ def search():
 def post_result(parameter,value):
     if parameter=='cg':
         category=Category.query.get_or_404(value)
-        posts=category.posts
-        name=u'目录:'+category.name
+        posts=category.category_posts
+        args=[]
+        if category.parent_id==0:
+            args.append(category)
+            subcgs=Category.query.filter(Category.parent_id==value).all()
+            args.append(subcgs)
+        else:
+            parent_cg=Category.query.filter(Category.id==category.parent_id).first_or_404()
+            args.append(parent_cg)
+            
+            args.append([category])
+            print(args)
     elif parameter=='tag':
         current_tag=Tag.query.get_or_404(value)
         posts=current_tag.posts
-        name=u'标签:'+current_tag.tag_name
+        args=u'标签:'+current_tag.tag_name
     elif parameter=='timestamp':
         year,month=value.split('-')
         month1=str(int(month)+1)
         date0=datetime.strptime(year+'-'+month, '%Y-%m')
         date1=datetime.strptime(year+'-'+month1, '%Y-%m')
         posts=Post.query.filter(Post.timestamp.between(date0,date1))
-        name=u'归档:'+value
+        args=u'归档:'+value
     elif parameter=='search_results':
         posts=Post.query.whoosh_search(value, current_app.config['MAX_SEARCH_RESULTS'])
-        name=u'搜索结果:'+value
+        args=u'搜索结果:'+value
     else: 
         posts=Post.query.filter_by(parameter=value)
-        name=name
+        args=''
     page = request.args.get('page', 1, type=int)
     pagination = posts.paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
@@ -156,7 +166,7 @@ def post_result(parameter,value):
     
     
     return render_template('post_result.html', posts=posts,parameter=parameter,\
-                            value=value,name=name,pagination=pagination)                        
+                            value=value,args=args,pagination=pagination)                        
                          
 @main.route('/all')
 def show_all():
@@ -172,27 +182,7 @@ def show_followed():
     resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
     return resp
 
-@main.route('/post/new', methods=['GET', 'POST'])
-@login_required
-def post_new():
-    form = EditForm()
-    form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        # new or edit post received
-        post = Post(
-        title = form.title.data,
-        body = form.body.data,
-        private = form.private.data,
-        category_id=form.category_id.data,
-        author=current_user._get_current_object(), 
-        tags=str_to_obj(form.tags.data),
-        read_count=0)
-        db.session.add(post)
-        flash(u"发表成功",'success')
-    #else:
-     #   post=Post.query.get_or_404(form.id.data)
-        return redirect(url_for('.post_new'))
-    return render_template('edit_post.html',form=form)
+
        
                         
                         
@@ -219,15 +209,15 @@ def uploaded_file(filename):
                                filename)
                                
                                
-@main.route('/upload_file', methods=['POST'])
-@login_required
-def upload_file():
+# @main.route('/upload_file', methods=['POST'])
+# @login_required
+# def upload_file():
    
    
-    data = request.get_data()
-    print request.json
-    return jsonify({'ok': True})
-       # # if file and allowed_file(file.filename):
+    # data = request.get_data()
+    # print request.json
+    # return jsonify({'ok': True})
+       # # # if file and allowed_file(file.filename):
            # # filename = secure_filename(file.filename)
        # file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
            # # return redirect(url_for('.uploaded_file',
@@ -383,31 +373,67 @@ def delete_post(id):
     
     return redirect(url_for('.user',username=current_user.username))
 
-
+@main.route('/post_new/<username>', methods=['GET','POST'])
+@login_required
+def post_new(username):
+    user = User.query.filter_by(username=username).first()
+    form = EditForm(post=None)
+    # form.category_id.choices = [(a.id, a.name) for a in Category.query.filter(Category.parent_id==0).all()]
+    if  user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():  ###and request.method =='POST' and
+        sub_category_id=request.form.get('sub_category_id',-1)
+        category_id=max(sub_category_id,form.category_id.data)
+        print(category_id) 
+        post = Post(title = form.title.data,
+        body = form.body.data,
+        private = form.private.data,
+        category_id=category_id,
+        
+        author=user, 
+        tags=str_to_obj(form.tags.data))
+        
+        db.session.add(post)
+        db.session.commit()
+        flash(u"发表成功",'success')
+        id=Post(title=form.title.data).id
+        return redirect(url_for('.post',id=post.id))
+           
+    return render_template('edit_post.html',form=form,post=None)
     
+
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def post_edit(id):
     post = Post.query.get_or_404(id)
+    
     if current_user != post.author and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
-    form = EditForm()
-    form.category_id.choices = [(a.id, a.name) for a in Category.query.all()]
+    form = EditForm(post=post)
+    
+    # form.category_id.choices = [(a.id, a.name) for a in Category.query.filter(Category.parent_id==0).all()]
+    # form.category_id.choices.insert(0,('-1','--请选择类型--'))
     if form.validate_on_submit():
+        sub_category_id=request.form.get('sub_category_id')
+        
         post.title=form.title.data
         post.body = form.body.data
-        post.category_id=form.category_id.data
+        post.category_id=form.category_id.data if sub_category_id=='-1' else sub_category_id
         post.tags=str_to_obj(form.tags.data)
         db.session.add(post)
         flash('The post has been updated.')
-        return redirect(url_for('.post', id=post.id))
+        return redirect(url_for('.post', id=id))
     form.body.data = post.body
     form.title.data=post.title
     form.tags.data=post.post_tags
-    return render_template('edit_post.html', form=form)
+    form.category_id.data=post.category_id if post.category_id== -1 or post.category.parent_id==0  else post.category.parent_id
+       
+    return render_template('edit_post.html', form=form,post=post)
 
 
+    
+    
+    
+    
 @main.route('/follow/<username>')
 @login_required
 @permission_required(Permission.FOLLOW)

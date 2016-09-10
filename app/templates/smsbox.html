@@ -25,3 +25,42 @@
         {% endif %}
     {% endblock %}
 {% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+function change_status(id) {
+    
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
+   
+    
+    fd={id:id,
+        status:'read',
+       };
+    $.ajaxSetup({
+        beforeSend:function(xhr,settings){xhr.setRequestHeader("X-CSRFToken",csrftoken)}
+    });   
+    
+    
+    $.ajax({
+            url:'/api/v1.0/change_status',
+            type:'POST',
+            data:JSON.stringify(fd),
+            
+            contentType: "application/json; charset=utf-8",
+            
+            dataType:'json',
+            success: function(data,status){  
+                var id=parseInt(data['id']);
+                var elem=document.getElementById(id);
+                elem.style.fontWeight='normal';
+                
+                } 
+        }); 
+        
+    
+    
+}
+ </script>
+ {% endblock %}

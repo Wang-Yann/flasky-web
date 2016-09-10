@@ -26,8 +26,10 @@ class Config:
     WHOOSH_BASE = basedir+'/Index'
     MAX_SEARCH_RESULTS = 50
     BABEL_DEFAULT_LOCALE='zh_CN'
-    UPLOAD_FILE_PATH=basedir+'/app/static/files' 
+    UPLOAD_FILE_PATH=basedir+'/app/static/' 
     
+    
+    DEBUG=True
     ##WTF_CSRF_ENABLED=False #############取消csrf保护
         
     OPENID_PROVIDERS = [
@@ -36,6 +38,12 @@ class Config:
     {'name': 'AOL', 'url': 'http://openid.aol.com/<username>', 'logo':'aol_logo.png'}       
     ]
 
+    SHARE_LINKS = [
+    {'name': "Yann's Github", 'url': "https://github.com/Wang-Yann"},
+    {'name':"冬炼三九的微博", 'url':"http://weibo.com/vlobster"},
+         
+    ]
+    
 
 
     @staticmethod
@@ -57,6 +65,7 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
+    DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') 
     ##or \
         ###'sqlite:///' + os.path.join(basedir, 'data.sqlite')

@@ -3,7 +3,10 @@
 
 {% block title %}Flasky - Post{% endblock %}
 
+
+
 {% block page_content %}
+
 <div class="post-entry-box">
 
 	<div class="post-entry-header">
@@ -87,23 +90,22 @@
 
 	<div>
 		    
-    <h5 id="comments"><span class="glyphicon glyphicon-comment">评论</span></h5>
+        <h5 id="comments"><span class="glyphicon glyphicon-comment">评论</span></h5>
         {% include '_comments.html' %}
         
-        <div class="pagination">
-            {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=id) }}
-        </div>
+            <div class="pagination">
+                {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=id) }}
+            </div>
     
 	</div>
 	<hr>
-	
+    
+	{% if current_user.can(Permission.COMMENT) %}
 	<div >
-	<h4  id="submit-comment"><span class="glyphicon glyphicon-comment">发表评论</span></h4>
-        <!-- {% if current_user.can(Permission.COMMENT) %} -->
+        <h4  id="submit-comment"><span class="glyphicon glyphicon-comment">发表评论</span></h4>
         {% include '_submit_comment.html' %}    
-        <!-- {% endif %} -->
 	</div>
-
+    {% endif %}
 	
     <div>
         <!-- article sharing: use baidu share lib: http://share.baidu.com/code -->
@@ -161,26 +163,22 @@
     
     
     
-</div>
 
+</div>
 
 
 
 {% endblock %}
 
+
+
 {% block scripts %}
-	{{ super() }}
-	<!-- <script>
-	$(document).ready(function () {
-		$("#button").click(function (){
-                $('html, body').animate({
-                    scrollTop: $("#submit-comment").offset().top
-                }, 800);
-            });
-	});
-	</script> -->
-	<script src="{{ url_for('static', filename='tinymce/js/tinymce/extentsion_self/codesimple_extentsion/prism.js') }}"> </script>
-    <!-- <script src="{{ url_for('static', filename='js/admin.js') }}"></script> -->
+{{ super() }}
+
+
+
+
+	
     <script src="{{ url_for('static', filename='js/commentReply.js') }}"> </script>
 
     <!-- article sharing: use baidu share lib: http://share.baidu.com/code -->

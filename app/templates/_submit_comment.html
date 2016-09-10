@@ -6,8 +6,13 @@
                     {{ form.csrf_token }}
 					{{ form.follow(type='hidden') }}
                     {{form.name.label}}
-					<p class="form-control-static">{{current_user.username}}</p>
+					<p class="form-control-static">{{current_user.username}} 
+                    <img src="{{ current_user.portrait }}" width="30" class="pull-right">
+                    </p>
 					{{ form.name(class='form-control sr-only', required='', value=current_user.username) }}
+                    
+                    
+                       
                     <div class="row form-group">
                         {{ form.body.label }}{{ form.body(class='form-control', required='',rows=5)}}
                     </div>

@@ -4,13 +4,36 @@
 {% block title %}tag{% endblock %}
 
 {% block page_content %}
+    
+    {% if parameter=='cg' %}
+        <div class="page-header">
+        <a href="/post_result/cg/{{args[0].id}}">
+        <h3><span class="label label-info">目录：{{ args[0].name }}</span></h3>
+        </a>
+        </div> 
+        
+        {% for n in args[1] %}
+            
+            <a href="/post_result/cg/{{n.id}}">
+            <span class="label label-info">{{n.name}}</span>
+            </a>
+           
+        {% endfor %}
+        
+    {% else %}   
     <div class="page-header">
         
-        <h3><span class="label label-info">{{name}}</span></h3>
+        <h3><span class="label label-info">{{args}}</span></h3>
         
-    </div>
-   
-
+    </div>    
+        
+    {% endif %}
+    
+    
+    
+    
+    
+    
     
     {% include '_posts.html' %}
     

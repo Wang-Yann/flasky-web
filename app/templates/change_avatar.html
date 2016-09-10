@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
+
 
 {% block title %}更换头像{% endblock %}
 
@@ -12,7 +12,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /> 
         <div class="form-group">
             <label class="sr-only" for="upload">文件输入</label>
-            <input type='file' class="form-control input-lg" id="upload" name='file' style="color:blue; opacity:0.6;" aria-describedby="helpBlock">
+            <input type='file' class="form-control input-lg" id="upload"  required="required" style="color:blue; opacity:0.6;" aria-describedby="helpBlock">
             
             
         </div>
@@ -82,6 +82,11 @@
  var $uploadCrop;
     function readFile(input) {
         if (input.files && input.files[0]) {
+            if (!input.files[0].type.match(/image.*/)){
+            alert('请不要上传非图片文件')}
+        
+        
+        
             var reader = new FileReader();
             
             
@@ -173,6 +178,10 @@
 });
 
 $('button[id=ajaxsubmit]').click(function(){
+
+    var filename=$('#upload').val();
+    
+    if (filename != null && filename != ''){
     var str=$('#abc').attr("src");
     
     var imdata=str.split(',')[1];
@@ -182,6 +191,7 @@ $('button[id=ajaxsubmit]').click(function(){
     var csrftoken = $('meta[name=csrf-token]').attr('content');
    
     fd.append('csrf_token', csrftoken);
+    
     console.log(csrftoken);
 
 
@@ -197,9 +207,10 @@ $('button[id=ajaxsubmit]').click(function(){
                 alert('请求失败，原因可能是：' + err + '！')
                 },
             success: function(data){  
-                alert('aadasd')             
+                alert('头像修改成功')             
                 } 
-        }); 
+        });
+}        
 });  
 
 
