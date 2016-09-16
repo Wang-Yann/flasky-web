@@ -1,5 +1,5 @@
 venv
-migrations
+
 node_modules
 Index
 tmp
@@ -11,5 +11,5 @@ tmp
 .env~
 
 .gitignore~
-migrations
+
 *~

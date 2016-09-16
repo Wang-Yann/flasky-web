@@ -133,8 +133,8 @@ def deploy():
     db.session.commit()
     
     User.add_self_follows()
-    # Post.generate_fake(15)
-    # Comment.generate_fake(15)
+    Post.generate_fake(15)
+    Comment.generate_fake(15)
     
 admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
         index_view=MyAdminIndexView(),\

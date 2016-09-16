@@ -595,7 +595,7 @@ class Comment(db.Model):
             p= Post.query.offset(randint(0,post_count - 1)).first()
             c= Comment(body=forgery_py.lorem_ipsum.sentences(randint(2, 6)),
                      timestamp=forgery_py.date.date(True),
-                     author_id=randint(0, user_count - 1),
+                     author_id=randint(1, user_count ),
                      post=p)
             db.session.add(c)
             db.session.commit()
@@ -752,8 +752,8 @@ class Shortmessage(db.Model):
     subject= db.Column(db.String(80))
     body= db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    message_status= db.Column('status',db.Enum("read","unread","delete"),default='unread')
-    message_types = db.Column('types',db.Enum(*sms_types), default='public')  
+    message_status= db.Column('status',db.Enum("read","unread","delete",name='status'),default='unread')
+    message_types = db.Column('types',db.Enum(*sms_types,name='types'), default='public')  
     @property
     def rcver(self):
         if self.rcv_id==-1:
