@@ -1,9 +1,9 @@
 ﻿##关于VLOBSTER网站的说明<br>
-        VLOBSTER网站采用Python2.7+flask开发完成，前端采用Bootstrap3，部署于Heroku平台，是一个单人/多人的开源博客系统。<br>
+        VLOBSTER网站采用Python2.7+flask开发完成，前端采用Bootstrap3，部署于Heroku平台，是一个单人/多人的开源博客系统。<br/>
 ####主要功能：
-        文章发布，编辑，管理等；文章标签，二级目录；评论发布，回复，管理等；文章收藏，点赞；用户关注；站内信；<br>
-        图片上传，头像个性化设置；邮箱注册,用户认证,登陆+社交账号登陆；站内文章搜索+全文搜索，站外资源搜索；<br>
-        话题广场；页面边栏支持热门文章，最新访客，日历，标签云等；国际化，语言切换、识别；管理员的后台管理；<br>
+        文章发布，编辑，管理等；文章标签，二级目录；评论发布，回复，管理等；文章收藏，点赞；用户关注；站内信；<br/>
+        图片上传，头像个性化设置；邮箱注册,用户认证,登陆+社交账号登陆；站内文章搜索+全文搜索，站外资源搜索；<br/>
+        话题广场；页面边栏支持热门文章，最新访客，日历，标签云等；国际化，语言切换、识别；管理员的后台管理；<br/>
         
 ####开发工具：
         *前期后端主要是Ubuntu(15)+Vim；
@@ -13,10 +13,9 @@
         *数据库：sqlite。
         
 ###如果下载下来试验，遵循以下步骤（Ubuntu）：
-        1.安装好python 2.7,激活虚拟环境;
+        ```1.安装好python 2.7,激活虚拟环境;
         $sudo apt-get install python 2.7
-        $sudo apt-get install python-virtualenv
-
+        $sudo apt-get install python-virtualenv```
         $cd vlobster
         $source venv/bin/activate
 
@@ -35,7 +34,6 @@
         将以上内容保存为.env文件
         如果试验邮件发送功能，还要设置config文件中MAIL_SERVER，MAIL_PORT，MAIL_USE_SSL等变量
    
-
         4.数据库创建迁移：
         ```python
         $python manage.py db init
