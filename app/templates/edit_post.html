@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Post editting{% endblock %}
+{% block title %}VLOBSTER - Post editting{% endblock %}
 
 {% block page_content %}
 
@@ -27,7 +27,7 @@
        
         
         <div class="form-group">
-        <label for="sub_category_id" class="col-sm-1 control-label">子目录</label> 
+        <label for="sub_category_id" class="col-sm-1 control-label">{{_(Sub_Category)}}</label> 
        
         
         <div class="col-sm-5 form-group " name='sub' id="sub">
@@ -46,7 +46,7 @@
                 {% endfor %}
             
             {% else %}
-                <option value='-1'>--请选择类型--</option>
+                <option value='-1'>{{_('--Select an option--')}}</option>
             {% endif %}
             </select>
             
@@ -61,7 +61,7 @@
     </div>
     <div class="row form-group required">
         <div class="col-sm-1"><p class="text-left">{{ form.tags.label }}</p></div>
-        <div class="col-sm-9">{{ form.tags(class="form-control",placeholder="请用空格分隔各标签") }}{{ macros.field_error(form.tags) }}</div>
+        <div class="col-sm-9">{{ form.tags(class="form-control",placeholder=_("Seperate tags with blanks!") ) }}{{ macros.field_error(form.tags) }}</div>
         <div class="col-sm-1"><p class="text-left">{{ form.private.label }}</p></div>
         
         <div class="col-sm-1">{{ form.private() }}</div>
@@ -71,7 +71,7 @@
         {{ form.body(only_input=True, class="form-control", rows=25) }}
     </div>
     <div class="btn-group pull-right">
-            <a type="reset" onclick="formReset()" class="btn btn-default">清空</a>
+            <a type="reset" onclick="formReset()" class="btn btn-default">{{_("Clear")}}</a>
             {{ form.submit(class="btn btn-default",id='submit') }}
     </div>
     
@@ -84,43 +84,37 @@
 
 {% block scripts %}
 
-    {{super()}}
+{{super()}}
+{{ pagedown.include_pagedown() }}
+
  <script>
     function formReset(){
             document.getElementById("frm1").reset();};
-    </script>
+</script>
 
     
     
 <script>
-
 $(function(){
-    
-    
     $('#first').change(function(){
         var parentId=$('#first').val();
         console.log(parentId)
         
         if (parentId != null && parentId != ''){
-            var options="<option value='-1'>--请选择类型--</option>";
+            var options="<option value='-1'>{{_('--Select an option--')}}</option>";
             var i = parseInt(parentId);
             console.log(typeof(i))
             
             {% for n in Category.query.filter(parent_id==i ).all() %}
-                if ({{n.parent_id}}==i) {
+                if ({{n.parent_id}}==i) {                
+                options += '<option value=' + {{n.id}} + ">" + '{{n.name}}' + '</option>'}
                 
-                options += '<option value=' + {{n.id}} + ">" + '{{n.name}}' + '</option>'
-                }
             {% endfor %}
-            
-                    };
+        };
+        
         $('#area').html(options);
         
-        
-        } );
-        
-    
-        
+    }); 
 })
 </script>
     

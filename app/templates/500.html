@@ -1,11 +1,12 @@
-{% extends "base_alt.html" %}
+{% extends "base.html" %}
 
-{% block title %}Flasky - Internal Server Error{% endblock %}
+{% block title %}VLOBSTER-500 - Internal Server Error{% endblock %}
 
 {% block content %}
-<div class="container">
-<div class="page-header">
-    <h1>Internal Server Error</h1>
-</div>
-</div>
+    <div class='container text-center'>
+    <div class="page-header">
+        <h2>{{_("500-Internal Server Error")}}</h2>
+        <p>服务器遇到了一个未曾预料的状况，导致了它无法完成对请求的处理。</p>
+    </div>
+    </div>
 {% endblock %}

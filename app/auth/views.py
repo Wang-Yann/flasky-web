@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from flask import render_template, redirect, request, url_for, flash,g,current_app,session##
 from flask.ext.login import login_user, logout_user, login_required, \
     current_user
@@ -11,6 +12,8 @@ from .forms import LoginForm, OpenIDLoginForm,RegistrationForm, ChangePasswordFo
     PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm,SearchForm
 from flask.ext.openid import OpenID
 from config import basedir
+from flask.ext.babel import gettext as _
+
 
 oid=OpenID(app,os.path.join(basedir,'tmp'))
 
@@ -19,18 +22,17 @@ oid=OpenID(app,os.path.join(basedir,'tmp'))
 @auth.before_app_request
 def before_request():
     g.user=current_user #####
+    g.search_form = SearchForm()
     if current_user.is_authenticated:
         current_user.ping()
         if not current_user.confirmed \
                 and request.endpoint[:5] != 'auth.' \
                 and request.endpoint != 'static':
             return redirect(url_for('auth.unconfirmed'))
-@auth.before_request
-def before_request():
-    g.user = current_user
-    if g.user.is_authenticated:
+
+    
        
-       g.search_form = SearchForm()
+      
 
 
 
@@ -78,12 +80,14 @@ def login():
         ####session['remember_me']=openidloginform.remember_me.data
         session['openid']=openidloginform.openid.data
         return oid.try_login(openidloginform.openid.data,ask_for=['nickname','email']) 
-    if loginform.validate_on_submit():
+    if loginform.validate_on_submit() and request.method=='POST':
         user = User.query.filter_by(email=loginform.email.data).first()
         if user is not None and user.verify_password(loginform.password.data):
             login_user(user, loginform.remember_me.data)
+            flash(_('Welcome!'),'success')
             return redirect(request.args.get('next') or url_for('main.index'))
-        flash('Invalid username or password.')
+        else:    
+            flash(_('Invalid username or password.'),'warning')
     return render_template('auth/login.html', loginform=loginform,openidloginform=openidloginform,\
         providers=current_app.config['OPENID_PROVIDERS'])
 
@@ -93,7 +97,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.')
+    flash(_('You have been logged out.'),'info')
     return redirect(url_for('main.index'))
 
 
@@ -109,7 +113,7 @@ def register():
         token = user.generate_confirmation_token()
         send_email(user.email, 'Confirm Your Account',
                    'auth/email/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email.')
+        flash(_('A confirmation email has been sent to you by email.'),'info')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
@@ -120,9 +124,9 @@ def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
-        flash('You have confirmed your account. Thanks!')
+        flash(_('You have confirmed your account. Thanks!'),'success')
     else:
-        flash('The confirmation link is invalid or has expired.')
+        flash(_('The confirmation link is invalid or has expired.'),'warning')
     return redirect(url_for('main.index'))
 
 
@@ -132,7 +136,7 @@ def resend_confirmation():
     token = current_user.generate_confirmation_token()
     send_email(current_user.email, 'Confirm Your Account',
                'auth/email/confirm', user=current_user, token=token)
-    flash('A new confirmation email has been sent to you by email.')
+    flash(_('A new confirmation email has been sent to you by email.'),'success')
     return redirect(url_for('main.index'))
 
 
@@ -144,10 +148,10 @@ def change_password():
         if current_user.verify_password(form.old_password.data):
             current_user.password = form.password.data
             db.session.add(current_user)
-            flash('Your password has been updated.')
+            flash(_('Your password has been updated.'),'success')
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid password.')
+            flash(_('Invalid password.'),'warning')
     return render_template("auth/change_password.html", form=form)
 
 
@@ -164,8 +168,7 @@ def password_reset_request():
                        'auth/email/reset_password',
                        user=user, token=token,
                        next=request.args.get('next'))
-        flash('An email with instructions to reset your password has been '
-              'sent to you.')
+        flash(_('An email with instructions to reset your password has been sent to you.'),'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
 
@@ -180,7 +183,7 @@ def password_reset(token):
         if user is None:
             return redirect(url_for('main.index'))
         if user.reset_password(token, form.password.data):
-            flash('Your password has been updated.')
+            flash(_('Your password has been updated.'),'success')
             return redirect(url_for('auth.login'))
         else:
             return redirect(url_for('main.index'))
@@ -198,11 +201,10 @@ def change_email_request():
             send_email(new_email, 'Confirm your email address',
                        'auth/email/change_email',
                        user=current_user, token=token)
-            flash('An email with instructions to confirm your new email '
-                  'address has been sent to you.')
+            flash(_('An email with instructions to confirm your new email address has been sent to you.'),'success')
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid email or password.')
+            flash(_('Invalid email or password.'),'warning')
     return render_template("auth/change_email.html", form=form)
 
 
@@ -210,7 +212,7 @@ def change_email_request():
 @login_required
 def change_email(token):
     if current_user.change_email(token):
-        flash('Your email address has been updated.')
+        flash(_('Your email address has been updated.'),'success')
     else:
-        flash('Invalid request.')
+        flash(_('Invalid request.'),'danger')
     return redirect(url_for('main.index'))

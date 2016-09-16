@@ -14,7 +14,7 @@ class Config:
     #MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    FLASKY_MAIL_SUBJECT_PREFIX = 'hero_:'
+    FLASKY_MAIL_SUBJECT_PREFIX = 'VLOBSTER_:'
     FLASKY_MAIL_SENDER = os.environ.get('MAIL_USERNAME')
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     FLASKY_POSTS_PER_PAGE = 20
@@ -22,30 +22,58 @@ class Config:
     FLASKY_COMMENTS_PER_PAGE = 30
     FLASKY_SLOW_DB_QUERY_TIME=0.5
     WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY')
-    UPLOAD_FOLDER =basedir+'/app/static'
+    WTF_I18N_ENABLED=True
+    
+    UPLOAD_FOLDER =basedir+'/app/static/files'
     WHOOSH_BASE = basedir+'/Index'
     MAX_SEARCH_RESULTS = 50
-    BABEL_DEFAULT_LOCALE='zh_CN'
+   
     UPLOAD_FILE_PATH=basedir+'/app/static/' 
     
-    
-    DEBUG=True
-    ##WTF_CSRF_ENABLED=False #############取消csrf保护
-        
+    BABEL_DEFAULT_LOCALE = "en" ##"zh_Hans_CN"
+    BABEL_DEFAULT_TIMEZONE='UTC+8'   
+    ##WTF_CSRF_ENABLED=False #############可使用此变量取消csrf保护
+    ####flask-openid登陆     
     OPENID_PROVIDERS = [
     {'name': 'Yahoo', 'url': 'https://me.yahoo.com/', 'logo':'yahoo_logo.png'},
     {'name':'steam', 'url':'https://steamcommunity.com/openid/', 'logo':'steam_logo.png'},
     {'name': 'AOL', 'url': 'http://openid.aol.com/<username>', 'logo':'aol_logo.png'}       
     ]
 
+    ###分享网站
     SHARE_LINKS = [
+    {'name': "Stackoverflow", 'url': "https://stackoverflow.com/questions/tagged/python"},
+    {'name': "ActiveState Code ", 'url': "http://code.activestate.com/recipes/langs/python/"},
+        
+    {'name':"Flask文档", 'url':"http://flask.pocoo.org/docs/0.11/"},
+    {'name':"Pallets Projects(Python web)", 'url':"https://www.palletsprojects.com/"},
+    
+    {'name':"Python官网", 'url':"https://www.python.org/"},
+    {'name': "PyPI", 'url': "https://pypi.python.org/pypi"},
+    {'name': "SQLAlchemy文档", 'url': "http://docs.sqlalchemy.org/en/latest/"},
+    
+    {'name':"Bootstrap", 'url':"http://v3.bootcss.com/"},
+    {'name':"菜鸟教程", 'url':"http://www.runoob.com/"},
+    {'name': "W3School", 'url': "http://www.w3school.com.cn/h.asp"},
+    {'name':"极客学院", 'url':"http://wiki.jikexueyuan.com/list/back-end/"},
+    
+    {'name':"开源中国", 'url':"http://www.oschina.net/project/lang/25/python"},
+    {'name':"CSDN博客", 'url':"http://blog.csdn.net/"},
+    {'name':"脚本之家", 'url':"http://www.jb51.net/"},
+    {'name': "博客园", 'url': "http://www.cnblogs.com/"},
+    {'name':"知乎", 'url':"https://www.zhihu.com/topic/19554298/hot"},
+    {'name':"Linux公社", 'url':"http://www.linuxidc.com/Linuxit/"},
+    
+    {'name': "张鑫旭网站", 'url': "http://www.zhangxinxu.com/wordpress/category/js/"},
+    {'name': "廖雪峰教程", 'url': "http://www.liaoxuefeng.com/"},
+    {'name':"萧景陌专栏", 'url':"https://zhuanlan.zhihu.com/xiao-jing-mo"},
+ 
     {'name': "Yann's Github", 'url': "https://github.com/Wang-Yann"},
     {'name':"冬炼三九的微博", 'url':"http://weibo.com/vlobster"},
          
     ]
     
-
-
+    
     @staticmethod
     def init_app(app):
         pass
@@ -65,7 +93,7 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    DEBUG = True
+    DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') 
     ##or \
         ###'sqlite:///' + os.path.join(basedir, 'data.sqlite')

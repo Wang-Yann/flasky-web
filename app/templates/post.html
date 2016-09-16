@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky - Post{% endblock %}
+{% block title %}VLOBSTER-Post{% endblock %}
 
 
 
@@ -10,7 +10,7 @@
 <div class="post-entry-box">
 
 	<div class="post-entry-header">
-		<h3 class="post-entry-title">
+		<h3 class="post-entry-title text-uppercase ">
 			{{post.title}}
 		</h3>
     </div>
@@ -29,8 +29,8 @@
 			{% endfor %}
 		</div>
 		<div class="right-info">
-			<span class="label label-info">浏览{{post.read_count}}</span>
-			<span class="label label-info">评论{{ post.comments.count() }}</span>
+			<span class="label label-info">{{_("views")}} {{post.read_count}}</span>
+			<span class="label label-info">{{_("Comments")}} {{ post.comments.count() }}</span>
 		</div>
 	</div>
     
@@ -50,8 +50,12 @@
 				<span class="glyphicon glyphicon-user"></span> 
 					<a href="{{ url_for('.user', username=post.author.username) }}">{{post.author.username}}</a>
 			</button>
+            <button type="button" class="btn btn-info btn-sm" style="margin-left: 2em;">
+				<i class="fa fa-folder "></i> 
+					<a href="/post_result/cg/{{post.category.id}}" style="decoration:none; color:#fff;">{{post.category.name}}</a>
+			</button>
 			</p>
-			<p> <span class="glyphicon glyphicon-time">更新时间：</span>
+			<p> <span class="glyphicon glyphicon-time"> </span> <b>{{_("Update")}}:</b>
 				{{moment(post.update_time).format('LL')}}
 			</p>
 		</div>
@@ -61,7 +65,7 @@
 			<button type="button" class="btn btn-default btn-sm ">
 				<a href="{{ url_for('.unconcern', post_id=post.id) }}">
                     <span class="glyphicon glyphicon-star "></span> 
-                取消收藏 | {{post.users.count()}}    
+                {{_("Disconcern")}} | {{post.users.count()}}    
                 </a>
                 
 			</button>
@@ -69,14 +73,14 @@
             <button type="button" class="btn btn-default btn-sm ">
 				<a href="{{ url_for('.concern', post_id=post.id) }}">
                     <span class="glyphicon glyphicon-star-empty"></span> 
-                     收藏 | {{post.users.count()}}
+                     {{_("Concerns")}}| {{post.users.count()}}
                 </a>
 			</button>
             {% endif %}
             
 			<button type="button" class="btn btn-default btn-sm ">
                 <a href="{{ url_for('.vote', post_id=post.id) }}">
-                    <span class="glyphicon glyphicon-thumbs-up"></span> 喜欢 | {{post.remark_count}}
+                    <span class="glyphicon glyphicon-thumbs-up"></span> {{_("Votes")}} | {{post.remark_count}}
                 </a>
 			</button>
 				
@@ -88,9 +92,9 @@
 
 <hr>
 
-	<div>
+	<div class="post-entry-comments">
 		    
-        <h5 id="comments"><span class="glyphicon glyphicon-comment">评论</span></h5>
+        <h4 id="comments"><i class="fa fa-comments"></i> {{_("COMMENTS")}}</span></h4>
         {% include '_comments.html' %}
         
             <div class="pagination">
@@ -102,7 +106,7 @@
     
 	{% if current_user.can(Permission.COMMENT) %}
 	<div >
-        <h4  id="submit-comment"><span class="glyphicon glyphicon-comment">发表评论</span></h4>
+        <h4  id="submit-comment"><i class="fa fa-commenting-o"></i> {{_("Submit Comment!")}}</span></h4>
         {% include '_submit_comment.html' %}    
 	</div>
     {% endif %}
@@ -119,14 +123,17 @@
         </div>
         {% if current_user.is_administrator() %}
         <div class="btn-group col-sm-offset-2">
-            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning" 
-                role="button" id="post_edit">编辑[Admin]</a>
-            <a " class="btn btn-danger" data-toggle="modal" data-target="#myModal" role="button" id="post_del">删除[Admin]</a>
+            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning" role="button" id="post_edit">
+                <i class="fa fa-pencil-square"></i> {{_("EDIT")}}[Admin]</a>
+            <a " class="btn btn-danger" data-toggle="modal" data-target="#myModal" role="button" id="post_del">
+                <i class="fa fa-trash"></i> {{_("DELETE")}}[Admin]</a>
         </div>
         {% elif current_user == post.author %}
         <div class="btn-group col-sm-offset-2">
-            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning">编辑</a>
-            <a  class="btn btn-danger" data-toggle="modal" data-target="#myModal" role="button" id="post_del">删除</a>
+            <a href="{{ url_for('.post_edit', id=id) }}" target="_blank" class="btn btn-warning">
+                <i class="fa fa-pencil-square"></i> {{_("EDIT")}}</a>
+            <a  class="btn btn-danger" data-toggle="modal" data-target="#myModal" role="button" id="post_del">
+                <i class="fa fa-trash"></i> {{_("DELETE")}}</a>
         </div>
          
         {% endif %}
@@ -144,16 +151,16 @@
                         aria-hidden="true">×</span>
             </button>
             <h4 class="modal-title" id="myModalLabel">
-               确认删除文章
+               {{_("Confirm to delete this post?")}}
             </h4>
          </div>
          <div class="modal-body">
-            <p>将该文章删除后不可恢复，您确认要删除吗？</p>
-            <p>同时本文的所有评论将被删除</p>
+            <p>{{_("The deleted post  cann't be restored,and are you sure to delete?")}}</p>
+            <p>{{_("Comments for this post will be deleted at the same time!")}}</p>
          </div>
          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <a href="{{ url_for('main.delete_post', id=id) }}"  class="btn btn-success" >确定</a>
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                <a href="{{ url_for('main.delete_post', id=id) }}"  class="btn btn-success" >{{_("OK")}}</a>
          
             
          </div>

@@ -1,0 +1,798 @@
+# Chinese (Simplified, China) translations for PROJECT.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-09-16 14:59+0800\n"
+"PO-Revision-Date: 2016-09-12 18:34+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: zh_Hans_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: auth/forms.py:10 auth/forms.py:25 auth/forms.py:54 auth/forms.py:60
+#: main/forms.py:40
+msgid "Email"
+msgstr "账号"
+
+#: auth/forms.py:12 auth/forms.py:31 auth/forms.py:75
+msgid "Password"
+msgstr "密码"
+
+#: auth/forms.py:14
+msgid "Log In"
+msgstr "登入"
+
+#: auth/forms.py:27 main/forms.py:42
+msgid "Username"
+msgstr "用户姓名"
+
+#: auth/forms.py:32
+msgid "Passwords must match."
+msgstr "密码必须匹配"
+
+#: auth/forms.py:33 auth/forms.py:64
+msgid "Confirm password"
+msgstr "确认密码"
+
+#: auth/forms.py:34 templates/auth/register.html:9
+msgid "Register"
+msgstr "注册"
+
+#: auth/forms.py:38 auth/forms.py:80 main/forms.py:62
+msgid "Email already registered."
+msgstr "本邮箱已注册"
+
+#: auth/forms.py:42 main/forms.py:67
+msgid "Username already in use."
+msgstr "用户名已存在"
+
+#: auth/forms.py:46
+msgid "Old password"
+msgstr "旧密码"
+
+#: auth/forms.py:47
+msgid "New password"
+msgstr "新密码"
+
+#: auth/forms.py:48 auth/forms.py:63
+msgid "Passwords must match"
+msgstr "密码必须匹配"
+
+#: auth/forms.py:49
+msgid "Confirm new password"
+msgstr "确认新密码"
+
+#: auth/forms.py:50
+msgid "Update Password"
+msgstr "更新密码"
+
+#: auth/forms.py:56 auth/forms.py:65
+msgid "Reset Password"
+msgstr "重置密码"
+
+#: auth/forms.py:62
+msgid "New Password"
+msgstr "新密码"
+
+#: auth/forms.py:69
+msgid "Unknown email address."
+msgstr "账号不存在"
+
+#: auth/forms.py:73
+msgid "New Email"
+msgstr "新账号"
+
+#: auth/forms.py:76
+msgid "Update Email Address"
+msgstr "更新邮箱"
+
+#: auth/views.py:87
+msgid "Welcome!"
+msgstr "欢迎登陆！"
+
+#: auth/views.py:90
+msgid "Invalid username or password."
+msgstr "用户名或密码错误"
+
+#: auth/views.py:100
+msgid "You have been logged out."
+msgstr "您已经登出！"
+
+#: auth/views.py:116
+msgid "A confirmation email has been sent to you by email."
+msgstr "我们已发送给您一封确认邮件。"
+
+#: auth/views.py:127
+msgid "You have confirmed your account. Thanks!"
+msgstr "您的账号已经确认成功。"
+
+#: auth/views.py:129
+msgid "The confirmation link is invalid or has expired."
+msgstr "确认链接过期或失效。"
+
+#: auth/views.py:139
+msgid "A new confirmation email has been sent to you by email."
+msgstr "我们重新发送给您一封确认邮件。"
+
+#: auth/views.py:151 auth/views.py:186
+msgid "Your password has been updated."
+msgstr "您的密码已经更改成功！"
+
+#: auth/views.py:154
+msgid "Invalid password."
+msgstr "密码无效。"
+
+#: auth/views.py:171
+msgid "An email with instructions to reset your password has been sent to you."
+msgstr "我们发送给您一封邮件以方便重置您的密码。"
+
+#: auth/views.py:204
+msgid ""
+"An email with instructions to confirm your new email address has been "
+"sent to you."
+msgstr "我们发送给您一封邮件以方便更改您的邮箱账号。"
+
+#: auth/views.py:207
+msgid "Invalid email or password."
+msgstr "用户名或密码错误"
+
+#: auth/views.py:215
+msgid "Your email address has been updated."
+msgstr "邮箱账号更新成功。"
+
+#: auth/views.py:217
+msgid "Invalid request."
+msgstr "请求无效！"
+
+#: main/forms.py:14
+msgid "What is your name?"
+msgstr "你的名字？"
+
+#: main/forms.py:15 main/forms.py:23 main/forms.py:51 main/forms.py:98
+#: main/forms.py:119 templates/_submit_comment.html:25
+msgid "Submit"
+msgstr "提交"
+
+#: main/forms.py:19 templates/base.html:151
+msgid "Language"
+msgstr "语言设置"
+
+#: main/forms.py:20 main/forms.py:48
+msgid "Real name"
+msgstr "真实姓名"
+
+#: main/forms.py:21 main/forms.py:49
+msgid "Location"
+msgstr "所在地"
+
+#: main/forms.py:22 main/forms.py:50
+msgid "About me"
+msgstr "个性签名"
+
+#: main/forms.py:44
+msgid "Usernames must have only letters, numbers, dots or underscores"
+msgstr "用户名称只能由字母、数字和下划线构成"
+
+#: main/forms.py:46
+msgid "Confirmed"
+msgstr "确认"
+
+#: main/forms.py:47
+msgid "Role"
+msgstr "角色"
+
+#: main/forms.py:73
+msgid "Types"
+msgstr "类型"
+
+#: main/forms.py:74
+msgid "Recipients"
+msgstr "收件人"
+
+#: main/forms.py:75
+msgid "Topic"
+msgstr "主题"
+
+#: main/forms.py:76 main/forms.py:93
+msgid "Body"
+msgstr "正文"
+
+#: main/forms.py:77
+msgid "Send"
+msgstr "发送"
+
+#: main/forms.py:86
+msgid "Recipient not exist."
+msgstr "收件人不存在！"
+
+#: main/forms.py:92
+msgid "Title"
+msgstr "标题"
+
+#: main/forms.py:94
+msgid "Blog_Types"
+msgstr "博文分类"
+
+#: main/forms.py:96
+msgid "Tags"
+msgstr "标签"
+
+#: main/forms.py:97
+msgid "Private?"
+msgstr "私有？"
+
+#: main/forms.py:102 templates/edit_post.html:49 templates/edit_post.html:104
+msgid "--Select an option--"
+msgstr "--请选择类型--"
+
+#: main/forms.py:108 main/forms.py:111
+msgid "Title already in use,please edit the title!!"
+msgstr "存在同名文章，请修改标题！"
+
+#: main/forms.py:116
+msgid "Nickname"
+msgstr "昵称"
+
+#: main/forms.py:117
+msgid "Enter your comment"
+msgstr "写下评论"
+
+#: main/views.py:260
+msgid "No file part in request!"
+msgstr "文件未提交成功！"
+
+#: main/views.py:263
+msgid "No selected file!"
+msgstr "未选中文件！"
+
+#: main/views.py:276
+msgid "The avatar has been changed."
+msgstr "头像已更改！"
+
+#: main/views.py:300 main/views.py:324
+msgid "The profile has been updated."
+msgstr "个人资料已更新！"
+
+#: main/views.py:359
+msgid "Your comment has been published."
+msgstr "评论成功！"
+
+#: main/views.py:362
+msgid "Comment Failed."
+msgstr "评论失败！"
+
+#: main/views.py:399 main/views.py:543
+msgid "Delete Failed."
+msgstr "删除失败！"
+
+#: main/views.py:401
+#, python-format
+msgid "Delete successfully , with %(name0)s comments and %(name1)s tags !"
+msgstr "成功删除本文,以及 %(name0)s 条评论，%(name1)s 个标签！"
+
+#: main/views.py:424
+msgid "Post successfully!"
+msgstr "发表成功！"
+
+#: main/views.py:451
+msgid "The post has been updated."
+msgstr "文章已更新！"
+
+#: main/views.py:471 main/views.py:487 main/views.py:501 main/views.py:520
+#: main/views.py:601
+msgid "Invalid user."
+msgstr "非法用户！！！"
+
+#: main/views.py:474
+msgid "You are already following this user."
+msgstr "你关注了该用户！"
+
+#: main/views.py:477
+#, python-format
+msgid "You are now following %(name)s anymore."
+msgstr "你成功关注了：%(name)s"
+
+#: main/views.py:490
+msgid "You are not following this user."
+msgstr "你不再关注该用户！"
+
+#: main/views.py:493
+#, python-format
+msgid "You are not following %(name)s anymore."
+msgstr "你不再关注：%(name)s"
+
+#: main/views.py:545
+msgid "Delete Successfully."
+msgstr "删除成功！"
+
+#: main/views.py:621
+msgid "You have already collected it."
+msgstr "你已经收藏了该文章！"
+
+#: main/views.py:623
+msgid "You  collected it successfully!"
+msgstr "你收藏了该文章！"
+
+#: main/views.py:633
+msgid "You are not concerning anymore."
+msgstr "你不再收藏该文章！"
+
+#: main/views.py:670 main/views.py:682
+msgid "Your message has been sended."
+msgstr "消息发送成功！"
+
+#: templates/403.html:9
+msgid "403-Request Forbidden"
+msgstr "403 请求被拒绝!"
+
+#: templates/404.html:10
+msgid "404-Resource Not Found"
+msgstr "404 资源未找到!"
+
+#: templates/500.html:8
+msgid "500-Internal Server Error"
+msgstr "500 内部服务器错误！"
+
+#: templates/_comments.html:8
+msgid "Replied to"
+msgstr "回复给"
+
+#: templates/_comments.html:12
+msgid " comment has been deleted!"
+msgstr "的该评论已删除！"
+
+#: templates/_comments.html:32
+msgid "This comment has been disabled by a moderator."
+msgstr "该评论已被屏蔽"
+
+#: templates/_comments.html:48
+msgid "Reply"
+msgstr "回复"
+
+#: templates/_comments.html:55
+msgid "Allow"
+msgstr "恢复"
+
+#: templates/_comments.html:58
+msgid "Ban"
+msgstr "屏蔽"
+
+#: templates/_comments.html:61 templates/_comments.html:106
+msgid "Delete"
+msgstr "删除"
+
+#: templates/_comments.html:79
+msgid "Write your comment... "
+msgstr "等你发表第一条评论。"
+
+#: templates/_comments.html:94
+msgid "Confirm to delete this comment?"
+msgstr "确认删除该评论？"
+
+#: templates/_comments.html:98
+msgid "The deleted comment cann't be restored,and are you sure to delete?"
+msgstr "删除后的评论不可恢复，确认删除吗？"
+
+#: templates/_comments.html:101
+msgid "Tip: You can choose to ban instead of delete."
+msgstr "如果只是不想显示该评论，你可以选择屏蔽它。"
+
+#: templates/_comments.html:105 templates/change_avatar.html:64
+#: templates/post.html:162
+msgid "Cancel"
+msgstr "取消"
+
+#: templates/_forsearch.html:6
+msgid "Search_Engines"
+msgstr "资源搜索"
+
+#: templates/_forsearch.html:12 templates/_forsearch.html:24
+#: templates/_forsearch.html:38
+msgid "Search..."
+msgstr "寻求帮助..."
+
+#: templates/_forsearch.html:15
+msgid "Google"
+msgstr "谷歌"
+
+#: templates/_forsearch.html:41
+msgid "Baidu"
+msgstr "百度"
+
+#: templates/_macros.html:50
+msgid "Categories"
+msgstr "分类目录"
+
+#: templates/_macros.html:122
+msgid "Tags_Cloud"
+msgstr "热门标签"
+
+#: templates/_macros.html:137
+msgid "Posts_Archive"
+msgstr "文章归档"
+
+#: templates/_macros.html:169
+msgid "New_Comments"
+msgstr "最新评论"
+
+#: templates/_macros.html:178
+msgid "for"
+msgstr "发布在"
+
+#: templates/_macros.html:193
+msgid "Visitors"
+msgstr "最近访客"
+
+#: templates/_macros.html:222
+msgid "Recommended_Posts"
+msgstr "热门推荐"
+
+#: templates/_macros.html:247
+msgid "Share_Links"
+msgstr "友情链接"
+
+#: templates/_posts.html:37 templates/post.html:32
+msgid "views"
+msgstr "浏览"
+
+#: templates/_posts.html:54
+msgid "Detail"
+msgstr "阅读全文"
+
+#: templates/_posts.html:89
+msgid "Sorry,No Blogs Here!!"
+msgstr "抱歉，这里还没有文章发布！"
+
+#: templates/_sms.html:31
+msgid "Subject"
+msgstr "主题"
+
+#: templates/_sms.html:36
+msgid "From"
+msgstr "发件人"
+
+#: templates/_sms.html:38
+msgid "To"
+msgstr "收件人"
+
+#: templates/_sms.html:49
+msgid "Content"
+msgstr "正文"
+
+#: templates/_submit_comment.html:18
+msgid "Write your comment..."
+msgstr "写出你的想法......"
+
+#: templates/_submit_comment.html:22 templates/edit_post.html:74
+msgid "Clear"
+msgstr "清空"
+
+#: templates/aboutme.html:11 templates/aboutme.html:22
+msgid "Reference Materials"
+msgstr "参考资料"
+
+#: templates/aboutme.html:21
+msgid "Downloads"
+msgstr "资源下载"
+
+#: templates/alipay.html:10
+msgid "Donate Alipay"
+msgstr "打赏一下"
+
+#: templates/base.html:55
+msgid "Write"
+msgstr "写文章"
+
+#: templates/base.html:63
+msgid "HOME"
+msgstr "主页"
+
+#: templates/base.html:65
+msgid "FIND"
+msgstr "发现"
+
+#: templates/base.html:67
+msgid "ABOUT"
+msgstr "关于"
+
+#: templates/base.html:71
+msgid "MAIL"
+msgstr "消息"
+
+#: templates/base.html:76 templates/smsbox.html:19
+msgid "Send_mail"
+msgstr "发信息"
+
+#: templates/base.html:79 templates/smsbox.html:13
+msgid "Inbox"
+msgstr "收件箱"
+
+#: templates/base.html:82 templates/smsbox.html:16
+msgid "Outbox"
+msgstr "发件箱"
+
+#: templates/base.html:94
+#, python-format
+msgid " %(name)s"
+msgstr "%(name)s"
+
+#: templates/base.html:97
+msgid "General"
+msgstr "我的主页"
+
+#: templates/base.html:99
+msgid "Reset_Password"
+msgstr "修改密码"
+
+#: templates/base.html:100
+msgid "Chang_Account"
+msgstr "修改邮箱"
+
+#: templates/base.html:101
+msgid "Log_Out"
+msgstr "登出"
+
+#: templates/base.html:104
+msgid "Moderate_Comments"
+msgstr "管理评论"
+
+#: templates/base.html:107 templates/base.html:238
+msgid "Admin_Back"
+msgstr "后台管理"
+
+#: templates/base.html:117
+msgid "Search Blogs"
+msgstr "站内搜索"
+
+#: templates/base.html:126
+msgid "LOG_IN"
+msgstr "登入"
+
+#: templates/base.html:150
+#, python-format
+msgid "%(name)s's Blog"
+msgstr "%(name)s 的博客"
+
+#: templates/base.html:232
+msgid "Developed  by  Yann"
+msgstr "联系作者——Yann"
+
+#: templates/change_avatar.html:14
+msgid "Change your avatar"
+msgstr "更改头像"
+
+#: templates/change_avatar.html:20
+msgid "File Input"
+msgstr "选择文件"
+
+#: templates/change_avatar.html:27
+msgid "Upload Raw"
+msgstr "上传原图"
+
+#: templates/change_avatar.html:34
+msgid "PreView"
+msgstr "预览"
+
+#: templates/change_avatar.html:41
+msgid "Rotate_left"
+msgstr "左旋"
+
+#: templates/change_avatar.html:42
+msgid "Rotate_right"
+msgstr "右旋"
+
+#: templates/change_avatar.html:57
+msgid "Crop Result"
+msgstr "裁剪结果"
+
+#: templates/change_avatar.html:67
+msgid "Ajax Upload"
+msgstr "Ajax上传"
+
+#: templates/edit_post.html:64
+msgid "Seperate tags with blanks!"
+msgstr "标签之间请用空格分隔！"
+
+#: templates/edit_profile.html:8 templates/user.html:53
+msgid "Edit Profile"
+msgstr "修改资料"
+
+#: templates/explore.html:16 templates/user.html:44
+msgid "Following"
+msgstr "关注"
+
+#: templates/explore.html:18
+msgid "Concerned"
+msgstr "收藏"
+
+#: templates/explore.html:20
+msgid "Like"
+msgstr "喜欢"
+
+#: templates/followers.html:11
+msgid "Users"
+msgstr "用户"
+
+#: templates/followers.html:12 templates/user.html:27
+msgid "Member since"
+msgstr "注册时间："
+
+#: templates/index.html:11
+#, python-format
+msgid "Hello,%(name)s"
+msgstr "欢迎，%(name)s"
+
+#: templates/index.html:13
+msgid "Log In For Reading More !!"
+msgstr "登陆之后更精彩"
+
+#: templates/index.html:19
+msgid "Newest"
+msgstr "最新"
+
+#: templates/index.html:20
+msgid "Hot"
+msgstr "最热"
+
+#: templates/index.html:21
+msgid "Recommend"
+msgstr "推荐"
+
+#: templates/moderate.html:8
+msgid "Comment Moderation"
+msgstr "评论管理"
+
+#: templates/post.html:33
+msgid "Comments"
+msgstr "评论"
+
+#: templates/post.html:58
+msgid "Update"
+msgstr "更新时间"
+
+#: templates/post.html:68
+msgid "Disconcern"
+msgstr "取消收藏"
+
+#: templates/post.html:76
+msgid "Concerns"
+msgstr "收藏"
+
+#: templates/post.html:83
+msgid "Votes"
+msgstr "喜欢"
+
+#: templates/post.html:97
+msgid "COMMENTS"
+msgstr "评论"
+
+#: templates/post.html:109
+msgid "Submit Comment!"
+msgstr "发表评论！"
+
+#: templates/post.html:127 templates/post.html:134
+msgid "EDIT"
+msgstr "编辑"
+
+#: templates/post.html:129 templates/post.html:136
+msgid "DELETE"
+msgstr "删除"
+
+#: templates/post.html:154
+msgid "Confirm to delete this post?"
+msgstr "确认删除该文章？"
+
+#: templates/post.html:158
+msgid "The deleted post  cann't be restored,and are you sure to delete?"
+msgstr "文章删除后不可恢复，确定删除吗？"
+
+#: templates/post.html:159
+msgid "Comments for this post will be deleted at the same time!"
+msgstr "文章的所有评论也会被删除"
+
+#: templates/post.html:163
+msgid "OK"
+msgstr "确认"
+
+#: templates/user.html:28
+msgid "Last seen"
+msgstr "最近登陆："
+
+#: templates/user.html:30
+#, python-format
+msgid "%(num)s post"
+msgid_plural "%(num)s posts"
+msgstr[0] "%(num)s篇文章"
+
+#: templates/user.html:31
+#, python-format
+msgid "%(num)s comment"
+msgid_plural "%(num)s comments"
+msgstr[0] "%(num)s条评论"
+
+#: templates/user.html:37
+msgid "Follow"
+msgstr "关注"
+
+#: templates/user.html:40
+msgid "Unfollow"
+msgstr "取消关注"
+
+#: templates/user.html:43
+msgid "Followers"
+msgstr "被关注"
+
+#: templates/user.html:45
+msgid "Collected_posts"
+msgstr "收藏文章"
+
+#: templates/user.html:57
+msgid "Edit Profile[Admin]"
+msgstr "修改资料[Admin]"
+
+#: templates/user.html:62
+msgid "Edit Avatar"
+msgstr "更改头像"
+
+#: templates/user.html:66
+#, python-format
+msgid "Posts by %(name)s"
+msgstr " %(name)s发布的文章"
+
+#: templates/admin/my_master.html:13
+msgid "Log out"
+msgstr "登出"
+
+#: templates/admin/my_master.html:14
+msgid "Home"
+msgstr "回主页"
+
+#: templates/auth/change_email.html:9
+msgid "Change Your Email Address"
+msgstr "更改邮箱账号"
+
+#: templates/auth/change_password.html:10
+msgid "Change Your Password"
+msgstr "更改密码"
+
+#: templates/auth/login.html:10
+msgid "Login"
+msgstr "登陆"
+
+#: templates/auth/login.html:22
+msgid "User Email"
+msgstr "邮箱账号"
+
+#: templates/auth/login.html:51
+msgid "Remember_me"
+msgstr "记住我"
+
+#: templates/auth/login.html:56
+msgid "Forgot account?"
+msgstr "忘记账号？"
+
+#: templates/auth/login.html:67
+msgid "Sign Up"
+msgstr "注册"
+
+#: templates/auth/login.html:69
+msgid "Login_Oauth"
+msgstr "联合登陆"
+
+#: templates/auth/login.html:92
+msgid "May Fail!!"
+msgstr "墙内可能失败！"
+
+#: templates/auth/reset_password.html:10
+msgid "Reset Your Password"
+msgstr "重置密码"
+

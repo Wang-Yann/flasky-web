@@ -1,0 +1,49 @@
+
+
+
+<div class="panel panel-success">
+	<div class="panel-heading">
+		<h3 class="panel-title"><i class="fa fa-search"></i>&nbsp;{{_("Search_Engines")}}</h3>
+	</div>
+	<div class="panel-body">
+    <form  method="get" name="searchform" action="http://www.google.com/search" role="form"  target="_blank">
+        <div class="form-group has-success ">
+            <div class="input-group ">
+                <input class="form-control" type="text" name="as_q"  size="22" alt="search" placeholder="{{_('Search...')}}" >
+                
+                <span class="input-group-btn ">
+                    <button class="btn btn-info" type="submit"><b>{{_("Google")}}</b></button>
+                </span>
+            </div>
+        </div>
+    </form>
+    
+    <form  role="form" action="https://cn.bing.com/search" target="_blank">
+        <div class="form-group has-success ">
+            <div class="input-group ">
+                <input class="form-control" type="text" name="q"  size="22"  placeholder="{{_('Search...')}}" autofocus>
+                
+                <span class="input-group-btn ">
+                    <button class="btn btn-success" type="submit"><b>  Bing </b></button>
+                </span>
+            </div>
+        </div>
+    </form>
+    
+    
+    
+	<form  name="f" role="form" action="http://www.baidu.com/s" target="_blank">
+        <div class="form-group has-warning ">
+            <div class="input-group ">
+                <input class="form-control" type="text" name="wd"  size="22"  placeholder="{{_('Search...')}}" autocomplete="off">
+                
+                <span class="input-group-btn">
+                    <button class="btn btn-warning" type="submit">{{_("Baidu")}}</button>
+                </span>
+            </div>
+        </div>
+    </form>
+ 
+        
+	</div>
+</div>

@@ -19,7 +19,7 @@ def avatar():
     username= current_user.username
     time=datetime.utcnow().strftime('%y%m%d_%H%M%S')
     fname=username+'_'+time+'.jpg'
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'],'avatar', fname)
+    filepath = os.path.join(current_app.config['UPLOAD_FILE_PATH'],'avatar', fname)
     print(filepath)
     
     

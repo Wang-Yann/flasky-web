@@ -1,36 +1,45 @@
 {% extends "base.html" %}
 
 
-{% block title %}更换头像{% endblock %}
+{% block title %}VLOBSTER-Avatar-{{username}}{% endblock %}
+
+{% block style %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='css/croppie.css') }}" rel="stylesheet">
+        
+{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h3>更换你的头像</h3>
+    <h3>{{_("Change your avatar")}}</h3>
     
     
     <form class="form-inline"   method="post" action="" role="form" enctype=multipart/form-data>    
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /> 
         <div class="form-group">
-            <label class="sr-only" for="upload">文件输入</label>
-            <input type='file' class="form-control input-lg" id="upload"  required="required" style="color:blue; opacity:0.6;" aria-describedby="helpBlock">
-            
+            <label class="sr-only" for="upload">{{_("File Input")}}</label>
+            <div class=" input-group">
+                <span class="input-group-addon "><i class="fa fa-file "></i></span>
+            <input type='file' name="file" class="form-control input-lg" id="upload"  style="color:blue; opacity:0.6;" aria-describedby="helpBlock">
+            </div>
             
         </div>
-        <button class="btn btn-success btn-lg" type="submit" >上传原图</button>
+        <button class="btn btn-success btn-lg" type="submit" ><i class="fa fa-file-image-o "></i> {{_("Upload Raw")}}</button>
          
        
     
     </form>
     
     <span id="helpBlock" class="help-block" style="color:Silver;">建议将图片修剪后上传；如果直接上传，文件名称请不要包含特殊字符。</span>   
-    <button class="btn btn-primary btn-lg" id="show-hidden">预览</button>
+    <button class="btn btn-primary btn-lg" id="show-hidden"><i class="fa fa-eye "></i> {{_("PreView")}}</button>
     
     
     <div class="croppie-container" id="vanilla-demo" ></div> 
     <div class="action" align="center">
-        <button   class="btn btn-success vanilla-result" data-toggle="modal" data-target="#myModal">裁剪后上传</button>
-        <button  type="button" class="btn btn-info vanilla-rotate" data-deg="-90">Rotate Left</button>
-        <button  type="button" class="btn btn-info vanilla-rotate" data-deg="90">Rotate Right</button>
+        <button   class="btn btn-success vanilla-result" data-toggle="modal" data-target="#myModal">
+            <i class="fa fa-crop "></i> / <i class="fa fa-upload "></i></button>
+        <button  type="button" class="btn btn-info vanilla-rotate" data-deg="-90"><i class="fa fa-rotate-left "></i> {{_("Rotate_left")}} </button>
+        <button  type="button" class="btn btn-info vanilla-rotate" data-deg="90"><i class="fa fa-rotate-right "></i> {{_("Rotate_right")}} </button>
     </div>
     
     
@@ -45,17 +54,17 @@
 					&times;
 				</button>
 				<h4 class="modal-title" id="myModalLabel">
-					修剪结果
+					{{_("Crop Result")}}
 				</h4>
 			</div>
 			<div class="modal-body">
 				<div id="result" align="center"></div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				<button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}
 				</button>
 				<button type="button" id="ajaxsubmit" class="btn btn-primary">
-					AJAX提交更改
+					<i class="fa fa-upload "></i> {{_("Ajax Upload")}}
 				</button>
 			</div>
 		</div><!-- /.modal-content -->
@@ -73,10 +82,10 @@
 
 
 {% block scripts %}
-    {{ super() }}
+{{ super() }}
  
+<script src="{{ url_for('static', filename='js/croppie.js') }}"></script>
 
-  
  <script>
  $(function() {
  var $uploadCrop;
@@ -85,11 +94,7 @@
             if (!input.files[0].type.match(/image.*/)){
             alert('请不要上传非图片文件')}
         
-        
-        
             var reader = new FileReader();
-            
-            
             
             reader.onload = function (e) {
                 
@@ -97,23 +102,14 @@
                     url: e.target.result,
                     orientation: 4,                    
                     });
-
-                    
-                
-            }
+                }
+            
             $("#show-hidden").click(function(){
-                        
-                        reader.readAsDataURL(input.files[0]);
-                });        
-              
-            
-            
-            
-            
+                reader.readAsDataURL(input.files[0]);
+            });        
+        
         }
-        else {
-            swal("Sorry - you're browser doesn't support the FileReader API");
-        }
+        else {swal("Sorry - you're browser doesn't support the FileReader API");}
     }
     
     $uploadCrop = $('#vanilla-demo').croppie({ 
@@ -169,12 +165,6 @@
         } 
         $("#result").html(html); 
     }; 
-      
-    
-      
-      
-
-      
 });
 
 $('button[id=ajaxsubmit]').click(function(){
@@ -189,12 +179,8 @@ $('button[id=ajaxsubmit]').click(function(){
     fd.append('file', imdata);
     
     var csrftoken = $('meta[name=csrf-token]').attr('content');
-   
     fd.append('csrf_token', csrftoken);
-    
-    console.log(csrftoken);
-
-
+   
     $.ajax({
             url:'/api/v1.0/avatar',
             type:'POST',
@@ -204,17 +190,14 @@ $('button[id=ajaxsubmit]').click(function(){
             
             dataType:'json',
             error: function(xhr, err){
-                alert('请求失败，原因可能是：' + err + '！')
-                },
+                alert('请求失败，原因可能是：' + err + '！')},
             success: function(data){  
-                alert('头像修改成功')             
-                } 
-        });
-}        
+                alert('头像修改成功')} 
+    });
+} 
+       
 });  
-
-
- </script>
+</script>
  
 
 {% endblock %}

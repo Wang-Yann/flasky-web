@@ -1,6 +1,9 @@
 #-*-coding:utf-8-*-
 import flask_admin as admin
+from flask_admin.contrib.fileadmin import FileAdmin
 
+##from flask_admin.form import SecureForm  ###+++
+from flask_admin.contrib.sqla import ModelView
 
 
 
@@ -11,7 +14,6 @@ from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import filters
 from wtforms import validators
 from app.models import User, Follow, Role, Permission, Post, Comment,UserLikePost,Category,Tag,Comment_Follow
-from flask_admin.contrib.fileadmin import FileAdmin
 
 
 #####customized User model admin
@@ -21,7 +23,7 @@ class UserAdmin(sqla.ModelView):
     can_create=True
     page_size=30
     ##inline_models=[(Post,dict(form_columns=['title']))]   ##内联使用
-    column_exclude_list=['id','password_hash','location','member_since','name','avatar_hash','about_me']
+    column_exclude_list=['id','password_hash','location','timezone','member_since','name','avatar_hash','about_me']
     column_auto_select_related=False 
     form_ajax_refs={ "posts":{"fields":(Post.title,)} }
     def is_accessible(self):
@@ -66,12 +68,14 @@ class PostAdmin(sqla.ModelView):
         super(PostAdmin,self).__init__(Post,session)
 
 
-class FileAdminView(FileAdmin):
-    can_view_details=True
-    create_modal=True
-    edit_modal=True
+    
+class FileAdminView(ModelView):
 
- 
+    #form_base_class = SecureForm
+    can_view_details=True
+    
+    can_delete=True
+    
     
     
 class MyModelView(sqla.ModelView):
@@ -87,6 +91,7 @@ class MyModelView(sqla.ModelView):
 
 ## Create customized index view class that handles login & registration
 class MyAdminIndexView(admin.AdminIndexView):
+    
     @expose('/')
     def index(self):
         if not current_user.is_administrator():

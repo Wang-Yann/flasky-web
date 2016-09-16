@@ -1,8 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
-<html lang="zh-CN">
-
-
+<html  >
 
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -13,21 +11,22 @@
         
         <link rel="shortcut icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
         <link rel="icon" href="{{ url_for('static', filename='css/favicon.ico') }}" type="image/x-icon">
-        <link href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+        
         <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='css/common.css') }}" rel="stylesheet">
         
         
-        <link href="{{ url_for('static', filename='css/croppie.css') }}" rel="stylesheet">
         
         <link  href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet">
-	       
+	    <link  href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">   
+        
+           
     {% endblock %}
     
     
     
     <title>
-    {% block title %} {% endblock %}
+    {% block title %} VLOBSTER{% endblock %}
     </title>
 
 </head>
@@ -46,14 +45,14 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand"  name='top' id='top'>VLOBSTER</a>
+            <a class="navbar-brand "  name='top' id='top' >VLOBSTER</a>
         </div>
         <div class="navbar-collapse collapse ">
 			
             <ul class="nav navbar-nav navbar-left">
                 {% if current_user.can(Permission.WRITE_ARTICLES) %}
                 <a href="{{ url_for('main.post_new',username=current_user.username) }}">
-                    <button  class="btn btn-primary navbar-btn" style="margin-left:30px; font-weight:bold;">写文章</button>
+                    <button  class="btn btn-primary navbar-btn" style="margin-left:30px; font-weight:bold;"><i class="fa fa-pencil-square"></i>&nbsp; {{_("Write")}}</button>
                 </a>
                 {% endif %}
             </ul>
@@ -61,23 +60,26 @@
             
             <ul class="nav navbar-nav navbar-right">
                                 
-                <li role="presentation"><a href="{{ url_for('main.index') }}">首页</a></li>
+                <li role="presentation"><a href="{{ url_for('main.index',by=by) }}"><i class="fa fa-home "></i>&nbsp; {{_("HOME")}}</a></li>
                 {% if current_user.is_authenticated %}
-                    <li role="presentation"><a href="{{ url_for('main.explore',by=by) }}">发现</a></li>
+                <li role="presentation"><a href="{{ url_for('main.explore',by=by,username=current_user.username) }}"><i class="fa fa-paw"></i>&nbsp;{{_("FIND")}}</a></li>
                 {% endif %}
-                <li role="presentation"><a href="{{ url_for('main.aboutme') }}"  target='_blank'>关于</a></li>
+                <li role="presentation"><a href="{{ url_for('main.aboutme') }}"  target='_blank'><i class="fa fa-tasks"></i> &nbsp;{{_("ABOUT")}}</a></li>
                 {% if current_user.can(Permission.WRITE_ARTICLES) %}
-                <li class="dropdown">
+                <li class="dropdown" role="presentation">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        消息 <b class="caret"></b>
+                        <i class="fa fa-envelope"></i> {{_("MAIL")}} <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
+						<li >
+                             <a href="{{ url_for('main.send_sms',username=current_user.username) }}"> 
+                                <span class="glyphicon  glyphicon-edit"></span>&nbsp;{{_("Send_mail")}}</a></li>
 						<li>
-                            <a href="{{ url_for('main.send_sms',username=current_user.username) }}"> 发消息</a></li>
-						<li>
-                            <a href="{{ url_for('main.smsbox',username=current_user.username,by='inbox') }}" >收件箱</a></li>
+                            <a href="{{ url_for('main.smsbox',username=current_user.username,by='inbox') }}" >
+                                <span class="glyphicon glyphicon-save"></span>&nbsp;{{_("Inbox")}}</a></li>
                         <li>    
-                            <a href="{{url_for('main.smsbox',username=current_user.username,by='outbox') }}" > 发件箱</a></li>
+                            <a href="{{url_for('main.smsbox',username=current_user.username,by='outbox') }}" > 
+                                <span class="glyphicon glyphicon-open"></span>&nbsp;{{_("Outbox")}}</a></li>
                         
                     </ul>
                 </li> 
@@ -89,39 +91,39 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img src="{{ current_user.portrait }}" width="20" >
-                        我 <b class="caret"></b>
+                        {{_(" %(name)s",name=current_user.username )}} <b class="caret"></b>
                     </a>
-                    <ul class="dropdown-menu">
-                        <li ><a href="{{ url_for('main.user', username=current_user.username) }}">我的主页</a></li>
+                    <ul class="dropdown-menu ">
+                        <li ><a href="{{ url_for('main.user', username=current_user.username) }}"><i class="fa fa-user"></i>&nbsp; {{_("General")}}</a></li>
 			             
-                        <li><a href="{{ url_for('auth.change_password') }}">修改密码</a></li>
-                        <li><a href="{{ url_for('auth.change_email_request') }}">修改邮箱</a></li>
-                        <li><a href="{{ url_for('auth.logout') }}">登出</a></li>
+                        <li><a href="{{ url_for('auth.change_password') }}"><i class="fa fa-key"></i>&nbsp;{{_("Reset_Password")}}</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}"><i class="fa fa-tablet"></i>&nbsp; {{_("Chang_Account")}}</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out"></i>&nbsp; {{_("Log_Out")}}</a></li>
                         {% if current_user.can(Permission.MODERATE_COMMENTS) %}
                         <li role="separator" class="divider"></li>
-                        <li><a href="{{ url_for('main.moderate') }}">管理评论</a></li>
-                        {% endif %}
+                        <li><a href="{{ url_for('main.moderate') }}"><i class="fa fa-ban"></i>&nbsp; {{_("Moderate_Comments")}}</a></li>
+                        {% endif %} 
                         {% if current_user.can(Permission.ADMINISTER) %}
-                        <li><a href="{{ url_for('admin.index') }}" target="_blank">后台管理</a></li>
+                        <li><a href="{{ url_for('admin.index') }}" target="_blank"><i class="fa  fa-th"></i>&nbsp; {{_("Admin_Back")}}</a></li>
                         {% endif %}
                         
                     </ul>
                 </li>
-                <li role="presentation">
+                
                 <form class="navbar-form navbar-right" role='search' method="post" 
                 action="{{url_for('main.search')}}"  name="search_form">
                     <div class="form-group">
                     {{ g.search_form.csrf_token}}
-                    {{ g.search_form.search(size=20) }}
+                    {{ g.search_form.search(size=16,placeholder=_("Search Blogs"),class="searchform") }}
                     
                     </div>
-                    <button type='submit' class="btn btn-default" id='searchform'><span class="glyphicon glyphicon-search"></span></button>
+                    <button type='submit' class="btn btn-default" ><span class="glyphicon glyphicon-search"></span></button>
                               
                 </form>
-                </li>
+                
                 
                 {% else %}
-                <li><a href="{{ url_for('auth.login') }}">登入</a></li>
+                <li><a href="{{ url_for('auth.login') }}"><i class="fa fa-sign-in"></i>&nbsp;{{_("LOG_IN")}}</a></li>
                
                 
                 
@@ -134,7 +136,7 @@
 
 
 
-<div class="container-fluid">
+<div class="container-fluid" style="min-height:28em;">
 <div class="row">
 {% block content %}
 
@@ -144,28 +146,15 @@
     <div class="col-sm-3 ">
     <div style="margin:1px 20px;">
     {% block sidebar %}
-        
-        <h4>Yann's Blog</h4>
-        
         {% if current_user.is_authenticated %}
-        <div class="panel panel-info ">
-            <div class="panel-heading">
-            <h3 class="panel-title" >文章搜索</h3>
-            </div>
-        
-            <br>
-            <div class="form-group" align='center' style="margin:15px ">
-                <form class="form-horizontal "  role="form" action="{{url_for('main.search')}}" method="post" name="search_form">
-                 <div class="input-group">        
-                 {{ g.search_form.hidden_tag()}}
-                 {{ g.search_form.search(size=20) }}
-                 
-                 <input type='submit' class="btn btn-default" value='GO!' style="line-height: 1.0;margin-bottom:1px;">
-                 </div>                           
-                </form>
-            </div>
-        </div>
+        <h2 class="lead" style="font-weight:700;">{{_("%(name)s's Blog",name=current_user.username)}}
+            <a class="small" href="{{ url_for('.edit_profile') }}" title="{{_('Language')}}"> <i class="fa fa-language"></i></a></h2>
+            
+        <br>
+        {% include '_forsearch.html' %}
         {% endif %}
+        
+        
         
         <div >
             <div class="datePicker"></div>
@@ -177,14 +166,17 @@
            
         {{ macros.widget_category(sidebar_data['category'], '.post_result') }}  
 
-        {{ macros.widget_tags(sidebar_data['tags'], 'post') }}
+        {{ macros.widget_tags(sidebar_data['tags'], '.post_result') }}
         
         {{  macros.widget_archieve(sidebar_data['archieve'],'.post_result') }}
         
         {{  macros.widget_newcomments(sidebar_data['newcomments'],'.post',fragment='#comments') }}
         {{  macros.widget_popular(sidebar_data['popular'],'.post_result') }}
         {{  macros.widget_visitors(sidebar_data['visitors'],'.user') }}
+        
+        {% if current_user.is_authenticated %}
         {{  macros.widget_links(sidebar_data['links']) }}
+        {% endif %}
                 
             
     {% endblock %}
@@ -197,9 +189,9 @@
         
             
             <div class="row">
-            <div class="col-sm-11 " style="margin:10px 20px;" >
+            <div class="col-sm-11 " style="margin:1px 10px;" >
 			{% for category,message in get_flashed_messages(with_categories=True) %}
-			<div class="alert alert-{{ category }} alert-dismissible" role="alert">
+			<div class="alert alert-{{ category }} alert-dismissible" role="alert" style='margin-bottom: 2px;'>
 				<button type="button" class="close" data-dismiss="alert" aria-label="Close" >
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -209,7 +201,7 @@
             </div>
             
             <div class="row">
-            <div class="col-sm-11"  style="margin:10px 30px;">
+            <div class="col-sm-11"  style="margin:7px 30px;">
 			{% block page_content %}
 			{% endblock %}
             </div>
@@ -218,7 +210,7 @@
             </div>
 		</div>
 	
-
+   
 	
 
 {% endblock %}
@@ -237,10 +229,13 @@
     <div class="footer-content">
        
         <p>
-            Developed  by  Wang-Yann</a> &nbsp;<span>：wzy-511@163.com</span>&nbsp;
+            <b style="color:white;">{{_("Developed  by  Yann")}} ：</b> &nbsp;
+            <span>
+                <a href="mailto:#" style='color:#b3ff66;text-decoration: blink;'>wzy-511@163.com</a>
+            </span>&nbsp;
         {% if current_user.can(Permission.ADMINISTER) %}
         <button class="btn btn-warning float-right">
-            <a href="{{ url_for('admin.index') }}" target="_blank">后台管理</a>
+            <a href="{{ url_for('admin.index') }}" target="_blank" style='color:#ffffff;font-weight: bold;text-decoration: blink;'><i class="fa  fa-th"></i>&nbsp; {{_("Admin_Back")}}</a>
         </button>
         {% endif %}
         </p>
@@ -250,13 +245,13 @@
         <image src="{{ url_for('static', filename='images/donate_me.png') }}"  height="20">
         </a>
         <button class="btn btn-info  pull-right" id='bottom'>
-            <a href="#top">Back to Top</a>
+            <a href="#top"><i class="fa  fa-arrow-circle-up"></i>&nbsp;Back to Top</a>
         </button>
     </div> 
     <hr  />
     
-    <span>Copyright © 2016  All rights reserved </span>&nbsp; 
-    <span>川 ICP备 09043268号</span>
+    <span>Copyright © 2015 - 2016.  All rights reserved </span>&nbsp; 
+    <span class="small">川 ICP备 09043268号</span>
         
     </div>
 </div>       
@@ -268,16 +263,15 @@
 
     <script src="{{ url_for('static', filename='js/jquery-2.2.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    
-    <script src="{{ url_for('static', filename='js/croppie.js') }}"></script>
-    
-    
-    
+   
     <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/datePicker.js') }}"></script>
+    
     <script src="{{ url_for('static', filename='js/mycommon.js') }}"></script>
+    
     {{ moment.include_moment() }}
-    {{ pagedown.include_pagedown() }}
+    
+    {{ moment.lang( g.locale )}}
     
     
 {% endblock %}

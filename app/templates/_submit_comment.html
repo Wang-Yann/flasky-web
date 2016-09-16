@@ -5,22 +5,24 @@
             <form class="form-group" id="submit-comment-form" method="post" action="">
                     {{ form.csrf_token }}
 					{{ form.follow(type='hidden') }}
-                    {{form.name.label}}
+                    {{ form.name.label}}
 					<p class="form-control-static">{{current_user.username}} 
                     <img src="{{ current_user.portrait }}" width="30" class="pull-right">
                     </p>
+                    <br>
 					{{ form.name(class='form-control sr-only', required='', value=current_user.username) }}
                     
                     
                        
                     <div class="row form-group">
-                        {{ form.body.label }}{{ form.body(class='form-control', required='',rows=5)}}
+                        {{ form.body.label(class="sr-only") }}{{ form.body(class='form-control',placeholder=_("Write your comment..."), required='',rows=5)}}
                     </div>
                     <button type="reset" class="btn btn-default">
-                        重置
+                    <i class="fa fa-eraser"></i> 
+                        {{_("Clear")}}
                     </button>
                     <button type="submit" class="btn btn-info pull-right">
-                        提交
+                        {{_("Submit")}}
                     </button>
                     
                     

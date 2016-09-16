@@ -1,11 +1,14 @@
 
 {% extends "base.html" %}
-{% block title %}Flasky - Forbidden{% endblock %}
+{% block title %}VLOBSTER-403-Forbidden{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class='container text-center'>
 <div class="page-header">
-    <h1>Forbidden</h1>
+
+    <h2>{{_("403-Request Forbidden")}}</h2>
+    <br>
+    <p>服务器已经理解请求，但是拒绝执行它。</p>
 </div>
 </div>
 {% endblock %}

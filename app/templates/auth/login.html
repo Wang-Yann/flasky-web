@@ -1,61 +1,95 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Login{% endblock %}
+{% import "_macros.html" as macros %}
+{% block title %}VLOBSTER - Login{% endblock %}
 
 {% block content %}
 
-
-
 <div class="container">
 <div class="page-header">
-    <h1>Login</h1>
+    <h2>{{_("Login")}}</h2>
 </div>
 
-<div class="row  ">
+<div class="row">
     <div class="col-md-5">
-    {{ wtf.quick_form(loginform) }}
+    <form class="form-horizontal" method="POST" action=""  role="form"  id="loginform">
+        {{ loginform.csrf_token  }}   
+        
+        <div class="row form-group has-feedback">
+            <label class="col-sm-3 control-label text-left" >{{loginform.email.label }}</label>
+            <div class="col-sm-9 input-group">
+                <span class="input-group-addon "><em class="glyphicon glyphicon-user"></em></span>
+                {{ loginform.email(class="form-control",placeholder=_("User Email") ) }}
+                <p class="glyphicon glyphicon-remove-circle form-control-feedback"><!-- <--小图标元素-->
+　　                  <div class='click_feedback' id='fmreset' ></div>
+                </p>             <!-- <--覆盖在小图标上面的元素--> 
+            </div>
+            
+            <div class='pull-right'>
+            {{ macros.field_error(loginform.email) }}
+            </div>
+        </div>
+        
+        <div class="row form-group has-feedback">
+            <label class="col-sm-3 control-label" for='password'>{{loginform.password.label }}</label>
+            <div class="input-group">
+                <span class="input-group-addon "><em class="glyphicon glyphicon-lock"></em></span>
+                {{ loginform.password(class="form-control",id="password") }}
+                <p class="glyphicon glyphicon-eye-open form-control-feedback">
+　　            <div class='click_feedback' id='passwd_see' state="off"></span></div>
+                </p>              
+            </div>
+            <div class='pull-right'>
+            {{ macros.field_error(loginform.password) }}
+            </div>
+        </div>
+        
+        <div class="row form-group">
+            <div class="col-sm-offset-2 col-sm-3">
+                <div class="checkbox">
+                    <label>
+                    {{ loginform.remember_me() }}  {{_("Remember_me")}}
+                    </label>
+                </div>
+            </div>
+            <div class='pull-right'>
+                <p> <a href="{{ url_for('auth.password_reset_request') }}">{{_("Forgot account?")}}</a>.</p>
+            </div>
+        </div>
+        
+        <div class="row form-group">
+            <div class="col-sm-offset-2 col-sm-2">
+                {{ loginform.submit(class="btn btn-info btn-lg") }}
+            </div>
+            
+            <div class="pull-right">
+                <a href="{{ url_for('auth.register') }}">
+                    <button type="button" class="btn btn-default">{{_("Sign Up")}}</button>
+                </a>
+                <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#oauthlogin" aria-expanded="false" aria-controls="oauthlogin">{{_("Login_Oauth")}}</button>
+            </div>
+          
+        </div>
+    </form>
     
-    <p> <a href="{{ url_for('auth.password_reset_request') }}"><small>忘记密码？</small></a>.</p>
-    <br>
+    
     </div>
 </div>
 
-<div class="btn-toolbar" role="toolbar" aria-label="...">
-    <div class="btn-group" role="group" aria-label="...">
-        <a href="{{ url_for('auth.register') }}">
-        <button type="button" class="btn btn-default">用户注册</button>
-        </a>
-    </div>
-    
-    <div class="btn-group" role="group" aria-label="...">
-        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#oauthlogin" aria-expanded="false" aria-controls="oauthlogin">联合登陆</button>
-    </div>
-</div>
 
 
 
 
-
-
-
-<div class="collapse" id="oauthlogin" >
-    <form action="" method="post" name="login">
+<div class="collapse col-sm-offset-2" id="oauthlogin" >
+    <form action="" method="post" name="openid_login">
         {{ openidloginform.hidden_tag() }}
         <p>
-            <br>
+           
             {{ openidloginform.openid(size=80,type='hidden') }}
-            
-            {% for error in openidloginform.openid.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-            
-            <br>
-            
             
             <a href="{{url_for('github_login.index')}}">
                 <img src="{{ url_for('static', filename='images/github_logo.png') }}" width='50' style="margin-right:10px;"></a>
-            <a href="{{url_for('google_login.index')}}" title="墙内无效!!!">
+            <a href="{{url_for('google_login.index')}}" title="{{_('May Fail!!')}}">
                 <img src="{{ url_for('static', filename='images/google_logo.png') }}" width='50' style="margin-right:10px;"></a>
             {% for pr in providers %}
                 <a href="javascript:set_openid_submit('{{ pr.url }}', '{{ pr.name }}');">
@@ -76,8 +110,38 @@
 {% endblock %}
 
 
+
+
 {% block scripts %}
 {{ super() }}
+<script type="text/javascript">
+    var fmreset= document.getElementById("fmreset");
+    
+    fmreset.onclick=function () {
+        document.getElementById("loginform").reset();
+    };
+
+</script>
+
+<script type="text/javascript">
+    var ele_eye = document.getElementById("passwd_see");
+    var ele_pass = document.getElementById("password");
+    ele_eye.onclick=function () {
+
+    var state = this.getAttribute("state");
+    if(state === "off") {
+    ele_pass.setAttribute("type", "text");
+    ele_eye.setAttribute("state", "on");
+    ele_eye.style.opacity = 0.1;
+
+    } else {
+    ele_pass.setAttribute("type", "password");
+    ele_eye.setAttribute("state", "off");
+    ele_eye.style.opacity = 1;}
+    };
+</script>
+
+
 <script type="text/javascript">
     function set_openid_submit(openid, pr)
     {
@@ -89,8 +153,7 @@
         }
         form = document.forms['login'];
         form.elements['openid'].value = openid;
-        
         form.submit();
     }
- </script>
+</script>
 {% endblock %}

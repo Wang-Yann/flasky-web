@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Flasky - {{ code }}: {{ name }}{% endblock %}
+{% block title %}VLOBSTER - {{ code }}: {{ name }}{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>{{ code }}: {{ name }}</h1>
-    <p>{{ description }}</p>
-</div>
+{% block content %}
+    <div class='container text-center' >
+    <div class="page-header">
+        <h2>{{ code }}: {{ name }}</h2>
+        <p>{{ description }}</p>
+    </div>
+    </div>
 {% endblock %}

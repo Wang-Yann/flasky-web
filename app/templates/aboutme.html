@@ -1,17 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}bookmark{% endblock %}
+{% block title %}VLOBSTER-References{% endblock %}
 
 {% block content %}
 
-<div class='container text-center' >
+
+    <div class='container text-center' >
+        <div class="page-header " style="margin-top:0px;">
+            
+            <h2>{{_("Reference Materials")}}</h2>
+        </div>
+
+        
+
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="/static/images/_bookmarks.html"></iframe>
+        </div>
+    
+        <p class="pull-left" style="margin-top:5em;"> 
+            <span class="badge"><i class="fa fa-cloud-download"></i>&nbsp;{{_("Downloads")}}:</span>
+                <a href="{{ url_for('main.download', filename='bookmarks.html') }}">{{_("Reference Materials")}}</a>
+        </p>
 
 
-    <div class="embed-responsive embed-responsive-16by9">
-        <iframe class="embed-responsive-item" src="/static/files/aboutmebookmark.html"></iframe>
     </div>
-
-
-
-</div>
 {% endblock %}	

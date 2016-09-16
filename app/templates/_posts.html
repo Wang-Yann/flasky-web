@@ -1,9 +1,18 @@
 <ul class="column-md-8 posts">
+    {% if posts %}
     {% for post in posts %}
     <li class="post">
         <div class="post-pre-content">
+            
+            <div  class='trapezoid'><i class="fa fa-folder-open"></i> 
+                {% if g.locale=='zh_CN' %}
+                <span>{{post.category.name }}</span>
+                {% else %}
+                <span>{{post.category.name_en }}</span>
+                {% endif %} 
+            </div>
             <div class="post-pre-title">
-                <h4>
+                <h4 class="text-uppercase " >
 				<a href="{{url_for('.post',id=post.id)}}" >
 				{{post.title}}
 				</a>
@@ -12,11 +21,11 @@
         
         
             <div class="row post-pre-header">
+            
                 <div class="pull-left">
-                    <span class="label label-default">{{ moment(post.timestamp).format('LL') }}</span>&nbsp;
-
+                  
                 {% for tag in post.tags %}
-				<span class="label label-success">
+				<span class="label label-success" style="opacity:0.9;">
                     <a href="/post_result/tag/{{tag.id}}" >
 							{{tag.tag_name}}
 					</a>
@@ -24,8 +33,8 @@
                 {% endfor %}
                 </div>
                 
-                <div align='right' style="margin-right:16px;">
-                    <span class="label label-info">浏览{{post.read_count}}</span>
+                <div align='right' style="margin-right:2em;">
+                    <span class="label label-info">{{_("views")}}&nbsp;{{post.read_count}}</span>
                     
                 </div>
             </div>
@@ -40,37 +49,45 @@
             </div>
 
 
-            <div class="post-pre-button ">
+            <div class="post-pre-button " align='right'>
                 <a href="{{url_for('.post',id=post.id) }}">
-                    <button class="btn btn-info btn-md">阅读全文</button>
+                    <button class="btn btn-default">{{_("Detail")}}</button>
                 </a>
             </div>
 
-
-
-
-
             <div class="post-pre-footer">
-                <a href="{{ url_for('.user', username=post.author.username) }}">
-                    <span class="glyphicon glyphicon-pencil"></span>  {{ post.author.username }}
-                </a>
+                <a href="{{ url_for('.user', username=post.author.username) }}" style="color:#cc5100;">
+                    <i class="fa fa-user"></i>  {{ post.author.username }}
+                </a> |
+                <span >{{ moment(post.timestamp).format('LL') }}</span>&nbsp;
+                
                 
                 <div class=" pull-right " style="margin-right:11px;">
                 <a href="{{ url_for('.vote', post_id=post.id) }}">
-                     <span class="glyphicon  glyphicon-heart"></span>  {{post.remark_count}}
+                     <i class="fa {% if current_user.is_remarking(post) %} fa-heart {% else %} fa-heart-o {% endif %} "></i>  {{post.remark_count}}
                 </a>
 
                 
                 <a href="{{ url_for('.concern', post_id=post.id) }}">
-                    <span class="glyphicon glyphicon-star "></span>{{post.users.count()}}
+                     <i class="fa {% if current_user.is_concerning(post) %} fa-star {% else %} fa-star-o {% endif %} "></i> 
+                    {{post.users.count()}}
                 </a>
                 
                 <a href="{{ url_for('.post', id=post.id) }}#comments">
-                    <span class="glyphicon glyphicon-comment"></span>{{ post.comments.count() }}
+                    <i class="fa fa-comment-o"></i>&nbsp;{{ post.comments.count() }}
                 </a>
                 </div>
             </div>
         </div>
     </li>
     {% endfor %}
+    
+    {% else %}
+    <li class="post">
+                <div class="post-pre-title">
+                <i class="fa fa-spinner fa-pulse fa-2x"></i>&nbsp;
+                <span >{{_("Sorry,No Blogs Here!!")}}</span>
+                </div>
+            </li>
+    {% endif %}
 </ul>

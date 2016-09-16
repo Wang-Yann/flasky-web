@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 import sys  
 reload(sys)  
 sys.setdefaultencoding('utf-8')
@@ -6,27 +6,54 @@ sys.setdefaultencoding('utf-8')
 
 import os
 from PIL import Image
+import base64    ###图片数据传输
+
 from datetime import datetime
 from flask import render_template, redirect, url_for, abort, flash, request,json,\
-    current_app, make_response,  g ,jsonify
+    current_app, make_response,  g ,jsonify,send_from_directory  ##+++session
     
 from flask_security import current_user,login_required
- 
 from flask.ext.sqlalchemy import get_debug_queries
 
 from sqlalchemy import or_,and_
 
-from . import main
+from . import main 
 
 from .forms import EditProfileForm, EditProfileAdminForm, \
-    CommentForm,ChangeAvatarForm,SearchForm,EditForm,SMSForm,allowed_file
-from .. import db
+    CommentForm,SearchForm,EditForm,SMSForm,allowed_file
+from .. import db 
 from ..models import Permission, Role, User, Post, Comment,Comment_Follow,Category,Tag,\
     UserLikePost,Shortmessage,\
-    str_to_obj,remark,sms_types,sms_status
+    str_to_obj,sms_types,sms_status
 from ..decorators import admin_required, permission_required
 from werkzeug.utils import secure_filename
-from flask import send_from_directory
+
+from app import babel
+from flask.ext.babel import gettext as _, ngettext,lazy_gettext
+
+
+
+
+
+
+
+@babel.localeselector
+def get_locale():
+    # # if a user is logged in, use the locale from the user settings
+    user = getattr(g, 'user', None)
+    if user.is_authenticated:
+        return user.locale
+    return request.accept_languages.best_match(['en','zh_TW', 'zh_CN' ])
+    # ov=request.args.get('lang')  #####不用设置，使用session的形式更好
+    # if ov:
+        # session["lang"]=ov
+    # return session.get("lang","zh")
+@babel.timezoneselector
+def get_timezone():
+    return 'UTC+8'
+    #return request.accept_languages.best_match(['es', 'zh_CN', 'en','da'])
+
+
 @main.after_app_request
 def after_request(response):
     for query in get_debug_queries():
@@ -42,17 +69,19 @@ def teardown_request(exception):
     if exception:
         db.session.rollback()
         db.session.remove()
- #   db.session.close()
+    #####db.session.close() 此处注意
 
 
 @main.before_request
 def before_request():
     g.user = current_user
     if g.user.is_authenticated:
-       g.user.last_seen = datetime.utcnow()
-       db.session.add(g.user)
-       db.session.commit()
-       g.search_form = SearchForm()
+        g.user.last_seen = datetime.utcnow()
+        db.session.add(g.user)
+        db.session.commit()
+        g.search_form = SearchForm()
+    g.locale = get_locale() 
+    g.timezone = get_timezone()    
        
 @main.route('/shutdown')
 def server_shutdown():
@@ -66,7 +95,7 @@ def server_shutdown():
 
 @main.route('/')
 def index():
-    by=request.args.get('by') or 'all'
+    by=request.args.get('by','all')
     
     if by=='read_count': 
         query=Post.query.order_by(Post.read_count.desc())
@@ -83,35 +112,36 @@ def index():
     posts = pagination.items
     return render_template('index.html', posts=posts,by=by,
                          pagination=pagination)
+                         
+                         
+                         
 
-@main.route('/explore', methods=['GET', 'POST'])
+@main.route('/explore/<username>', methods=['GET', 'POST'])
 @login_required
-def explore():
+def explore(username):
+    user = User.query.filter_by(username=username).first_or_404()
     by=request.args.get('by')
     
     show_followed = False
     
     show_followed = bool(request.cookies.get('show_followed', ''))
     if by == 'show_followed':
-        query = current_user.followed_posts        
+        query = user.followed_posts        
     elif by == 'concerns':
-        query = current_user.concerns
+        query = user.concerns
     elif by == 'votes':
-        query=Post.query.join(UserLikePost,UserLikePost.user_id==current_user.id)\
+        query=Post.query.join(UserLikePost,UserLikePost.user_id==user.id)\
                 .filter(UserLikePost.post_id==Post.id)
     else:
         query=Post.query.order_by(Post.timestamp.desc())
     
     page = request.args.get('page', 1, type=int)
-#    if show_followed:
-#        query = current_user.followed_posts
-#    else:
-#        query = Post.query
+
     pagination = query.paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
-    return render_template('explore.html', posts=posts,by=by,
+    return render_template('explore.html', posts=posts,by=by,user=user,
                          pagination=pagination)                         
                          
 
@@ -168,7 +198,7 @@ def post_result(parameter,value):
     return render_template('post_result.html', posts=posts,parameter=parameter,\
                             value=value,args=args,pagination=pagination)                        
                          
-@main.route('/all')
+@main.route('/all')                             #####本可以去掉，为增加多样性保留
 def show_all():
     resp = make_response(redirect(url_for('.index')))
     resp.set_cookie('show_followed', '', max_age=30*24*60*60)
@@ -200,44 +230,37 @@ def user(username):
     return render_template('user.html', user=user, posts=posts,
                            pagination=pagination)
 
-from flask import send_from_directory
-import base64  
+ 
 
 @main.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
+    return send_from_directory(current_app.config['UPLOAD_FILE_PATH'],
                                filename)
                                
+@main.route('/downloads/<filename>')
+def download(filename):
+    if request.method=="GET":
+        path=os.path.join(current_app.config['UPLOAD_FOLDER'],filename)
+        if os.path.isfile(path):
+            return send_from_directory(current_app.config['UPLOAD_FOLDER'],filename,as_attachment=True)
+        abort(404)                               
                                
-# @main.route('/upload_file', methods=['POST'])
-# @login_required
-# def upload_file():
-   
-   
-    # data = request.get_data()
-    # print request.json
-    # return jsonify({'ok': True})
-       # # # if file and allowed_file(file.filename):
-           # # filename = secure_filename(file.filename)
-       # file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-           # # return redirect(url_for('.uploaded_file',
-                                  # # filename=filename))
-   # return redirect(url_for('.change_avatar',username=current_user.username))
 
-   
    
 @main.route('/edit-avatar/<username>', methods=['GET', 'POST'])
 @login_required
 def change_avatar(username):
     user = User.query.filter_by(username=username).first_or_404()
+    print(user)
     # form = ChangeAvatarForm()
     if request.method == 'POST':
         file = request.files['file']
+        print(file)
         if 'file' not in request.files:
-            flash('No file part')
+            flash(_('No file part in request!'),"warning")
             return redirect(request.url)
         elif file.filename == '':
-            flash('No selected file')
+            flash(_('No selected file!'),"warning")
             return redirect(request.url)
         else:
             size = (256, 256)
@@ -245,11 +268,12 @@ def change_avatar(username):
             im.thumbnail(size,Image.ANTIALIAS)
             if file and allowed_file(file.filename):
                 fname = 'av_'+username+secure_filename(file.filename)[:5]+'.jpg'
-                im.save(os.path.join(current_app.config['UPLOAD_FOLDER'],'avatar', fname),'jpeg')
+                im.save(os.path.join(current_app.config['UPLOAD_FILE_PATH'],'avatar', fname),'jpeg')
                 current_user.new_avatar_file = url_for('static', filename='%s/%s' % ('avatar', fname))
                 db.session.add(current_user)
+                db.session.commit()
                 current_user.is_avatar_default = False
-                flash(u'头像修改成功')
+                flash(_('The avatar has been changed.'),'success')
                 return redirect(url_for('.user', username=current_user.username))
     return render_template('change_avatar.html')
 
@@ -269,12 +293,16 @@ def edit_profile():
         current_user.name = form.name.data
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
+        current_user.locale=form.lang.data
+        print(type(form.lang.data))
         db.session.add(current_user)
-        flash('Your profile has been updated.')
+        db.session.commit()
+        flash(_('The profile has been updated.'),'success')
         return redirect(url_for('.user', username=current_user.username))
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
+    form.lang.data=current_user.locale
     return render_template('edit_profile.html', form=form)
 
 
@@ -293,7 +321,7 @@ def edit_profile_admin(id):
         user.location = form.location.data
         user.about_me = form.about_me.data
         db.session.add(user)
-        flash('The profile has been updated.')
+        flash(_('The profile has been updated.'),'success')
         return redirect(url_for('.user', username=user.username))
     form.email.data = user.email
     form.username.data = user.username
@@ -322,15 +350,16 @@ def post(id):
             followed=Comment.query.get_or_404(followed_id)
             f=Comment_Follow(follower_id=comment.id,followed_id=followed.id)
             comment.comment_type='reply'
-            comment.reply_to=followed.author_name
+            comment.reply_to=followed.author.username
             db.session.add(f)
             db.session.add(comment)
             
             db.session.commit()
-        flash('Your comment has been published.')
+            
+        flash(_('Your comment has been published.'),'success')
         return redirect(url_for('.post', id=post.id, page=-1))
     if form.errors:
-        flash(u"发表评论失败")
+        flash(_('Comment Failed.'),'info')
 
     page = request.args.get('page', 1, type=int)
     if page == -1:
@@ -340,9 +369,9 @@ def post(id):
         page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    #post.add_view(post,db)
+    
     post.read_count+=1
-    post.update_data(post,db)
+    post.update_data()
     return render_template('post.html', post=post, form=form,page=page,
                            comments=comments, pagination=pagination,endpoint='.post',\
                            id=post.id)
@@ -357,8 +386,8 @@ def delete_post(id):
     count=post.comments.count()
     for comment in post.comments:
         db.session.delete(comment)
+    deltagcount=0
     for tag in post.tags:
-        deltagcount=0
         if tag.posts.count()==1:
             deltagcount+=1
             db.session.delete(tag)
@@ -367,9 +396,9 @@ def delete_post(id):
         db.session.commit()
     except:
         db.session.rollback()
-        flash(u'删除文章失败','danger')
+        flash(_('Delete Failed.'),'warning')
     else:
-        flash(u'你成功删除本文章, %s 条评论,%s 个标签'%(count,deltagcount),'success')
+        flash(_('Delete successfully , with %(name0)s comments and %(name1)s tags !',name0=count,name1=deltagcount),'success')
     
     return redirect(url_for('.user',username=current_user.username))
 
@@ -379,21 +408,20 @@ def post_new(username):
     user = User.query.filter_by(username=username).first()
     form = EditForm(post=None)
     # form.category_id.choices = [(a.id, a.name) for a in Category.query.filter(Category.parent_id==0).all()]
-    if  user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():  ###and request.method =='POST' and
-        sub_category_id=request.form.get('sub_category_id',-1)
+    if  user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit(): 
+        sub_category_id=int(request.form.get('sub_category_id',1))
         category_id=max(sub_category_id,form.category_id.data)
         print(category_id) 
         post = Post(title = form.title.data,
         body = form.body.data,
         private = form.private.data,
         category_id=category_id,
-        
         author=user, 
         tags=str_to_obj(form.tags.data))
         
         db.session.add(post)
         db.session.commit()
-        flash(u"发表成功",'success')
+        flash(_('Post successfully!'),'success')
         id=Post(title=form.title.data).id
         return redirect(url_for('.post',id=post.id))
            
@@ -410,22 +438,22 @@ def post_edit(id):
         abort(403)
     form = EditForm(post=post)
     
-    # form.category_id.choices = [(a.id, a.name) for a in Category.query.filter(Category.parent_id==0).all()]
-    # form.category_id.choices.insert(0,('-1','--请选择类型--'))
     if form.validate_on_submit():
-        sub_category_id=request.form.get('sub_category_id')
+        sub_category_id=int(request.form.get('sub_category_id',1))
+        cg_id=max(form.category_id.data , sub_category_id)
         
         post.title=form.title.data
         post.body = form.body.data
-        post.category_id=form.category_id.data if sub_category_id=='-1' else sub_category_id
+        post.category_id=cg_id
         post.tags=str_to_obj(form.tags.data)
         db.session.add(post)
-        flash('The post has been updated.')
+        db.session.commit()
+        flash(_('The post has been updated.'),'success')
         return redirect(url_for('.post', id=id))
     form.body.data = post.body
     form.title.data=post.title
     form.tags.data=post.post_tags
-    form.category_id.data=post.category_id if post.category_id== -1 or post.category.parent_id==0  else post.category.parent_id
+    form.category_id.data=post.category_id if  post.category.parent_id==0  else post.category.parent_id
        
     return render_template('edit_post.html', form=form,post=post)
 
@@ -440,13 +468,13 @@ def post_edit(id):
 def follow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash(_('Invalid user.'),'danger')
         return redirect(url_for('.index'))
     if current_user.is_following(user):
-        flash('You are already following this user.')
+        flash(_('You are already following this user.'),'info')
         return redirect(url_for('.user', username=username))
     current_user.follow(user)
-    flash('You are now following %s.' % username)
+    flash(_('You are now following %(name)s anymore.',name=username),'success')
     return redirect(url_for('.user', username=username))
 
 
@@ -456,13 +484,13 @@ def follow(username):
 def unfollow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash(_('Invalid user.'),'danger')
         return redirect(url_for('.index'))
     if not current_user.is_following(user):
-        flash('You are not following this user.')
+        flash(_('You are not following this user.'),'info')
         return redirect(url_for('.user', username=username))
     current_user.unfollow(user)
-    flash('You are not following %s anymore.' % username)
+    flash(_('You are not following %(name)s anymore.',name=username),'success')
     return redirect(url_for('.user', username=username))
 
 
@@ -470,7 +498,7 @@ def unfollow(username):
 def followers(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash(_('Invalid user.'),'danger')
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     pagination = user.followers.paginate(
@@ -489,7 +517,7 @@ def followers(username):
 def followed_by(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash(_('Invalid user.'),'danger')
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     pagination = user.followed.paginate(
@@ -512,9 +540,9 @@ def delete_comment(id):
         db.session.commit()
     except:
         db.session.rollback()
-        flash(u'删除评论失败','danger')
+        flash(_('Delete Failed.'),'info')
     else:
-        flash(u"你成功删除了该评论",'success')
+        flash(_('Delete Successfully.'),'success')
     if request.args.get('by')=='moderate':
         page = request.args.get('page', 1, type=int)
         return redirect(url_for('.moderate',page=page))
@@ -542,6 +570,7 @@ def moderate_enable(id):
     post_id=comment.post_id
     comment.disabled = False
     db.session.add(comment)
+    db.session.commit()
     if request.args.get('by')=='moderate':
         return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
@@ -556,6 +585,7 @@ def moderate_disable(id):
     post_id=comment.post_id
     comment.disabled = True
     db.session.add(comment)
+    db.session.commit()
     if request.args.get('by')=='moderate':
         return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
@@ -568,7 +598,7 @@ def moderate_disable(id):
 def concerns(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash(_('Invalid user.'),'danger')
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     pagination = user.concerns.paginate(
@@ -586,11 +616,11 @@ def concerns(username):
 @permission_required(Permission.FOLLOW)
 def concern(post_id):
     post=Post.query.get_or_404(post_id)
+    
     if current_user.is_concerning(post):
-        flash(u'你已经收藏了本文章.')
-        return redirect(url_for('.post', id=post_id))
+        flash(_('You have already collected it.'),'info')
     current_user.concern(post)
-    flash(u'你收藏了本文章.')
+    flash(_('You  collected it successfully!'),'success')
     return redirect(url_for('.post', id=post_id))
 
 
@@ -599,27 +629,19 @@ def concern(post_id):
 @permission_required(Permission.FOLLOW)
 def unconcern(post_id):
     post=Post.query.get_or_404(post_id)
-    if not current_user.is_concerning(post):
-        flash('You are not concerning this post.')
-        return redirect(url_for('.post', id=post_id))
     current_user.unconcern(post)
-    flash('You are not concerning anymore.')
+    flash(_('You are not concerning anymore.'),'success')
     return redirect(url_for('.post', id=post_id))
     
-@main.route('/vote/<int:post_id>', methods=['GET', 'POST'])
+@main.route('/vote/<int:post_id>')
 @login_required
 @permission_required(Permission.FOLLOW)
 def vote(post_id):
     post=Post.query.get_or_404(post_id)
-    if  not current_user.is_remarking(post):
-#        r=UserLikePost(user_id=current_user.id,post_id=post.id)
-#        db.session.add(r)
-#        db.session.commit()
-        remark(current_user,post)
-        post.update_data(post,db)
-        flash('success')
-        return redirect(url_for('.post',id=post_id))
+    current_user.remark(post)  
+    post.update_data()
     return redirect(url_for('.post',id=post_id))
+    
 
 
 
@@ -630,8 +652,7 @@ def vote(post_id):
 @login_required
 def send_sms(username):
     user = User.query.filter_by(username=username).first()
-    form=SMSForm()
- ###可以暂时保留记录，记得如何使用   form.message_types.choices = [(value,value) for (i,value) in enumerate(sms_types)]
+    form=SMSForm()   ###保留记录，使用form.message_types.choices = [(value,value) for (i,value) in enumerate(sms_types)]
     if user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         rcvers=form.rcver.data 
         message_types=form.message_types.data,
@@ -646,7 +667,7 @@ def send_sms(username):
             sms.rcv_id=-1
             sms.message_types='all'
             db.session.add(sms)
-            flash('Your sms has been sended.') 
+            flash(_('Your message has been sended.'),'success') 
         elif  rcvers is not None:
             sms_copy=[]
             for name in rcvers.split(';'):
@@ -658,7 +679,7 @@ def send_sms(username):
                             body=form.body.data,message_status='unread'))
             db.session.add_all(sms_copy)
             db.session.commit()
-            flash('Your sms has been sended.')
+            flash(_('Your message has been sended.'),'success')
         else:            
             return redirect(url_for('.send_sms', form=form,username=username))
     return render_template('send_sms.html', form=form,username=username)

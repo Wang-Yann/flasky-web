@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
-{% block title %}smsbox{% endblock %}
+{% block title %}VLOBSTER-{{username}}-Mailbox{% endblock %}
 
 {% block page_content %}
 
@@ -8,11 +8,15 @@
 <div class="page-header">
     <ul class="nav nav-pills">
         <li role="presentation" {% if by=="inbox" %} class="active"{% endif %}>
-            <a href="{{ url_for('.smsbox',username=current_user.username,by='inbox') }}">收件箱</a></li>
+            
+            <a href="{{ url_for('.smsbox',username=current_user.username,by='inbox') }}">
+                <span class="glyphicon glyphicon-save"></span>  {{_("Inbox")}}</a></li>
         <li {% if by=="outbox" %} class="active"{% endif %}>
-            <a href="{{ url_for('.smsbox',username=current_user.username,by='outbox') }}">发件箱</a></li>
+            <a href="{{ url_for('.smsbox',username=current_user.username,by='outbox') }}">
+            <span class="glyphicon glyphicon-open"></span>  {{_("Outbox")}}</a></li>
         <li {% if not by  %} class="active"{% endif %}>
-            <a  href="{{ url_for('.send_sms',username=current_user.username) }}">写邮件</a></li>
+            <a  href="{{ url_for('.send_sms',username=current_user.username) }}">
+                <span class="glyphicon  glyphicon-edit"></span>  {{_("Send_mail")}}</a></li>
     </ul>
  </div>
     {% block sms_content %}
@@ -28,21 +32,18 @@
 
 
 {% block scripts %}
-{{ super() }}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
 <script>
 function change_status(id) {
     
     var csrftoken = $('meta[name=csrf-token]').attr('content');
-   
-    
     fd={id:id,
-        status:'read',
-       };
+        status:'read',};
     $.ajaxSetup({
         beforeSend:function(xhr,settings){xhr.setRequestHeader("X-CSRFToken",csrftoken)}
     });   
-    
-    
+
     $.ajax({
             url:'/api/v1.0/change_status',
             type:'POST',
@@ -54,13 +55,9 @@ function change_status(id) {
             success: function(data,status){  
                 var id=parseInt(data['id']);
                 var elem=document.getElementById(id);
-                elem.style.fontWeight='normal';
-                
-                } 
+                elem.style.fontWeight='normal';} 
         }); 
-        
-    
-    
+ 
 }
  </script>
  {% endblock %}

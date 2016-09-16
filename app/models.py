@@ -1,4 +1,5 @@
 ﻿# -*- coding:utf-8 -*-
+
 from datetime import datetime
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,9 +7,8 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 from jieba.analyse import ChineseAnalyzer
 
-from sqlalchemy import or_,and_
-###from flask_security import UserMixin,RoleMixin, AnonymousUser
-  
+from sqlalchemy import or_,and_             ###引入sqlalchemy查询函数
+
 from flask.ext.pagedown import PageDown
 import bleach
 from flask import current_app, request, url_for
@@ -17,17 +17,21 @@ from app.exceptions import ValidationError
 
 try:
     import enum 
-except ImportError:
+except ImportError:                 ###数据库引入enum类型
     enum = None
-
 from . import db, login_manager
-import app,sys
+
+
 import flask_whooshalchemyplus
+import sys  ####app,
 if sys.version_info >= (3, 0):                                              
       enable_search = False
 else:
       enable_search = True
-      import flask.ext.whooshalchemy as whooshalchemy 
+      import flask.ext.whooshalchemy as whooshalchemy   ###whooshalchemyplus是whooshalchemy升级修改版
+      
+      
+      
 class Permission:
     FOLLOW = 0x01
     COMMENT = 0x02
@@ -71,37 +75,12 @@ class Role(db.Model):
         return self.name
 
 
-
-####对文章的点赞
-#class RemarkPost(db.Model):
-#    __tablename__='remarkposts'
-#    id=db.Column(db.Integer,primary_key=True)
-#    owner_id=db.Column(db.Integer,db.ForeignKey('users.id'),index=True)
-#    post_id=db.Column(db.Integer,db.ForeignKey('posts.id'),index=True)
-#    attitude=db.Column(db.Integer)
-#    timestamp=db.Column(db.DateTime,default=datetime.utcnow)
-#
-####对评论的点赞
-#class Remark(db.Model):
-#    __tablename__='remarks'
-#    id=db.Column(db.Integer,primary_key=True)
-#    owner_id=db.Column(db.Integer,db.ForeignKey('users.id'),index=True)
-#    comment_id=db.Column(db.Integer,db.ForeignKey('comments.id'),index=True)
-#    attitude=db.Column(db.Integer)
-#    timestamp=db.Column(db.DateTime,default=datetime.utcnow)
-#
-class UserLikePost(db.Model):   
+class UserLikePost(db.Model):     ###为点赞功能单独添加一表浪费，但是这是试验；此表无任何关联联结，使用必须直接查询
     __tablename__='userlikepost'
     id=db.Column(db.Integer,primary_key=True)
     user_id=db.Column(db.Integer)
     post_id=db.Column(db.Integer)
-        
-    #timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-def remark(user,post):
-        r=UserLikePost(user_id=user.id,post_id=post.id)
-        db.session.add(r)
-#        db.session.commit()
-#
+
 
 
 class Follow(db.Model):
@@ -115,15 +94,12 @@ class Follow(db.Model):
 
 concern_posts=db.Table('concern_posts',
     db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
-    db.Column('post_id',db.Integer,db.ForeignKey('posts.id')))
+    db.Column('post_id',db.Integer,db.ForeignKey('posts.id')))         #######用户收藏文章关联表
 
 
 
 
-###roles_users=db.Table('roles_users',
-###        db.Column('user_id',db.Integer,db.ForeignKey('users.id')),
-###        db.Column('role_id',db.Integer,db.ForeignKey('roles.id')))
-###
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -133,21 +109,20 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
     name = db.Column(db.String(64))
+    
+    locale=db.Column(db.String(20),default='en')
+    timezone=db.Column(db.String(30),default='UTC+8')
+    
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
-    new_avatar_file=db.Column(db.String(128))
+    new_avatar_file=db.Column(db.String(64))
     
     sendsms=db.relationship('Shortmessage',backref='sender',lazy='dynamic')
     # rcv_sms=db.relationship('Shortmessage'###,foreign_keys='Shortmessage.rcv_id')
-    
-    
-    
- ####   roles=db.relationship('Role',secondary=roles_users,
- #####                       backref=db.backref('users',lazy='dynamic'))
-
+  
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship('Follow',
                                foreign_keys=[Follow.follower_id],
@@ -162,9 +137,15 @@ class User(UserMixin, db.Model):
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
     
     concerns=db.relationship('Post',secondary=concern_posts,
-                                backref=db.backref('users',lazy='dynamic'),
-                                lazy='dynamic')
-
+                            backref=db.backref('users',lazy='dynamic'),
+                            lazy='dynamic')
+                             
+    
+    def remark(self,post):
+        if not self.is_remarking(post):
+            r=UserLikePost(user_id=self.id,post_id=post.id)
+            db.session.add(r)                            
+                                   
     def is_remarking(self,post):
         return UserLikePost.query.filter(UserLikePost.user_id==self.id,\
             UserLikePost.post_id==post.id).first() is not None
@@ -181,10 +162,7 @@ class User(UserMixin, db.Model):
 ##                                lazy='dynamic',
 ##                                single_parent=True,
 ##                                cascade='all,delete-orphan')
-##
-##                                
-
-
+#
     def is_concerning(self,post):
         return self.concerns.filter_by(id=post.id).first() is not None
     def concern(self,post):
@@ -316,7 +294,6 @@ class User(UserMixin, db.Model):
     
     
     def gravatar(self, size=100, default='identicon', rating='g'):
-    ####    if self.is_avatar_default: 
             if request.is_secure:
                 url = 'https://secure.gravatar.com/avatar'
             else:
@@ -333,12 +310,8 @@ class User(UserMixin, db.Model):
         elif self.avatar_hash:
             return self.gravatar()
         else:
-            return '/static/avatar/test001.jpg'
-            
-            
-            
-            
-            
+            return '/static/images/test001.jpg'
+ 
     def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self, followed=user)
@@ -362,7 +335,7 @@ class User(UserMixin, db.Model):
         return Post.query.join(Follow, Follow.followed_id == Post.author_id)\
             .filter(Follow.follower_id == self.id)
 
-    def to_json(self):
+    def to_json(self):                    ###############api接口以后修改
         json_user = {
             'url': url_for('api.get_user', id=self.id, _external=True),
             'username': self.username,
@@ -376,7 +349,7 @@ class User(UserMixin, db.Model):
         return json_user
     
     
-    @staticmethod                    ########## +++++++++++++++++++
+    @staticmethod                    ###############api接口以后修改
     def from_json(data):
         username = data['login']
         name=data['name']
@@ -409,10 +382,7 @@ class User(UserMixin, db.Model):
     def __unicode__(self): 
         return self.username
 
-class AnonymousUser(AnonymousUserMixin):  #####
-#    def __init__(self, **kwargs):
- #        super(MyAnonymousUser, self).__init__(**kwargs)
-
+class AnonymousUser(AnonymousUserMixin):  
     def can(self, permissions):
         return False
 
@@ -420,26 +390,27 @@ class AnonymousUser(AnonymousUserMixin):  #####
         return False
     def is_concerning(self,post):
         return False
-
+    def is_remarking(self,post):
+        return False
+       
 login_manager.anonymous_user = AnonymousUser
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))  ##########query
+    return User.query.get(int(user_id))  
     
 
 
-post_tag_ref=\
-    db.Table('post_tag_ref',db.Model.metadata,
+post_tag_ref=db.Table('post_tag_ref',db.Model.metadata,
        db.Column('post_id',db.Integer,db.ForeignKey('posts.id')),
-       db.Column('tag_id',db.Integer, db.ForeignKey('tags.id')))
+       db.Column('tag_id',db.Integer, db.ForeignKey('tags.id')))  ###############文章,标签关联表
 
 
 class Post(db.Model):
     __tablename__ = 'posts'
 
-    __searchable__ = ['title','body']
-    __analyzer__=ChineseAnalyzer()
+    __searchable__ = ['title','body']                         #####whooshalchemy及plus的博文全文搜索字段
+    __analyzer__=ChineseAnalyzer()                              #####jieba中文分词,为支持博文全文搜索,没深入研究,感觉没那么好用
     id = db.Column(db.Integer, primary_key=True)
     title=db.Column(db.String(128),unique=True,index=True)
     body = db.Column(db.UnicodeText)
@@ -450,40 +421,26 @@ class Post(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     read_count = db.Column(db.Integer,default=0)
     
-    popularity = db.Column(db.Integer)
-    private = db.Column(db.Boolean) # non-public, or hidden
+    popularity = db.Column(db.Integer)                  ####为支持博文排名增加的简单属性
+    private = db.Column(db.Boolean)                     # non-public, or hidden
     comments = db.relationship('Comment', backref='post',lazy='dynamic')
-    category_id = db.Column(db.Integer,db.ForeignKey('categories.id'))  ###++++
+    category_id = db.Column(db.Integer,db.ForeignKey('categories.id'),default=1)  ###博文目录,default=1为未分类
     tags = db.relationship('Tag', secondary=post_tag_ref,
                              backref=db.backref('posts',lazy='dynamic'))
-    # def __init__(self, **kwargs):
-        # super(Post, self).__init__(**kwargs)
-        # if self.category_id is None:  ############
-            # self.category = Category.query.filter_by(name=u'未分类').first()
-        
     
-    ##
-    @staticmethod
-    def update_data(post,db):
-        post.popularity=post.comments.count()+post.read_count+3*post.remark_count
-        db.session.add(post)
+     
+    
+    def update_data(self):
+        self.popularity=2*self.comments.count()+self.read_count+4*self.remark_count
+        db.session.add(self)
         db.session.commit()
-    #@property
-    #def concern_users(self):
-    #   return self.users.all().count()
+    
     @property
     def remark_count(self):
         return UserLikePost.query.filter_by(post_id=self.id).count()
 
     
-##     
-##    def remarkPost_count(self,type):
-##        return RemarkPost.query.filter_by(post_id=self.id,attitude=type).count() 
-##    def remark_count(self,type):
-##        if type==Attitude.AGREE:
-##            return self.agree_count
-##        else:
-##            return self.against_count   
+
 ##    def remark_it(self,type,user_id):
 ##        remark=Remark.query.filter_by(comment_id=self.id,owner_id=user_id).first()
 ##        if type==Attitude.AGREE or Attitude.AGAINST:
@@ -508,7 +465,7 @@ class Post(db.Model):
     def delete(post):
         for comment in post.comments:
             db.session.delete(commit)
-            
+            db.session.commit()
     @staticmethod
     def generate_fake(count=100):
         from random import seed, randint
@@ -531,13 +488,12 @@ class Post(db.Model):
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
-        markdown_exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite', 
-                    ]
+        markdown_exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite', ]
         markdown_exts_configs = {
-                        'markdown.extensions.codehilite':
-                                {
-                                    'css_class': 'highlight',   # default class is 'codehilite'
-                                },
+            'markdown.extensions.codehilite':
+                {
+                    'css_class': 'highlight',   # default class is 'codehilite'
+                },
                     }
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
@@ -545,8 +501,7 @@ class Post(db.Model):
         allowed_attrs={
                 '*': ['class', 'style'],
                 'a': ['href', 'rel', 'title'],
-                'img': ['alt', 'src', 'title'],
-              }
+                'img': ['alt', 'src', 'title'],}   ####为支持博文 图文 和代码高亮 修改markdown设置
         allowed_styles = ['*']
         target.body_html = bleach.linkify(bleach.clean(\
                 markdown(value, output_format='html5',extensions=markdown_exts,\
@@ -554,15 +509,13 @@ class Post(db.Model):
                 tags=allowed_tags,attributes=allowed_attrs,strip=True))
 
         lines = target.body_html.split("\n")
-        target.body_pre = "\n".join(lines[:20])
-              
-              
-              
+        target.body_pre = "\n".join(lines[:20])   ####博文预览字段，也可以前端使用truncate函数截断
+         
         # target.body_html = bleach.linkify(bleach.clean(
             # markdown(value, output_format='html'),
             # tags=allowed_tags,attributes=allowed_attrs,strip=True))
 
-    def to_json(self):
+    def to_json(self):          ####api未更新
         json_post = {
             'url': url_for('api.get_post', id=self.id, _external=True),
             'body': self.body,
@@ -577,18 +530,17 @@ class Post(db.Model):
         return json_post
 
     @staticmethod
-    def from_json(json_post):
+    def from_json(json_post):                           ####api未更新
         body = json_post.get('body')
         if body is None or body == '':
             raise ValidationError('post does not have a body')
         return Post(body=body)
 
-
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
 
-class Comment_Follow(db.Model):
+class Comment_Follow(db.Model):                ####评论盖楼关联表，本来想实现网易一样盖高楼功能，后来只是简单回复显示，小菜大用；感觉前端实现盖楼更OK
     __tablename__ = 'comment_follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('comments.id'),
                             primary_key=True)
@@ -608,11 +560,11 @@ class Comment(db.Model):
     author_email=db.Column(db.String(80))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
     avatar_hash=db.Column(db.String(80))
-    comment_type=db.Column(db.String(80),default='comment')
+    comment_type=db.Column(db.String(80),default='comment')           ####评论盖楼用字段
     reply_to=db.Column(db.String(128),default='notReply')
     
 
-    followed = db.relationship('Comment_Follow',
+    followed = db.relationship('Comment_Follow',                             ####评论之间的关联关系，为了此还把评论设为jinja全局变量，此处可大改
                                foreign_keys=[Comment_Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'),
                                lazy='dynamic',
@@ -627,7 +579,6 @@ class Comment(db.Model):
         if self.author_email is not None and self.avatar_hash is None:
             self.avatar_hash=hashlib.md5(self.author_email.encode('utf-8')).hexdigest()
     def is_reply(self):
-        # return self.followed.filter_by(followed_id=self.id).first() is not None
         return self.followed.count()!=0
             
     @staticmethod
@@ -661,13 +612,13 @@ class Comment(db.Model):
                 url=url, hash=hash, size=size, default=default, rating=rating)
             
     @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
+    def on_changed_body(target, value, oldvalue, initiator):            
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
                         'strong','img']
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
-    def to_json(self):
+    def to_json(self):                                                   ####api未更新
         json_comment = {
             'url': url_for('api.get_comment', id=self.id, _external=True),
             'post': url_for('api.get_post', id=self.post_id, _external=True),
@@ -700,7 +651,7 @@ class Tag(db.Model):
         return self.tag_name 
     
 
-def str_to_obj(tagstr):
+def str_to_obj(tagstr):           #####字符串解读成标签对象
    r = []
    for tag in set(tagstr.split()):    ###此处遗漏split() ,一直失败
        tag_obj = Tag.query.filter_by(tag_name=tag).first()### 此次修改一次 first_or_404
@@ -710,13 +661,22 @@ def str_to_obj(tagstr):
    return r
 
    
-post_categories ={u"未分类":[],
-        u"数据库":[u"MySql",u"Redis"],
-        u"Web技术":[u"Flask",u"Django"],
-        u"编程":[u"C++",u"Scheme",u"Python"],
-        u"生活":[u"工作",u"社会"],
-        u"其他":[],
-        u"Linux":[]}   
+   
+   
+post_categories ={
+        u"Web开发/Web":[u"Flask",u"Jinja2",u"WSGI",u"MVC/REST",u"Django",u"Tornado",u"脚本",],
+        u"工具/Tools":[u"Git",u"Vim/Emacs",u"FireBug",u"Ubuntu",u"GNU/Linux", u"VisualStudio",u"Eclipse",],
+        u"程序语言/Programming":[u"Python",u"Python3",u"C/C++",u"Lisp/Scheme",u"Java",u"C#",],
+
+        u"数据库/DataBase":[u"SQLAlchemy",u"MySQL",u"SQLite",u"Redis",u"MongoDB",u"设计性能"],
+        u"前端/Views":[u"HTML/CSS",u"JQuery/JS",u"Bootstrap",u"XML",u"浏览器",u"杂项",],
+        u"网络基础/Internet":[u"TCP/IP",u"HTTP",u"Json/Ajax",u"PHP/ASP",u"Node.js",u"网络安全",u"大数据",],
+        
+        u"算法/Algorithm":[u"数据结构",u"算法基础",u"图形图像",u"机器学习",u"模式识别",u"Regex",u"GIS",u"Matlab",],
+        u"计算机/Computer":[u"Windows",u"硬件系统",u"编译原理",u"程序构造",u"软件工程",],
+ 
+        u"生活/Life":[u"新闻",u"科技",u"社会",u"工作",u"统计学",u"数学",u"读书",],
+        u"移动开发/Mobile":[u"Andriod",u"IOS",u"基础"],}   
    
 
 
@@ -724,18 +684,12 @@ class Category(db.Model):
     __tablename__='categories'
     id = db.Column(db.Integer,primary_key = True)
     name = db.Column(db.String(80),unique=True)
+    
+    name_en = db.Column(db.String(80))
     posts = db.relationship('Post',backref='category',lazy='dynamic')
     
-    parent_id =db.Column(db.Integer,default=0)
-    # @staticmethod
-    # def is_parent_of(pid,id):
-        # x='0'+str(pid)+str(id)
-        # if x.isdigit():
-        # # if  isinstance(pid,int) and id.isdigit(): 
-            # cg=Category.query.get_or_404(int(id))
-            # return cg.parent_id==int(pid)
-        # else:
-            # return False
+    parent_id =db.Column(db.Integer,default=0)   ####一级目录，为支持表单二级联动试验添加，可改进
+    
     @property
     def siblings(self):
         if self.is_subcategory:
@@ -750,8 +704,12 @@ class Category(db.Model):
             return Category.query.filter_by(parent_id=self.id).all()   
     @staticmethod
     def insert_categories():
+        deafult_cg=Category(name=u"未分类",name_en="Unsorted",parent_id=0)
+        db.session.add(deafult_cg)
+        db.session.commit() 
         for key,value in post_categories.items():
-            category = Category(name=key,parent_id=0)
+            name,name_en=key.split("/")
+            category = Category(name=name,name_en=name_en,parent_id=0)
             db.session.add(category)
             db.session.commit() 
             for n in value:
@@ -765,10 +723,7 @@ class Category(db.Model):
             s=[self.id]
             for sub_category in sub_categories:
                 s.append(sub_category.id)
-            if self.name==u'未分类':
-                s.append(-1)
             result=Post.query.filter(Post.category_id.in_(s))
-            
             return result
         else:
             return Post.query.filter(Post.category_id==self.id)
@@ -780,7 +735,7 @@ class Category(db.Model):
 
 
         
-class sms_status(enum.Enum):
+class sms_status(enum.Enum):   ####两种enum类型
     read = "read"
     unread = "unread"
     delete = "delete"
@@ -789,9 +744,9 @@ sms_types=('private','public','all')
         
 class Shortmessage(db.Model):
     __tablename__='shortmessages'
-    id= db.Column(db.Integer,primary_key=True)####,autoincrement=True
+    id= db.Column(db.Integer,primary_key=True)           
     
-    send_id=db.Column(db.Integer,db.ForeignKey('users.id'))####+++++
+    send_id=db.Column(db.Integer,db.ForeignKey('users.id'))     ####+++++站内信也是简单实现，没考虑存储空间等；站内通告使用rcv_id==-1表示
     rcv_id=db.Column(db.Integer)
     
     subject= db.Column(db.String(80))
@@ -812,7 +767,7 @@ class Shortmessage(db.Model):
     def __unicode__(self):
         return self.subject
 
-class Photo(db.Model): #######本来要保存头像图片，后保存在avatar
+class Photo(db.Model): #######本来要保存头像图片，后保存在avatar，未使用本表单
     __tablename__ = 'photoes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(64), unique=True, index=True, nullable=False)

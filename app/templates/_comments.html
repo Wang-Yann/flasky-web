@@ -4,12 +4,12 @@
         <li class="comment">
             {% if comment.comment_type=='reply'%}
                 <p class="comment-reply-info">
-                    <span class="glyphicon glyphicon-envelope"></span>
-                    回复给<strong><i>
+                    <i class="fa fa-reply fa-rotate-180"></i> 
+                    {{_("Replied to")}}<strong><i>
                     {% if comment.is_reply() %}
                         {{comment.reply_to}}
                     {% else %}
-                        ({{comment.reply_to}}的该条评论已被删除）
+                        ({{comment.reply_to}}{{_(" comment has been deleted!")}}）
                     {% endif %}
                     :</i></strong>
                 </p>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="comment-body">
                     {% if comment.disabled %}
-                    <p><i>This comment has been disabled by a moderator.</i></p>
+                    <p><i>{{_("This comment has been disabled by a moderator.")}}</i></p>
                     {% endif %}
                     {% if moderate or not comment.disabled %}
                         {% if comment.body_html %}
@@ -44,18 +44,21 @@
                 {% if current_user.is_authenticated %}
                                             
                     {% if  not moderate %}
-                        <button class="btn btn-sm btn-default" style="margin:2px;" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author_name}}')">
-                            <span class="glyphicon glyphicon-comment" style="color: rgb(208, 208, 238);"></span> 回复
-                        </button>
+                    <button class="btn btn-sm btn-default" style="margin:2px;" id="button" onclick="go_to_reply({{comment.id}},'{{comment.author.username}}')">
+                            <i class="fa fa-reply"></i> {{_("Reply")}}
+                    </button>
                     {% endif %}  
                     {% if current_user.can(Permission.MODERATE_COMMENTS) %}
                         <div class="btn-group  pull-right col-sm-pull-1" role="group" style="margin:3px;">
                         {% if comment.disabled %}
-                        <a class="btn btn-success btn-sm" href="{{ url_for('.moderate_enable', by=by,id=comment.id, page=page) }}">恢复</a>
+                        <a class="btn btn-success btn-sm" href="{{ url_for('.moderate_enable', by=by,id=comment.id, page=page) }}">
+                            <i class="fa fa-flag"></i> {{_("Allow")}}</a>
                         {% else %}
-                        <a class="btn btn-warning btn-sm" href="{{ url_for('.moderate_disable',by=by, id=comment.id, page=page) }}">屏蔽</a>
+                        <a class="btn btn-warning btn-sm" href="{{ url_for('.moderate_disable',by=by, id=comment.id, page=page) }}">
+                            <i class="fa fa-ban"></i>&nbsp;{{_("Ban")}}</a>
                         {% endif %}
-                        <a class="btn btn-danger btn-sm" onclick="delCommentCfm('{{ url_for('.delete_comment',by=by, id=comment.id) }}')" >删除</a>
+                        <a class="btn btn-danger btn-sm" onclick="delCommentCfm('{{ url_for('.delete_comment',by=by, id=comment.id) }}')" >
+                            <i class="fa fa-trash"></i> {{_("Delete")}}</a>
                         
                         </div>
                     {% endif %}    
@@ -73,7 +76,8 @@
     {% else %}
         <li class="comment">
             <div class="comment-body text-center">
-            等你发表第一条评论
+            {{_("Write your comment... ")}}
+            
             </div>
         </li>
     
@@ -87,19 +91,19 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">×</span></button>
-                <h4 class="modal-title">确认删除评论？</h4>
+                <h4 class="modal-title">{{_("Confirm to delete this comment?")}}</h4>
             </div>
             <div class="modal-body">
                 <p>
-                    将该评论删除后不可恢复，您确认要删除吗？
+                    {{_("The deleted comment cann't be restored,and are you sure to delete?")}}
                 </p>
                 <p>
-                    （提示：如果您只是不想显示该评论内容，可以选择将其屏蔽，而不必删除。）
+                    {{_("Tip: You can choose to ban instead of delete.")}}
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <a onclick="" id="delCommentCfmClick" class="btn btn-success" data-dismiss="modal">删除</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{_("Cancel")}}</button>
+                <a onclick="" id="delCommentCfmClick" class="btn btn-success" data-dismiss="modal">{{_("Delete")}}</a>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

@@ -1,13 +1,13 @@
 #-*- coding:utf-8 -*-
 
 from flask import Blueprint,current_app
-import collections 
+
 
 
 main = Blueprint('main', __name__)
 
 
-
+import collections    ####支持排序字典
 from . import views, errors
 from ..models import Permission,Category,Tag,Post,Comment,User
 
@@ -24,18 +24,10 @@ def fill_sidebar_data():
         'tags':[],
         'popular':[],
         'visitors':[],
-        'newcomments':[],
-        
+        'newcomments':[],        
         }
 
-    categories = Category.query.filter_by(parent_id=0).all()
-    
-        
-        # sidebar_data['category'][category]=0
-        # sub_categories=Category.query.filter(Category.parent_id==category.id).all()
-        # for sub_category in sub_categories:
-        
-        # sidebar_data['category'][category] = len(category.category_posts)
+    categories = Category.query.filter_by(parent_id=0).order_by(Category.id.desc()).all()
     cg_data=[(cg,cg.category_posts.count(), cg.subcategories, map(lambda x:str(x.id),cg.subcategories) ) for cg in categories]
     sidebar_data['category'] = cg_data
         
@@ -60,14 +52,15 @@ def fill_sidebar_data():
         tags_data.insert(0, (-1, -1,-1))
     sidebar_data['tags'] = tags_data
     
+    
     posts.sort(key=(lambda a: a.popularity), reverse=True)
-    sidebar_data['popular'] = posts[:5]
+    sidebar_data['popular'] = posts[:9]
     
     comments=Comment.query.order_by(Comment.timestamp.desc())
-    sidebar_data['newcomments']=comments[:5]
+    sidebar_data['newcomments']=comments[:7]
     
     visitors=User.query.order_by(User.last_seen.desc())
-    sidebar_data['visitors'] = visitors[:3]
+    sidebar_data['visitors'] = visitors[:12]
     
     sidebar_data['links'] =  current_app.config['SHARE_LINKS']
     return dict(sidebar_data=sidebar_data)

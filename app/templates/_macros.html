@@ -32,75 +32,70 @@
 
 {% macro widget_category(data, endpoint) %}	
 
-
 <div class="panel panel-info ">
-    <style type="text/css" media="screen">
-		.active{
-			background-color: #dfeffc;
-		}
-		
-	</style>
-    <script src="{{ url_for('static', filename='js/jquery-2.2.1.min.js') }}"></script>
-    <script type="text/javascript">
-    $(document).ready(function(){
-    $('.list-group-item a').each(function(){
-            $this=$(this);
-            if ($this[0].href==String(window.location))
-            {
-            $this.parent().addClass('active');
-            
-                };
-        })
+    
+<script src="{{ url_for('static', filename='js/jquery-2.2.1.min.js') }}"></script>
 
-    });
-    </script>
+<script type="text/javascript">
+$(document).ready(function(){
+$('li a').each(function(){
+        $this=$(this);
+        if ($this[0].href==String(window.location))
+        { $this.closest(".panel li").css('background-color', '#dfeffc'); };
+    })
+});
+</script>
+
     <div class="panel-heading">
-            <h3 class="panel-title">分类目录</h3>
+        <h3 class="panel-title"><i class="fa fa-building-o"></i>&nbsp;{{_("Categories")}}</h3>
     </div>
      
     <div class="panel-body" >
-    <ul class="nav nav-pills nav-stacked ">
+        <ul class="nav nav-pills nav-stacked ">
         
         {% for cg_count_sub in data[0:] %}
         
    
-        <li role="presentation"  > 
+        <li role="presentation" style="border-bottom:1px dotted PowderBlue ;" > 
             <div class="panel-heading"  >
                 
                 <h4 class="panel-title"  id='{{cg_count_sub[0].id}}'>
-                    <a data-toggle="collapse"   href="#collapse{{cg_count_sub[0].id}}">
-                        <span><b class="caret"></b><span>
-                    </a>
+                    <a data-toggle="collapse"   href="#collapse{{cg_count_sub[0].id}}" >
+                        <i class="fa fa-folder-o"></i>
+                    </a>&nbsp;
                     <a href="/post_result/cg/{{cg_count_sub[0].id}}" >
-                    <span>{{ cg_count_sub[0].name }}</span>
-                    <span class="badge pull-right">{{ cg_count_sub[1] }} </span>
-                 
-                    </a> 
-                    
+                    {% if g.locale=='zh_CN' or g.locale=='zh_TW'  %}
+                    <span>{{  cg_count_sub[0].name }}</span>
+                    {% else %}
+                    <span>{{  cg_count_sub[0].name_en }}</span>
+                    {% endif %}
+                    <span class="badge pull-right">{{ cg_count_sub[1] }} </span></a> 
                 </h4>
-                
             </div>
-            {% if  request.path.split('/')[-1]  in cg_count_sub[3] %}
+            
+            {% if  request.path.split('cg/')[-1]  in cg_count_sub[3] %}
             <div   id="collapse{{cg_count_sub[0].id}}" class="panel-collapse collapse in" >
             {% else %}
             <div   id="collapse{{cg_count_sub[0].id}}"  class="panel-collapse collapse ">
             {% endif %}
-            <ul class="list-group" >
-                {% for sub_category in cg_count_sub[2] %}
-                <li class="list-group-item " id="l_g_i{{sub_category.id}}">
-                    <a href="/post_result/cg/{{sub_category.id}}"  >
-                        <span  style="margin-left:4em;" >{{sub_category.name}}</span> &nbsp; <span class="badge">{{ sub_category.posts.count() }}</span>
-                    </a>    
-                </li>
-                {% endfor %}
-                
-            </ul>
+                <ul class="list-group" >
+                    {% for sub_category in cg_count_sub[2] %}
+                    <li class="list-group-item " id="l_g_i{{sub_category.id}}">
+                    
+                        <a href="/post_result/cg/{{sub_category.id}}"  style='text-decoration: none;' >
+                            <i style="margin-left:2em;" class="fa fa-briefcase"></i>
+                            <span  style="margin-left:1em;" >{{sub_category.name}}</span> &nbsp; <span class="badge">{{ sub_category.posts.count() }}</span>
+                        </a>    
+                    </li>
+                    {% endfor %}
+                    
+                </ul>
             </div>    
             
          </li>
          
         {% endfor %}
-    </ul>
+        </ul>
     </div>
 </div>                
 {% endmacro %}
@@ -122,13 +117,13 @@
     'color:#9cade9;','color:#1ced29;','color:#ec3de9;','color:#367d29;','color:#cccd29;') %}
 
 
-<div class="panel panel-info ">
+<div class="panel panel-info " style="min-height:14em;">
     <div class="panel-heading">
-            <h3 class="panel-title">文章标签</h3>
+            <h3 class="panel-title"><i class="fa fa-tags"></i>&nbsp; {{ gettext("Tags_Cloud")}}</h3>
     </div>
     <div class="panel-body" style="padding: 15px; word-break:break-all;">
         {% for tag in data[1:] %}
-        <a style="{{color_class.next()}} font-size:{{ (tag[2] - num_min) * size_delta +font_min }}%" href="/post_result/tag/{{tag[0]}}" >
+        <a style="{{color_class.next()}} font-size:{{ (tag[2] - num_min) * size_delta +font_min }}% " href="/post_result/tag/{{tag[0]}}" >
            {{ tag[1]}}
         </a>&nbsp;
         {% endfor %}
@@ -137,27 +132,27 @@
 {% endmacro %}
 
 {%  macro widget_archieve(data,endpoint) %}
-    <div class="panel panel-info ">
-        <div class="panel-heading">
-            <h3 class="panel-title">文章归档</h3>
-        </div>
-        
-        <div class="panel-body">
-            <ul>
-            {% for year,months  in data.items() %}
-                {% for month,num in months.items() %}
-                
-                    <li>
-                    <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}" style='color:#696969;text-decoration: none;'>
-                        {{year}}年{{"%02d"|format(month)}}月({{num}})
-                    </a>
-                    </li>
-                {% endfor %}
-            {% endfor %}
-            </ul>
-        </div>
-        
+<div class="panel panel-info " style="min-height:14em;">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-archive"></i>&nbsp;{{_("Posts_Archive")}}</h3>
     </div>
+    
+    <div class="panel-body">
+        <ul class="fa-ul">
+        {% for year,months  in data.items() %}
+            {% for month,num in months.items() %}
+            
+                <li><i class="fa-li fa fa-check-circle-o "></i>
+                <a href="/post_result/timestamp/{{year}}-{{"%02d"|format(month)}}" style='color:#696969;text-decoration: none;'>
+                    {{year}}-{{"%02d"|format(month)}} &nbsp; ({{num}})
+                </a>
+                </li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    </div>
+    
+</div>
 {% endmacro %}
 
 
@@ -171,7 +166,7 @@
 {%  macro widget_newcomments(data,endpoint,fragment='') %}
 <div class="panel panel-info ">
     <div class="panel-heading">
-        <h3 class="panel-title">最新评论</h3>
+        <h3 class="panel-title"><i class=" fa fa-comments-o"></i> &nbsp; {{_("New_Comments")}}</h3>
     </div>
     
     <div class="panel-body">
@@ -179,9 +174,9 @@
         {% for comment  in data %}
         <li><p>
             <a href="{{url_for('.post',id=comment.post_id)}}{{ fragment }}" style='color:#696969;text-decoration: none;word-break:break-all;'>
-                <p><b><em>{{comment.author.username}} </em>: </b> {{comment.body|truncate(30, True)}}</p>
-                <p class='text-right'>—— <small>发表于</small>
-                    <abbr title='{{comment.post.title}}'>《{{comment.post.title|truncate(10, True)}}》</abbr> 
+                <b><em>{{comment.author.username}} </em>: </b> <span>{{comment.body|truncate(30, True)}}</span>
+                <p class='text-right'>—— <small>{{_("for")}}</small>
+                    <span class="caption" style="color: #993300;">{{comment.post.title|truncate(12, True)}}</span>
                 </p>
             </a>
          </p></li>
@@ -195,7 +190,7 @@
 {%  macro widget_visitors(data,endpoint) %}
 <div class="panel panel-info ">
     <div class="panel-heading">
-        <h3 class="panel-title">最新访客</h3>
+        <h3 class="panel-title"><i class="fa fa-users  "></i> &nbsp;{{_("Visitors")}}</h3>
     </div>
     
     <div class="panel-body" >
@@ -205,7 +200,7 @@
         <div class='pull-left' style='margin:5px 5px;' >
             <a href="{{url_for('main.user',username=user.username)}}"  style='color:#696969;text-decoration: none;'>
                 <img src='{{user.portrait}}' width='25'>
-                <div class="caption">
+                <div class="small">
                     <p align='center'>{{user.username}}</p>
                 </div>
             </a>
@@ -224,7 +219,7 @@
 <div class="panel panel-info ">
 
     <div class="panel-heading">
-        <h3 class="panel-title">热门推荐</h3>
+        <h3 class="panel-title"><i class="fa fa-file"></i> &nbsp; {{_("Recommended_Posts")}}</h3>
     </div>
     
     <div class="panel-body">
@@ -234,7 +229,7 @@
             <h5>
             <span ><em> <b>{{post.author}}</b></em></span>：
             <a href="{{url_for('main.post',id=post.id)}}" style='color:black;text-decoration: none;word-break:break-all;'>
-                <abbr title='{{post.title}}'>《{{post.title|truncate(20, True)}}》</abbr>
+                <abbr title='{{post.title}}'>《{{post.title|truncate(30, True)}}》</abbr>
             </a>
             <span class='pull-right'><small> {{post.update_time.strftime( '%Y-%m-%d')}}</small><span>
             </h5>
@@ -247,37 +242,26 @@
 {% endmacro %}
 
 {%  macro widget_links(data) %}
-    <div class="panel panel-success ">
-        <div class="panel-heading">
-            <h3 class="panel-title">友情链接</h3>
-        </div>
-        
-        <div class="panel-body">
-            
-            <ul>
-            {% for item in data %}
-                
-            <li> 
-                <a href="{{item.url}}" target="_blank" style='color:#696969;text-decoration: none'>
-                 {{item.name}}
-                </a>
-            </li>
-            {% endfor %}
-            </ol>
-            
-            
-        </div>
-        
+<div class="panel panel-success ">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class=" fa  fa-share-alt fa-border"></i> &nbsp; {{_("Share_Links")}}</h3>
     </div>
+    
+    <div class="panel-body">
+        
+        <ul class="fa-ul">
+        {% for item in data %}
+            
+            <li> <i class="fa-li fa fa-rss  "></i>
+                <a href="{{item.url}}" target="_blank" style='color: #993300;text-decoration: none'>
+                 {{item.name}}</a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+</div>
 {% endmacro %}
-
-
-
-
-
-
-
-
 
 
 {% macro field_error(field) %}

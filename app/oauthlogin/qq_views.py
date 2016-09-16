@@ -1,3 +1,5 @@
+
+# -*- coding:utf-8 -*-
 from flask.ext.login import login_user, logout_user
 
 from .. import db 

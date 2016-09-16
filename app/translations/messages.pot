@@ -1,0 +1,799 @@
+# Translations template for PROJECT.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-09-16 14:59+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: auth/forms.py:10 auth/forms.py:25 auth/forms.py:54 auth/forms.py:60
+#: main/forms.py:40
+msgid "Email"
+msgstr ""
+
+#: auth/forms.py:12 auth/forms.py:31 auth/forms.py:75
+msgid "Password"
+msgstr ""
+
+#: auth/forms.py:14
+msgid "Log In"
+msgstr ""
+
+#: auth/forms.py:27 main/forms.py:42
+msgid "Username"
+msgstr ""
+
+#: auth/forms.py:32
+msgid "Passwords must match."
+msgstr ""
+
+#: auth/forms.py:33 auth/forms.py:64
+msgid "Confirm password"
+msgstr ""
+
+#: auth/forms.py:34 templates/auth/register.html:9
+msgid "Register"
+msgstr ""
+
+#: auth/forms.py:38 auth/forms.py:80 main/forms.py:62
+msgid "Email already registered."
+msgstr ""
+
+#: auth/forms.py:42 main/forms.py:67
+msgid "Username already in use."
+msgstr ""
+
+#: auth/forms.py:46
+msgid "Old password"
+msgstr ""
+
+#: auth/forms.py:47
+msgid "New password"
+msgstr ""
+
+#: auth/forms.py:48 auth/forms.py:63
+msgid "Passwords must match"
+msgstr ""
+
+#: auth/forms.py:49
+msgid "Confirm new password"
+msgstr ""
+
+#: auth/forms.py:50
+msgid "Update Password"
+msgstr ""
+
+#: auth/forms.py:56 auth/forms.py:65
+msgid "Reset Password"
+msgstr ""
+
+#: auth/forms.py:62
+msgid "New Password"
+msgstr ""
+
+#: auth/forms.py:69
+msgid "Unknown email address."
+msgstr ""
+
+#: auth/forms.py:73
+msgid "New Email"
+msgstr ""
+
+#: auth/forms.py:76
+msgid "Update Email Address"
+msgstr ""
+
+#: auth/views.py:87
+msgid "Welcome!"
+msgstr ""
+
+#: auth/views.py:90
+msgid "Invalid username or password."
+msgstr ""
+
+#: auth/views.py:100
+msgid "You have been logged out."
+msgstr ""
+
+#: auth/views.py:116
+msgid "A confirmation email has been sent to you by email."
+msgstr ""
+
+#: auth/views.py:127
+msgid "You have confirmed your account. Thanks!"
+msgstr ""
+
+#: auth/views.py:129
+msgid "The confirmation link is invalid or has expired."
+msgstr ""
+
+#: auth/views.py:139
+msgid "A new confirmation email has been sent to you by email."
+msgstr ""
+
+#: auth/views.py:151 auth/views.py:186
+msgid "Your password has been updated."
+msgstr ""
+
+#: auth/views.py:154
+msgid "Invalid password."
+msgstr ""
+
+#: auth/views.py:171
+msgid "An email with instructions to reset your password has been sent to you."
+msgstr ""
+
+#: auth/views.py:204
+msgid ""
+"An email with instructions to confirm your new email address has been "
+"sent to you."
+msgstr ""
+
+#: auth/views.py:207
+msgid "Invalid email or password."
+msgstr ""
+
+#: auth/views.py:215
+msgid "Your email address has been updated."
+msgstr ""
+
+#: auth/views.py:217
+msgid "Invalid request."
+msgstr ""
+
+#: main/forms.py:14
+msgid "What is your name?"
+msgstr ""
+
+#: main/forms.py:15 main/forms.py:23 main/forms.py:51 main/forms.py:98
+#: main/forms.py:119 templates/_submit_comment.html:25
+msgid "Submit"
+msgstr ""
+
+#: main/forms.py:19 templates/base.html:151
+msgid "Language"
+msgstr ""
+
+#: main/forms.py:20 main/forms.py:48
+msgid "Real name"
+msgstr ""
+
+#: main/forms.py:21 main/forms.py:49
+msgid "Location"
+msgstr ""
+
+#: main/forms.py:22 main/forms.py:50
+msgid "About me"
+msgstr ""
+
+#: main/forms.py:44
+msgid "Usernames must have only letters, numbers, dots or underscores"
+msgstr ""
+
+#: main/forms.py:46
+msgid "Confirmed"
+msgstr ""
+
+#: main/forms.py:47
+msgid "Role"
+msgstr ""
+
+#: main/forms.py:73
+msgid "Types"
+msgstr ""
+
+#: main/forms.py:74
+msgid "Recipients"
+msgstr ""
+
+#: main/forms.py:75
+msgid "Topic"
+msgstr ""
+
+#: main/forms.py:76 main/forms.py:93
+msgid "Body"
+msgstr ""
+
+#: main/forms.py:77
+msgid "Send"
+msgstr ""
+
+#: main/forms.py:86
+msgid "Recipient not exist."
+msgstr ""
+
+#: main/forms.py:92
+msgid "Title"
+msgstr ""
+
+#: main/forms.py:94
+msgid "Blog_Types"
+msgstr ""
+
+#: main/forms.py:96
+msgid "Tags"
+msgstr ""
+
+#: main/forms.py:97
+msgid "Private?"
+msgstr ""
+
+#: main/forms.py:102 templates/edit_post.html:49 templates/edit_post.html:104
+msgid "--Select an option--"
+msgstr ""
+
+#: main/forms.py:108 main/forms.py:111
+msgid "Title already in use,please edit the title!!"
+msgstr ""
+
+#: main/forms.py:116
+msgid "Nickname"
+msgstr ""
+
+#: main/forms.py:117
+msgid "Enter your comment"
+msgstr ""
+
+#: main/views.py:260
+msgid "No file part in request!"
+msgstr ""
+
+#: main/views.py:263
+msgid "No selected file!"
+msgstr ""
+
+#: main/views.py:276
+msgid "The avatar has been changed."
+msgstr ""
+
+#: main/views.py:300 main/views.py:324
+msgid "The profile has been updated."
+msgstr ""
+
+#: main/views.py:359
+msgid "Your comment has been published."
+msgstr ""
+
+#: main/views.py:362
+msgid "Comment Failed."
+msgstr ""
+
+#: main/views.py:399 main/views.py:543
+msgid "Delete Failed."
+msgstr ""
+
+#: main/views.py:401
+#, python-format
+msgid "Delete successfully , with %(name0)s comments and %(name1)s tags !"
+msgstr ""
+
+#: main/views.py:424
+msgid "Post successfully!"
+msgstr ""
+
+#: main/views.py:451
+msgid "The post has been updated."
+msgstr ""
+
+#: main/views.py:471 main/views.py:487 main/views.py:501 main/views.py:520
+#: main/views.py:601
+msgid "Invalid user."
+msgstr ""
+
+#: main/views.py:474
+msgid "You are already following this user."
+msgstr ""
+
+#: main/views.py:477
+#, python-format
+msgid "You are now following %(name)s anymore."
+msgstr ""
+
+#: main/views.py:490
+msgid "You are not following this user."
+msgstr ""
+
+#: main/views.py:493
+#, python-format
+msgid "You are not following %(name)s anymore."
+msgstr ""
+
+#: main/views.py:545
+msgid "Delete Successfully."
+msgstr ""
+
+#: main/views.py:621
+msgid "You have already collected it."
+msgstr ""
+
+#: main/views.py:623
+msgid "You  collected it successfully!"
+msgstr ""
+
+#: main/views.py:633
+msgid "You are not concerning anymore."
+msgstr ""
+
+#: main/views.py:670 main/views.py:682
+msgid "Your message has been sended."
+msgstr ""
+
+#: templates/403.html:9
+msgid "403-Request Forbidden"
+msgstr ""
+
+#: templates/404.html:10
+msgid "404-Resource Not Found"
+msgstr ""
+
+#: templates/500.html:8
+msgid "500-Internal Server Error"
+msgstr ""
+
+#: templates/_comments.html:8
+msgid "Replied to"
+msgstr ""
+
+#: templates/_comments.html:12
+msgid " comment has been deleted!"
+msgstr ""
+
+#: templates/_comments.html:32
+msgid "This comment has been disabled by a moderator."
+msgstr ""
+
+#: templates/_comments.html:48
+msgid "Reply"
+msgstr ""
+
+#: templates/_comments.html:55
+msgid "Allow"
+msgstr ""
+
+#: templates/_comments.html:58
+msgid "Ban"
+msgstr ""
+
+#: templates/_comments.html:61 templates/_comments.html:106
+msgid "Delete"
+msgstr ""
+
+#: templates/_comments.html:79
+msgid "Write your comment... "
+msgstr ""
+
+#: templates/_comments.html:94
+msgid "Confirm to delete this comment?"
+msgstr ""
+
+#: templates/_comments.html:98
+msgid "The deleted comment cann't be restored,and are you sure to delete?"
+msgstr ""
+
+#: templates/_comments.html:101
+msgid "Tip: You can choose to ban instead of delete."
+msgstr ""
+
+#: templates/_comments.html:105 templates/change_avatar.html:64
+#: templates/post.html:162
+msgid "Cancel"
+msgstr ""
+
+#: templates/_forsearch.html:6
+msgid "Search_Engines"
+msgstr ""
+
+#: templates/_forsearch.html:12 templates/_forsearch.html:24
+#: templates/_forsearch.html:38
+msgid "Search..."
+msgstr ""
+
+#: templates/_forsearch.html:15
+msgid "Google"
+msgstr ""
+
+#: templates/_forsearch.html:41
+msgid "Baidu"
+msgstr ""
+
+#: templates/_macros.html:50
+msgid "Categories"
+msgstr ""
+
+#: templates/_macros.html:122
+msgid "Tags_Cloud"
+msgstr ""
+
+#: templates/_macros.html:137
+msgid "Posts_Archive"
+msgstr ""
+
+#: templates/_macros.html:169
+msgid "New_Comments"
+msgstr ""
+
+#: templates/_macros.html:178
+msgid "for"
+msgstr ""
+
+#: templates/_macros.html:193
+msgid "Visitors"
+msgstr ""
+
+#: templates/_macros.html:222
+msgid "Recommended_Posts"
+msgstr ""
+
+#: templates/_macros.html:247
+msgid "Share_Links"
+msgstr ""
+
+#: templates/_posts.html:37 templates/post.html:32
+msgid "views"
+msgstr ""
+
+#: templates/_posts.html:54
+msgid "Detail"
+msgstr ""
+
+#: templates/_posts.html:89
+msgid "Sorry,No Blogs Here!!"
+msgstr ""
+
+#: templates/_sms.html:31
+msgid "Subject"
+msgstr ""
+
+#: templates/_sms.html:36
+msgid "From"
+msgstr ""
+
+#: templates/_sms.html:38
+msgid "To"
+msgstr ""
+
+#: templates/_sms.html:49
+msgid "Content"
+msgstr ""
+
+#: templates/_submit_comment.html:18
+msgid "Write your comment..."
+msgstr ""
+
+#: templates/_submit_comment.html:22 templates/edit_post.html:74
+msgid "Clear"
+msgstr ""
+
+#: templates/aboutme.html:11 templates/aboutme.html:22
+msgid "Reference Materials"
+msgstr ""
+
+#: templates/aboutme.html:21
+msgid "Downloads"
+msgstr ""
+
+#: templates/alipay.html:10
+msgid "Donate Alipay"
+msgstr ""
+
+#: templates/base.html:55
+msgid "Write"
+msgstr ""
+
+#: templates/base.html:63
+msgid "HOME"
+msgstr ""
+
+#: templates/base.html:65
+msgid "FIND"
+msgstr ""
+
+#: templates/base.html:67
+msgid "ABOUT"
+msgstr ""
+
+#: templates/base.html:71
+msgid "MAIL"
+msgstr ""
+
+#: templates/base.html:76 templates/smsbox.html:19
+msgid "Send_mail"
+msgstr ""
+
+#: templates/base.html:79 templates/smsbox.html:13
+msgid "Inbox"
+msgstr ""
+
+#: templates/base.html:82 templates/smsbox.html:16
+msgid "Outbox"
+msgstr ""
+
+#: templates/base.html:94
+#, python-format
+msgid " %(name)s"
+msgstr ""
+
+#: templates/base.html:97
+msgid "General"
+msgstr ""
+
+#: templates/base.html:99
+msgid "Reset_Password"
+msgstr ""
+
+#: templates/base.html:100
+msgid "Chang_Account"
+msgstr ""
+
+#: templates/base.html:101
+msgid "Log_Out"
+msgstr ""
+
+#: templates/base.html:104
+msgid "Moderate_Comments"
+msgstr ""
+
+#: templates/base.html:107 templates/base.html:238
+msgid "Admin_Back"
+msgstr ""
+
+#: templates/base.html:117
+msgid "Search Blogs"
+msgstr ""
+
+#: templates/base.html:126
+msgid "LOG_IN"
+msgstr ""
+
+#: templates/base.html:150
+#, python-format
+msgid "%(name)s's Blog"
+msgstr ""
+
+#: templates/base.html:232
+msgid "Developed  by  Yann"
+msgstr ""
+
+#: templates/change_avatar.html:14
+msgid "Change your avatar"
+msgstr ""
+
+#: templates/change_avatar.html:20
+msgid "File Input"
+msgstr ""
+
+#: templates/change_avatar.html:27
+msgid "Upload Raw"
+msgstr ""
+
+#: templates/change_avatar.html:34
+msgid "PreView"
+msgstr ""
+
+#: templates/change_avatar.html:41
+msgid "Rotate_left"
+msgstr ""
+
+#: templates/change_avatar.html:42
+msgid "Rotate_right"
+msgstr ""
+
+#: templates/change_avatar.html:57
+msgid "Crop Result"
+msgstr ""
+
+#: templates/change_avatar.html:67
+msgid "Ajax Upload"
+msgstr ""
+
+#: templates/edit_post.html:64
+msgid "Seperate tags with blanks!"
+msgstr ""
+
+#: templates/edit_profile.html:8 templates/user.html:53
+msgid "Edit Profile"
+msgstr ""
+
+#: templates/explore.html:16 templates/user.html:44
+msgid "Following"
+msgstr ""
+
+#: templates/explore.html:18
+msgid "Concerned"
+msgstr ""
+
+#: templates/explore.html:20
+msgid "Like"
+msgstr ""
+
+#: templates/followers.html:11
+msgid "Users"
+msgstr ""
+
+#: templates/followers.html:12 templates/user.html:27
+msgid "Member since"
+msgstr ""
+
+#: templates/index.html:11
+#, python-format
+msgid "Hello,%(name)s"
+msgstr ""
+
+#: templates/index.html:13
+msgid "Log In For Reading More !!"
+msgstr ""
+
+#: templates/index.html:19
+msgid "Newest"
+msgstr ""
+
+#: templates/index.html:20
+msgid "Hot"
+msgstr ""
+
+#: templates/index.html:21
+msgid "Recommend"
+msgstr ""
+
+#: templates/moderate.html:8
+msgid "Comment Moderation"
+msgstr ""
+
+#: templates/post.html:33
+msgid "Comments"
+msgstr ""
+
+#: templates/post.html:58
+msgid "Update"
+msgstr ""
+
+#: templates/post.html:68
+msgid "Disconcern"
+msgstr ""
+
+#: templates/post.html:76
+msgid "Concerns"
+msgstr ""
+
+#: templates/post.html:83
+msgid "Votes"
+msgstr ""
+
+#: templates/post.html:97
+msgid "COMMENTS"
+msgstr ""
+
+#: templates/post.html:109
+msgid "Submit Comment!"
+msgstr ""
+
+#: templates/post.html:127 templates/post.html:134
+msgid "EDIT"
+msgstr ""
+
+#: templates/post.html:129 templates/post.html:136
+msgid "DELETE"
+msgstr ""
+
+#: templates/post.html:154
+msgid "Confirm to delete this post?"
+msgstr ""
+
+#: templates/post.html:158
+msgid "The deleted post  cann't be restored,and are you sure to delete?"
+msgstr ""
+
+#: templates/post.html:159
+msgid "Comments for this post will be deleted at the same time!"
+msgstr ""
+
+#: templates/post.html:163
+msgid "OK"
+msgstr ""
+
+#: templates/user.html:28
+msgid "Last seen"
+msgstr ""
+
+#: templates/user.html:30
+#, python-format
+msgid "%(num)s post"
+msgid_plural "%(num)s posts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/user.html:31
+#, python-format
+msgid "%(num)s comment"
+msgid_plural "%(num)s comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/user.html:37
+msgid "Follow"
+msgstr ""
+
+#: templates/user.html:40
+msgid "Unfollow"
+msgstr ""
+
+#: templates/user.html:43
+msgid "Followers"
+msgstr ""
+
+#: templates/user.html:45
+msgid "Collected_posts"
+msgstr ""
+
+#: templates/user.html:57
+msgid "Edit Profile[Admin]"
+msgstr ""
+
+#: templates/user.html:62
+msgid "Edit Avatar"
+msgstr ""
+
+#: templates/user.html:66
+#, python-format
+msgid "Posts by %(name)s"
+msgstr ""
+
+#: templates/admin/my_master.html:13
+msgid "Log out"
+msgstr ""
+
+#: templates/admin/my_master.html:14
+msgid "Home"
+msgstr ""
+
+#: templates/auth/change_email.html:9
+msgid "Change Your Email Address"
+msgstr ""
+
+#: templates/auth/change_password.html:10
+msgid "Change Your Password"
+msgstr ""
+
+#: templates/auth/login.html:10
+msgid "Login"
+msgstr ""
+
+#: templates/auth/login.html:22
+msgid "User Email"
+msgstr ""
+
+#: templates/auth/login.html:51
+msgid "Remember_me"
+msgstr ""
+
+#: templates/auth/login.html:56
+msgid "Forgot account?"
+msgstr ""
+
+#: templates/auth/login.html:67
+msgid "Sign Up"
+msgstr ""
+
+#: templates/auth/login.html:69
+msgid "Login_Oauth"
+msgstr ""
+
+#: templates/auth/login.html:92
+msgid "May Fail!!"
+msgstr ""
+
+#: templates/auth/reset_password.html:10
+msgid "Reset Your Password"
+msgstr ""
+

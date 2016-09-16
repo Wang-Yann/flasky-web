@@ -10,8 +10,8 @@
 
 
     <ul class="dropdown-menu">
-        <li><a href="{{ url_for('admin.logout_view') }}">Log out</a></li>
-		<li><a href="{{ url_for('main.index') }}">回主页</a></li>
+        <li><a href="{{ url_for('auth.logout') }}">{{_("Log out")}}</a></li>
+		<li><a href="{{ url_for('main.index') }}">{{_("Home")}}</a></li>
     </ul>
 </li>
 </ul>

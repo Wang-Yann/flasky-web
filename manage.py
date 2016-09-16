@@ -11,9 +11,6 @@ from app.adminviews import CommentAdmin,UserAdmin,\
 
 
 
-##from flask_security import Security,SQLAlchemyUserDatastore
-###from flask_admin import helpers as admin_helpers
-
 
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
@@ -49,14 +46,22 @@ migrate = Migrate(app, db)
         # return Category.query.get_or_404(int(id)).parent_id!=0
     # else:
         # return False
+# app.jinja_env.tests['subcg_url'] =is_subcg_url   ##很丑废弃
+
 app.jinja_env.globals['Comment'] = Comment
-# app.jinja_env.globals['Post'] = Post
 app.jinja_env.globals['Category'] =Category
 
-# app.jinja_env.tests['subcg_url'] =is_subcg_url
+# from jinja2 import Environment, FileSystemLoader jinjia2不使用flask-babel 直接导入 i18n 扩展
+# from babel.support import Translations
+# locale_dir = "translations"
+# msgdomain = "messages"
+# list_of_desired_locales = ["zh_Hans_CN", "en"]
+# translations = Translations.load(locale_dir, list_of_desired_locales)
+# app.jinja_env.install_gettext_translations(translations)
 
 
-filepath=app.config.get('UPLOAD_FILE_PATH') 
+
+filepath=app.config.get('UPLOAD_FILE_PATH')  ###避免上传文件夹不存在
 try:
     os.mkdir(filepath)
 except OSError:
@@ -96,6 +101,9 @@ def test(coverage=False):
         COV.erase()
 
 
+        
+        
+        
 @manager.command
 def profile(length=25, profile_dir=None):
     """Start the application under the code profiler."""
@@ -110,40 +118,29 @@ def deploy():
     """Run deployment tasks."""
     from flask.ext.migrate import upgrade
     
-
-    
-    
-    
-    # migrate database to latest revision
     upgrade()
     
     # create user roles
     Role.insert_roles()
     Category.insert_categories()
-    # create self-follows for all users
-    User.generate_fake(5)
-    v=User(email='aaa@vlobster.com',username="AAA",password='abc',confirmed=True)
-    x=User(email='bbb@vlobster.com',username="BBB",password='abc',confirmed=True)
-    y=User(email='ccc@vlobster.com',username="CCC",password='abc',confirmed=True)
-    u=User(email='abc@vlobster.com',username="ABC",password='abc',confirmed=True,role_id=3)
+    User.generate_fake(6)
+    v=User(email='admin@vlobster.com',username="AAA",password='admin123',confirmed=True)
+    u=User(email='abc@vlobster.com',username="ABC",password='123456',confirmed=True,role_id=3)
     v.role_id=2
-    x.role_id=2
-    y.role_id=2
     db.session.add(v)
-    db.session.add(x)
-    db.session.add(y)
-    db.session.add(u)
+    db.session.add(u)  ####插入管理员用户
     db.session.commit()
+    
     User.add_self_follows()
-    Post.generate_fake(10)
+    Post.generate_fake(15)
     Comment.generate_fake(15)
     
 admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
         index_view=MyAdminIndexView(),\
-        base_template='admin/my_master.html',template_mode='bootstrap3')
+        base_template='admin/my_master.html',template_mode='bootstrap3') ####使用Flask-Admin进行后台管理
+        
 admin.add_view(UserAdmin(User,db.session))
 
-#admin.add_view(PostAdmin(Post,db.session))
 admin.add_view(PostAdmin(db.session))
     ####三种式样的view注意区分
 admin.add_view(MyModelView(Category,db.session))
@@ -153,7 +150,8 @@ admin.add_view(MyModelView(Shortmessage,db.session))
 # admin.add_view(MyModelView(Follow,db.session))
 admin.add_view(MyModelView(Role,db.session))
 
-#########admin.add_view(MyAdminIndexView(name="mine",endpoint="extra",category="Others")) 自己的admin View
+
+#########admin.add_view(MyAdminIndexView(name="mine",endpoint="extra",category="Others")) 自己添加的admin View，在安全视图未使用
 admin.add_view(FileAdminView(filepath,name='StaticFiles'))    
 
 

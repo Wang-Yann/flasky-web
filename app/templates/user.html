@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky - {{ user.username }}{% endblock %}
+{% block title %}VLOBSTER - {{ user.username }}{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
@@ -11,7 +11,7 @@
             src="{{user.portrait}}" width="256"  >
     
     <div class="profile-header">
-        <h1>{{ user.username }}</h1>
+        <h2>{{ user.username }}</h2>
         {% if user.name or user.location %}
         <p>
             {% if user.name %}{{ user.name }}<br>{% endif %}
@@ -21,42 +21,49 @@
         </p>
         {% endif %}
         {% if current_user.is_administrator() %}
-        <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+        <p><i class="fa fa-envelope-o "></i> &nbsp;<a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
         {% endif %}
-        {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-        <p>Member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
-        <p>{{ user.posts.count() }} blog posts. {{ user.comments.count() }} comments.</p>
+        {% if user.about_me %}<p><i class="fa fa-flickr "></i>&nbsp; :  {{ user.about_me }}</p>{% endif %}
+        <p><i class="fa fa-sign-in "></i>&nbsp; {{_("Member since")}}  {{ moment(user.member_since).format('LL') }}. 
+            <i class="fa fa-sign-out "></i>&nbsp; {{_("Last seen")}} {{ moment(user.last_seen).fromNow() }}.</p>
+            
+        <p><i class="fa fa-file-text-o"></i>&nbsp; {{ ngettext('%(num)s post', '%(num)s posts',  user.posts.count()) }}  /
+            <i class="fa fa-comments-o "></i>&nbsp; {{ ngettext('%(num)s comment', '%(num)s comments',  user.comments.count()) }}
+        </p>
         <p>
             {% if current_user.can(Permission.FOLLOW) and user != current_user %}
                 {% if not current_user.is_following(user) %}
-                <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">Follow</a>
+                <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">
+                    <i class="fa fa-user-plus "></i>{{_("Follow")}}</a>
                 {% else %}
-                <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">Unfollow</a>
+                <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">
+                    <i class="fa fa-user-times "></i>{{_("Unfollow")}}</a>
                 {% endif %}
             {% endif %}
-            <a href="{{ url_for('.followers', username=user.username) }}">Followers: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
-            <a href="{{ url_for('.followed_by', username=user.username) }}">Following: <span class="badge">{{ user.followed.count() - 1 }}</span></a>
-            <a href="{{url_for('.explore',by='concerns')}}">收藏文章:<span class="badge">{{user.concerns.count()}}</span></a>
+            <a href="{{ url_for('.followers', username=user.username) }}">{{_("Followers")}}: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
+            <a href="{{ url_for('.followed_by', username=user.username) }}">{{_("Following")}}: <span class="badge">{{ user.followed.count() - 1 }}</span></a>
+            <a href="{{url_for('.explore',by='concerns',username=user.username)}}">{{_("Collected_posts")}}:<span class="badge">{{user.concerns.count()}}</span></a>
             {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
             | <span class="label label-default">Follows you</span>
             {% endif %}
         </p>
         <p>
             {% if user == current_user %}
-            <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+            
+            <a class="btn btn-default" href="{{ url_for('.edit_profile') }}"><i class="fa fa-user-secret "></i>  {{_("Edit Profile")}}</a>
+            
             {% endif %}
             {% if current_user.is_administrator() %}
-            <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+            <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}"><i class="fa  fa-edit "></i>{{_("Edit Profile[Admin]")}}</a>
             {% endif %}
+            
         </p>
-        {% if current_user.is_administrator() or user == current_user %}
-        <a href="{{url_for('.change_avatar',username=user.username) }}">
-            <button  type="submit" class="btn btn-default"> 修改头像 </button> 
-        </a>
-        {% endif %}
+        <a class="btn btn-default" href="{{url_for('.change_avatar',username=user.username) }}">
+                <i class="fa  fa-github "></i>  {{_("Edit Avatar")}}</a>
+        
     </div>
 </div>
-<h3>Posts by {{ user.username }}</h3>
+<h3><i class="fa fa-edit "></i>{{_("Posts by %(name)s",name=user.username)}} </h3>
 {% include '_posts.html' %}
 {% if pagination %}
 <div class="pagination">

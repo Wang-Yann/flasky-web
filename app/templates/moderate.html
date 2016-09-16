@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky - Comment Moderation{% endblock %}
+{% block title %}VLOBSTER-Comment_Moderation{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Comment Moderation</h1>
+    <h2>{{_("Comment Moderation")}}</h2>
 </div>
-{% set moderate = True %}
-{% set by ='moderate' %}
-{% include '_comments.html' %}
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, '.moderate') }}
-</div>
-{% endif %}
+    {% set moderate = True %}
+    {% set by ='moderate' %}
+
+    {% include '_comments.html' %}
+
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination, '.moderate') }}
+    </div>
+    {% endif %}
+
 {% endblock %}

@@ -15,32 +15,38 @@
                 
                 <h4 class="panel-title" {% if sm.message_status=='read' %} style='font-weight:normal;' {% endif %} id='{{sm.id}}'>
                     {% if sm.message_status=='unread' and sm.rcv_id != -1 %}
-                        <span class="glyphicon glyphicon-envelope"></span>&nbsp; &nbsp;
+                        <i class="fa fa-envelope" style='color: #ffcc00;position:relative;left:7px;margin-right:1em;'></i> 
                     {% elif sm.rcv_id == -1 %}
-                        <span class="glyphicon glyphicon-bullhorn"></span>&nbsp; &nbsp;
-                    {% else %}    
-                        <span class="glyphicon glyphicon-folder-open"></span>&nbsp; &nbsp;
+                        <i class="fa fa-bullhorn" style='position:relative;left:7pxmargin-right:1em;'></i>
+                    {% else %} 
+                        <span class="fa-stack" >
+                          <i class="fa fa-envelope-o  fa-stack-1x  "></i>
+                          <i class="fa fa-check-circle fa-stack-1x" style="text-align:right;position:relative;bottom:-.3em;color:green;"></i>
+                        </span>
+                        
                     {% endif %}
+                        &nbsp;
                     <a data-toggle="collapse"  style='text-decoration: none;'
                     href="#collapse_sms_{{sm.id}}" {% if current_user.id==sm.rcv_id %} onclick="change_status({{sm.id}})" {% endif %} >
-                        主题：{{ sm.subject }} 
+                        {{_("Subject")}}：{{ sm.subject }} 
                         
-                        <span class='pull-right'>
+                        <span class='  pull-right'>
                         
-                        {% if by=='inbox' %}
-                            发件人：{{ sm.sender.username }} 
+                        {% if by =='inbox' %}
+                            {{_("From")}}：{{ sm.sender.username }} 
                         {% else %}    
-                            收件人：{{ sm.rcver }} 
+                            {{_("To")}}：{{ sm.rcver }} 
                         {% endif %}
                         
-                            时间：{{ moment(sm.timestamp).fromNow() }}
+                        &nbsp; | &nbsp; 
+                            <i class="fa fa-clock-o fa-lg"></i>  {{ moment(sm.timestamp).fromNow() }}
                         </span>
                     </a>
                 </h4>
             </div>
             <div id="collapse_sms_{{sm.id}}" class="panel-collapse collapse" style="padding: 10px;">
                 <div class="panel-body"  style="margin: 2px; word-break:break-all;">
-                    内容：<p>{{sm.body}}</p>
+                    {{_("Content")}}：<p>{{sm.body}}</p>
                 </div>
             </div>
         </div>

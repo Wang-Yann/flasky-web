@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}tag{% endblock %}
+{% block title %}VLOBSTER-Post-Result{% endblock %}
 
 {% block page_content %}
     
     {% if parameter=='cg' %}
         <div class="page-header">
         <a href="/post_result/cg/{{args[0].id}}">
-        <h3><span class="label label-info">目录：{{ args[0].name }}</span></h3>
+        <h3><span class="label label-primary"><i class="fa fa-folder-open"></i> {{ args[0].name }}</span></h3>
         </a>
         </div> 
         
@@ -49,8 +49,8 @@
         <ul class="column-md-8 posts">
             <li class="post">
                 <div class="post-pre-title">
-                
-                暂时无文章可以显示
+                <i class="fa fa-spinner fa-pulse fa-2x"></i>&nbsp;
+                <span >暂时无文章可以显示</span>
                 </div>
             </li>
         </ul>

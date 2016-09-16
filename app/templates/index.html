@@ -1,24 +1,24 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
+
 {% import "_macros.html" as macros %}
 
 
-{% block title %}Yann{% endblock %}
+{% block title %}VLOBSTER-Home{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
     {% if current_user.is_authenticated %}
-    <h4>Hello, {{ current_user.username }}!</h4>
+    <h3>{{_("Hello,%(name)s",name=current_user.username)}}!</h3>
     {% else %}
-    <h4>你好，更多精彩请登录!</h4>
+    <h3>{{_("Log In For Reading More !!")}}</h3>
     {% endif %}
 </div>
 
 <div class="post-tabs">
     <ul class="nav nav-tabs ">
-        <li{% if by=="all" or None %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">最新</a></li>
-        <li{% if by=="read_count" %} class="active"{% endif %} ><a href="{{url_for('.index',by='read_count')}}">最热</a> </li>
-        <li{% if by =="popularity" %} class="active"{% endif %}><a href="{{ url_for('.index',by='popularity') }}">推荐</a></li>
+        <li{% if by=="all" or None %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">{{_("Newest")}}</a></li>
+        <li{% if by=="read_count" %} class="active"{% endif %} ><a href="{{url_for('.index',by='read_count')}}">{{_("Hot")}}</a> </li>
+        <li{% if by =="popularity" %} class="active"{% endif %}><a href="{{ url_for('.index',by='popularity') }}">{{_("Recommend")}}</a></li>
         
     </ul>
     

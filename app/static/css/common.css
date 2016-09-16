@@ -24,60 +24,170 @@ body {
     border-radius: @navbar-border-radius;
   }
 }
-.navbar-default .navbar-nav > li > a{
-    color:#ffffff;
-    font-weight: bold;
-    font-size: 18px;
-}
-.navbar-default .navbar-brand{
-    color:#ffffff;
-    font-size: 25px;
-    font-weight: bold;
-}
-
 .navbar-default {
-    
-    background: #1886a5;
-    border-color: #1886a5;
+  background-color: #1886a5;
+  border-color: #90ee90;
+      
 }
 .navbar-default div.container {
     
-    margin-top:30px;
+    margin-top:26px;
     margin-bottom:auto;
 }
-.nav .dropdown-menu{
-    
-    background:  #e5e5ff;
-    border-color: #1aa3ff;
+
+
+.navbar-default .navbar-brand {
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: bold;
+    text-shadow:4px 4px 5px #e5e5ff;
+   
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #9b59b6;
+}
+.navbar-default .navbar-text {
+  color: #ffffff;
 }
 
 
 
 
-.navbar-default .navbar-nav .active a, .navbar-default .navbar-nav .active a:focus, .navbar-default .navbar-nav .active a:hover {
+.navbar-default .navbar-nav > li{
+   
+   border-radius: 6px;
+  
+}
+
+
+
+
+.navbar-default .navbar-nav > li > a {
+    
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 20px;
+  
+  
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #9b59b6;
+  
+}
+.navbar-default .navbar-nav > li > .dropdown-menu {
+  background-color: #66cccc;
+  border-radius: 5px;
+  
+}
+.navbar-default .navbar-nav > li > .dropdown-menu > li > a {
+  color: #ffffff;
+  
+}
+.navbar-default .navbar-nav > li > .dropdown-menu > li > a:hover,
+.navbar-default .navbar-nav > li > .dropdown-menu > li > a:focus {
+  color: #9b59b6;
+  background-color: #90ee90;
+  border-radius: 3px;
+  
+}
+.navbar-default .navbar-nav > li > .dropdown-menu > li > .divider {
+  background-color: #90ee90;
+}
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+  color: #9b59b6;
+  background-color: #90ee90;
+  border-radius: 3px;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #9b59b6;
+  background-color: #90ee90;
+  border-radius: 6px;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #9b59b6;
+  background-color: #90ee90;
+  border-radius: 6px;
+  
+}
+.navbar-default .navbar-toggle {
+  border-color: #90ee90;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #90ee90;
+  
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ffffff;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ffffff;
+}
+.navbar-default .navbar-link {
+  color: #ffffff;
+}
+.navbar-default .navbar-link:hover {
+  color: #9b59b6;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #9b59b6;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+      
+    color: #9b59b6;
+    background-color: #90ee90;
+    
+    
+  }
+}    
+    
+
+.navbar-form .form-control {
+    display: inline-block;
+    vertical-align: middle;
+    width: auto;
+    height: 44px;
+    padding: 6px 9px;
+    font-size: 14px;
+    line-height: 1.42857143;
     color: #555;
-    background-color: #dfeffc;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     
-}
-.navbar-default .navbar-nav .active>a, .navbar-default .navbar-nav .open>a{
-    background-image:none;
+    margin-right:3em;
+    
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
     
 }
 
-.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
-    color: #555;
-    background-color: #dfeffc;
-}
-
-#searchform {
+.searchform {
     
-    margin: 1px 3px;
-    padding: 4px 6px;
+    margin: 0px 1px;
+    padding: 4px 4px;
     
     font-size: 14px;
     font-weight: 400;
-    line-height: 1.0;
-    text-align: center;
+    line-height: 1.5;
+    text-align: left;
     white-space: nowrap;
     vertical-align: middle;
     -ms-touch-action: manipulation;
@@ -88,9 +198,56 @@ body {
     -ms-user-select: none;
     user-select: none;
     background-image: none;
-    border: 1px solid transparent;
-    border-radius: 3px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
+div.click_feedback {
+    display:inline-block;
+    border:0px none #ccc;
+    width:34px;
+    height:34px;
+    position:absolute;
+    right:15px;
+    z-index:10;
+}
+
+
+
+.trapezoid { 
+    height:0;
+    width: 10em;
+    border-bottom: 2.4em solid #e5c3b2;
+    border-left: 2.4em solid transparent;
+    border-right: 2.4em solid transparent;
+    
+    font-family: Arial,sans-serif;
+    text-align: center;
+    display: inline;
+    color:white;
+    font-size: 100%;
+    font-weight:bold;
+    line-height:2.4em;
+    white-space: nowrap;
+    opacity:0.8;
+    
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    
+    position:absolute;
+    left:-94px;
+    top:3px;
+    } 
+
+
+
+
+
+
+
+
 
 
 
@@ -145,13 +302,14 @@ div.post-tabs ul.posts {
     
 }
 ul.posts li.post {
-    margin: 15px  2px;
-    padding: 3px;
-    border: 1px solid #e0e0e0;
+    margin: 1.1em  .2em;
+    padding: 4px;
+    border: 1px solid #f7efd7;
     background: #f7fff7;
+    border-radius:.8em;
 }
 ul.posts li.post:hover {
-    background-color: #f0f0f0;
+    background-color: #fffee5;
 }
 div.post-pre-title {
     
@@ -159,9 +317,14 @@ div.post-pre-title {
     margin: 12px 10px;
 }
 div.post-pre-title a{
-    font-weight: bold;
-    color:#000000; 
+    
+   
+    font:caption;
+    font-weight:600;
+    
+    color:#333333; 
     text-decoration: none;
+    
 }
 
 div.post-pre-author {
@@ -169,9 +332,10 @@ div.post-pre-author {
 }
 
 div.post-pre-content {
-    margin: 6px;
-    margin-left: 48px;
+    margin: 0em 1em 1em 4em ;
+    
     min-height: 50px;
+    position:relative;
 }
 div.post-pre-content a{
      
@@ -179,7 +343,7 @@ div.post-pre-content a{
 }
 div.post-pre-header {
     font-weight:bold;
-    margin-top:3px;
+    margin:.5em .3em .1em .5em;
 }
 div.post-pre-header a{
     color:#FFFFFF;
@@ -187,20 +351,27 @@ div.post-pre-header a{
 }
 
 div.post-pre-body {
-	margin-top: 15px;
+	margin-top: 1em;
     
-	margin-bottom:2px;
-    min-height: 36px;
+	margin-bottom:.3em;
+    min-height: 2em;
+    max-height:4em;
     text-align: left;
+    text-indent:2em;
+    overflow:hidden;
 }
+
 div.post-pre-button {
-	margin:8px 2px;
+	margin: .1em 4em .2em .1em;
+    opacity:0.7;
     
 }
 div.post-pre-footer {
 	height: 16px;
     vertical-align: middle;
-	margin:8px;
+	margin:.7em 1em;
+    color: #cc5100;
+    opacity:0.8;
 }
 div.post-pre-footer a{
     color:#696969;
@@ -216,7 +387,9 @@ div.post-pre-footer a{
     background: #f7fff7;
     padding: 30px;
 	margin:20px 10px 30px 10px;
-    height:auto;
+    height:auto; 
+    
+    
     border: 1px solid #e6e6e6;
     border-radius: 6px;
 }
@@ -232,6 +405,7 @@ div.post-pre-footer a{
     vertical-align: baseline;
 }
 .post-entry-title {
+    font-weight: bold;
     text-align: center;
     margin: 15px 10px;
 }
@@ -258,9 +432,9 @@ div.post-entry-info a{
 .post-entry-body {
 	margin-top: 10px;
 	margin-bottom:10px;
-    min-height: 150px;
-	
+    min-height: 30em;
 	text-align: left;
+    text-indent:2em;
 }
 
 div.post-entry-footer {
@@ -271,8 +445,13 @@ div.post-entry-footer {
 div.post-entry-footer a{
     text-decoration: none;
 }
-
-
+div.post-entry-comments {
+	margin-top: 4em;
+    
+	margin-bottom:2em;
+    min-height: 20em;
+    
+}
 
 
 
@@ -451,60 +630,6 @@ div.comment-form {
     border: 1px solid #ddd;
     border-bottom-color: transparent;
     background-image: none;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*CSS For Comments(admin page), use the same CSS as above*/
-ul.comments .comment-handle-admin {
-    float: right;
-}
-ul.comments .disabled-comment-admin-info {
-    color: #2c4a35;
-}
-ul.comments div.comment-info-admin {
-    margin-left: 68px;
-    min-height: 48px;
-}
-div.manage-comments .select-comments-admin {
-    margin-left: 40px;
-}
-div.manage-comments .handle-box-admin {
-    margin-bottom: -10px;
-}
-div.manage-comments .delComments {
-    float: right;
-}
-ul.comments .delete-comment-admin-btn {
-    margin-left: 5px;
-    margin-right: 5px;
-}
-ul.comments .disabled-comment-admin-btn {
-    margin-left: 5px;
-}
-
-/*CSS For submit comment*/
-.comment-submit {
-    margin-left: 25px;
-}
-
-/*CSS For floatButton*/
-.floatButton {
-    position: fixed;
-    top: 50%;
-    right: 0;
-    z-index: 9999999;
 }
 
 
