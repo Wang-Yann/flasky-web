@@ -62,13 +62,15 @@
         管理员账号：admin@vlobster.com    密码：admin123
 
 ###关于部署过程：
-        参照《Flask Web开发 基于Python的Web应用开发实战》,网站部署到Heroku,部署过程一定有个好的VPN，作者部署v1.0版本遇到的坑都是网络不佳造成。
-    #####附注：部署v2.0版本时也遇到问题，记录如下：
+        参照《Flask Web开发 基于Python的Web应用开发实战》,网站部署到Heroku,部署过程一定有个好的VPN，
+        作者部署v1.0版本遇到的坑都是网络不佳造成。
+        `附注`：部署v2.0版本时也遇到问题，记录如下：
         * 登陆更新代码后，部署数据库时运行```heroku run --app vlobster python manage.py db migrate``` 时
         总是```ConfigParser.NoSectionError: No section: 'alembic'```
             **解决办法：修改.gitignore文件，推送时将migrations文件夹一起推送到git和heroku；
         *问题：```sqlalchemy.exc.CompileError: Postgresql ENUM type requires a name.```
             **解决方法：简单，添加enum名字即可。数据models里用到了Enum数据类型，本地测试没问题，可能Postgresql不兼容。
+        Tips:可直接和Git库添加pipeline,直接网站部署升级，比用shell方便太多；只有初始化数据库、产生测试数据不得不用shell
             
 
 
