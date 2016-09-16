@@ -128,12 +128,13 @@ def deploy():
     u=User(email='abc@vlobster.com',username="ABC",password='123456',confirmed=True,role_id=3)
     v.role_id=2
     db.session.add(v)
+    db.session.commit()
     db.session.add(u)  ####插入管理员用户
     db.session.commit()
     
     User.add_self_follows()
-    Post.generate_fake(15)
-    Comment.generate_fake(15)
+    # Post.generate_fake(15)
+    # Comment.generate_fake(15)
     
 admin=admin.Admin(app,name="LOBSTER",url='/lobster/admin',\
         index_view=MyAdminIndexView(),\
