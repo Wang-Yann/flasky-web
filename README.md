@@ -1,21 +1,21 @@
 ﻿##关于VLOBSTER网站的说明<br>
-        VLOBSTER网站采用Python2.7+flask开发完成，前端采用Bootstrap3，部署于Heroku平台，是一个单人/多人的开源博客系统。<br/>
+        VLOBSTER网站采用Python2.7+flask开发完成，前端采用Bootstrap3，部署于Heroku平台，是一个单人/多人的开源博客系统。 
 ####主要功能：
-        文章发布，编辑，管理等；文章标签，二级目录；评论发布，回复，管理等；文章收藏，点赞；用户关注；站内信；<br/>
-        图片上传，头像个性化设置；邮箱注册,用户认证,登陆+社交账号登陆；站内文章搜索+全文搜索，站外资源搜索；<br/>
-        话题广场；页面边栏支持热门文章，最新访客，日历，标签云等；国际化，语言切换、识别；管理员的后台管理；<br/>
+        文章发布，编辑，管理等；文章标签，二级目录；评论发布，回复，管理等；文章收藏，点赞；用户关注；站内信； 
+        图片上传，头像个性化设置；邮箱注册,用户认证,登陆+社交账号登陆；站内文章搜索+全文搜索，站外资源搜索； 
+        话题广场；页面边栏支持热门文章，最新访客，日历，标签云等；国际化，语言切换、识别；管理员的后台管理； 
         
 ####开发工具：
-        *前期后端主要是Ubuntu(15)+Vim；
-        *后期前端开发采用Windows-10(64) PowerShell+Notepad++；
-        *浏览器和测试采用Google Chrome和Firefox；
-        *数据库可视化工具SQLitebrowser; 
-        *数据库：sqlite。
+        1.前期后端主要是Ubuntu(15)+Vim；
+        2.后期前端开发采用Windows-10(64) PowerShell+Notepad++；
+        3.浏览器和测试采用Google Chrome和Firefox；
+        4.数据库可视化工具SQLitebrowser; 
+        5.数据库：sqlite。
         
 ###如果下载下来试验，遵循以下步骤（Ubuntu）：
-        ```1.安装好python 2.7,激活虚拟环境;
+        1.安装好python 2.7,激活虚拟环境;
         $sudo apt-get install python 2.7
-        $sudo apt-get install python-virtualenv```
+        $sudo apt-get install python-virtualenv
         $cd vlobster
         $source venv/bin/activate
 
@@ -58,8 +58,8 @@
 ###如果你只是试用功能，下面是地址和账号：
 
         试用地址：`https://vlobster.herokuapp.com`
-        *普通帐号：abc@vlobster.com     密码：123456
-        *管理员账号：`admin@vlobster.com`    密码：`admin123`
+        普通帐号：abc@vlobster.com     密码：123456
+        管理员账号：`admin@vlobster.com`    密码：`admin123`
 
 ###关于部署过程：
         参照`《Flask Web开发 基于Python的Web应用开发实战》`,部署过程一定有个好的VPN，作者部署中遇到的坑都是网络造成。
