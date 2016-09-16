@@ -35,11 +35,11 @@
         如果试验邮件发送功能，还要设置config文件中MAIL_SERVER，MAIL_PORT，MAIL_USE_SSL等变量
    
         4.数据库创建迁移：
-        ```python
+        python
         $python manage.py db init
         $python manage.py db migrate -m "versionxxx"
         $python manage.py db upgrade
-        ```
+        
 
         5.启动前准备:
         建立权限角色,用户账号，测试数据等。
@@ -57,12 +57,12 @@
 
 ###如果你只是试用功能，下面是地址和账号：
 
-        试用地址：`https://vlobster.herokuapp.com`
+        试用地址：https://vlobster.herokuapp.com
         普通帐号：abc@vlobster.com     密码：123456
-        管理员账号：`admin@vlobster.com`    密码：`admin123`
+        管理员账号：admin@vlobster.com    密码：admin123
 
 ###关于部署过程：
-        参照`《Flask Web开发 基于Python的Web应用开发实战》`,部署过程一定有个好的VPN，作者部署中遇到的坑都是网络造成。
+        参照《Flask Web开发 基于Python的Web应用开发实战》,部署过程一定有个好的VPN，作者部署中遇到的坑都是网络造成。
 
 
 
