@@ -268,7 +268,7 @@ def change_avatar(username):
             im.thumbnail(size,Image.ANTIALIAS)
             if file and allowed_file(file.filename):
                 fname = 'av_'+username+secure_filename(file.filename)[:5]+'.jpg'
-                im.save(os.path.join(current_app.config['UPLOAD_FILE_PATH'],'avatar', fname),'jpeg')
+                im.save(os.path.join(current_app.config['UPLOAD_FILE_PATH'],'avatar', fname))
                 current_user.new_avatar_file = url_for('static', filename='%s/%s' % ('avatar', fname))
                 db.session.add(current_user)
                 db.session.commit()
