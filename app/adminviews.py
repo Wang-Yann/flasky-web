@@ -69,7 +69,7 @@ class PostAdmin(sqla.ModelView):
 
 
     
-class FileAdminView(ModelView):
+class FileAdminView(FileAdmin):
 
     #form_base_class = SecureForm
     can_view_details=True

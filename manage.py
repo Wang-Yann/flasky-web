@@ -6,7 +6,7 @@ import sys
 import flask_admin as admin
 from flask_admin.contrib import sqla
 from wtforms import validators
-from adminviews import CommentAdmin,UserAdmin,\
+from app.adminviews import CommentAdmin,UserAdmin,\
     PostAdmin,FileAdminView,MyModelView,MyAdminIndexView
 
 
