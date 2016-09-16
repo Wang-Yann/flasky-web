@@ -1,4 +1,0 @@
--r requirements/prod.txt
-
-gunicorn==18.0
-psycopg2==2.4.4
