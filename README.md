@@ -1,5 +1,5 @@
 ﻿##关于VLOBSTER网站的说明<br>
-        VLOBSTER网站采用Python2.7+flask开发完成，前端采用Bootstrap3，部署于Heroku平台，是一个单人/多人的开源博客系统。 
+        VLOBSTER网站采用Python2.7+flask开发完成，前端采用Bootstrap3，是一个单人/多人的开源博客系统。 
 ####主要功能：
         文章发布，编辑，管理等；文章标签，二级目录；评论发布，回复，管理等；文章收藏，点赞；用户关注；站内信； 
         图片上传，头像个性化设置；邮箱注册,用户认证,登陆+社交账号登陆；站内文章搜索+全文搜索，站外资源搜索； 
@@ -7,7 +7,7 @@
         
 ####开发工具：
         1.前期后端主要是Ubuntu(15)+Vim；
-        2.后期前端开发采用Windows-10(64) PowerShell+Notepad++；
+        2.后期前端开发采用Windows10(64) PowerShell+Notepad++；
         3.浏览器和测试采用Google Chrome和Firefox；
         4.数据库可视化工具SQLitebrowser; 
         5.数据库：sqlite。
@@ -62,9 +62,14 @@
         管理员账号：admin@vlobster.com    密码：admin123
 
 ###关于部署过程：
-        参照《Flask Web开发 基于Python的Web应用开发实战》,部署过程一定有个好的VPN，作者部署中遇到的坑都是网络造成。
-
-
+        参照《Flask Web开发 基于Python的Web应用开发实战》,网站部署到Heroku,部署过程一定有个好的VPN，作者部署v1.0版本遇到的坑都是网络不佳造成。
+    #####附注：部署v2.0版本时也遇到问题，记录如下：
+        * 登陆更新代码后，部署数据库时运行```heroku run --app vlobster python manage.py db migrate``` 时
+        总是```ConfigParser.NoSectionError: No section: 'alembic'```
+            **解决办法：修改.gitignore文件，推送时将migrations文件夹一起推送到git和heroku；
+        *问题：```sqlalchemy.exc.CompileError: Postgresql ENUM type requires a name.```
+            **解决方法：简单，添加enum名字即可。数据models里用到了Enum数据类型，本地测试没问题，可能Postgresql不兼容。
+            
 
 
 ###备注说明
