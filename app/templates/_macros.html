@@ -188,7 +188,7 @@ $('li a').each(function(){
 {% endmacro %}
 
 {%  macro widget_visitors(data,endpoint) %}
-<div class="panel panel-info ">
+<div class="panel panel-info " style="min-height:14em;">
     <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-users  "></i> &nbsp;{{_("Visitors")}}</h3>
     </div>
@@ -198,11 +198,11 @@ $('li a').each(function(){
         {% for user  in data %}
         
         <div class='pull-left' style='margin:5px 5px;' >
-            <a href="{{url_for('main.user',username=user.username)}}"  style='color:#696969;text-decoration: none;'>
-                <img src='{{user.portrait}}' width='25'>
-                <div class="small">
-                    <p align='center'>{{user.username}}</p>
-                </div>
+            <a href="{{url_for('main.user',username=user.username)}}"   style='color:#696969;text-decoration: none;'>
+                <img src='{{user.portrait}}' title="{{user.username}}" width='25'>
+                
+                
+                
             </a>
         </div>
         {% endfor %}
@@ -228,8 +228,8 @@ $('li a').each(function(){
         <li> 
             <h5>
             <span ><em> <b>{{post.author}}</b></em></span>：
-            <a href="{{url_for('main.post',id=post.id)}}" style='color:black;text-decoration: none;word-break:break-all;'>
-                <abbr title='{{post.title}}'>《{{post.title|truncate(30, True)}}》</abbr>
+            <a href="{{url_for('main.post',id=post.id)}}" title='{{post.title}}' style='color:black;text-decoration: none;word-break:break-all;'>
+                《{{post.title|truncate(30, True)}}》
             </a>
             <span class='pull-right'><small> {{post.update_time.strftime( '%Y-%m-%d')}}</small><span>
             </h5>

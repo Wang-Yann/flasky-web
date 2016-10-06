@@ -144,15 +144,16 @@
 	
   
     <div class="col-sm-3 ">
-    <div style="margin:1px 20px;">
+    <div style="margin:20px 15px;">
     {% block sidebar %}
         {% if current_user.is_authenticated %}
         <h2 class="lead" style="font-weight:700;">{{_("%(name)s's Blog",name=current_user.username)}}
             <a class="small" href="{{ url_for('.edit_profile') }}" title="{{_('Language')}}"> <i class="fa fa-language"></i></a></h2>
-            
+        <br>
+        {% endif %}
         <br>
         {% include '_forsearch.html' %}
-        {% endif %}
+        
         
         
         

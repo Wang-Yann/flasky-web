@@ -39,14 +39,7 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 
-# def is_subcg_url(url):
-    # x,_,y=url.partition('/post_result/cg/')
-    # if y:
-        # id=y.split('#')[0]
-        # return Category.query.get_or_404(int(id)).parent_id!=0
-    # else:
-        # return False
-# app.jinja_env.tests['subcg_url'] =is_subcg_url   ##很丑废弃
+
 
 app.jinja_env.globals['Comment'] = Comment
 app.jinja_env.globals['Category'] =Category
@@ -152,7 +145,7 @@ admin.add_view(MyModelView(Shortmessage,db.session))
 admin.add_view(MyModelView(Role,db.session))
 
 
-#########admin.add_view(MyAdminIndexView(name="mine",endpoint="extra",category="Others")) 自己添加的admin View，在安全视图未使用
+#########admin.add_view(MyAdminIndexView(name="mine",endpoint="extra",category="Others")) 添加的admin View，在安全视图未使用
 admin.add_view(FileAdminView(filepath,name='StaticFiles'))    
 
 

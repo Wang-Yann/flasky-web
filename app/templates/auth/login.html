@@ -3,7 +3,10 @@
 {% import "_macros.html" as macros %}
 {% block title %}VLOBSTER - Login{% endblock %}
 
-{% block content %}
+{% block sidebar %}
+{% endblock %}
+
+{% block page_content %}
 
 <div class="container">
 <div class="page-header">
@@ -87,10 +90,10 @@
            
             {{ openidloginform.openid(size=80,type='hidden') }}
             
-            <a href="{{url_for('github_login.index')}}">
-                <img src="{{ url_for('static', filename='images/github_logo.png') }}" width='50' style="margin-right:10px;"></a>
-            <a href="{{url_for('google_login.index')}}" title="{{_('May Fail!!')}}">
-                <img src="{{ url_for('static', filename='images/google_logo.png') }}" width='50' style="margin-right:10px;"></a>
+            <a href="{{url_for('github_login.index')}}"  >
+                <img src="{{ url_for('static', filename='images/github_logo.png') }}" width='50' style="margin-right:10px;" ></a>
+            <a href="#" title="{{_('May Fail!!')}}" >
+                <img src="{{ url_for('static', filename='images/google_logo.png') }}" width='50' style="margin-right:10px;" ></a>
             {% for pr in providers %}
                 <a href="javascript:set_openid_submit('{{ pr.url }}', '{{ pr.name }}');">
                     <img src='/static/images/{{pr.logo}}'  width='50' style="margin-right:10px;">
