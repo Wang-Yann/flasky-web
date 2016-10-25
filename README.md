@@ -62,7 +62,7 @@
         管理员账号：admin@vlobster.com    密码：admin123
 
 ###关于部署过程：
-        参照《Flask Web开发 基于Python的Web应用开发实战》,网站部署到Heroku,部署过程一定有个好的VPN，
+        参照Flask Web开发 ,网站部署到Heroku,部署过程一定有个好的VPN，
         作者部署v1.0版本遇到的坑都是网络不佳造成。
         `附注`：部署v2.0版本时也遇到问题，记录如下：
         * 登陆更新代码后，部署数据库时运行```heroku run --app vlobster python manage.py db migrate``` 时
@@ -75,20 +75,11 @@
 
 
 ###备注说明
-        因为作者第一次开发Web应用，在《Flask Web开发 基于Python的Web应用开发实战》基础上参考的同类网站有：
-        1."香飘叶子"开发的开源博客"Blog_mini"   http://115.159.72.250:8080/
-        2."hulufei"的个人博客 http://www.hulufei.com/
-        3."cachalot1984"的个人博客http://hexbot.cn/
-        4."fualan1990"的个人博客http://www.fualan.com/
-        5."GalaCoding"的开源博客https://github.com/GalaIO/GalaCoding
-        6.其他的参考资源可去我个人博客`关于`页面下载
+        其他的参考资源可去我个人博客`关于`页面下载
         如果你在部署和使用过程中有疑问，请联系作者：`wzy-511@163.com`
 
 ####关于网站未完成内容：
-        1.flask-celerey,gunnicorn等支持多进程；
-        2.博文的markdown升级采用prism等强大的图文编辑页面。
-        3.评论的盖楼（前端）；
-        4.增加nginx代理等。
-        5.数据库model设计及性能的优化；
-        6.部署后上传图片发现上传进度条最好有...
-        7.google oauth登陆未搞定
+        1..博文的markdown升级采用prism等强大的图文编辑页面。
+        2.评论的盖楼（前端）；
+        3.数据库model设计及性能的优化；
+        4.google oauth登陆未搞定
